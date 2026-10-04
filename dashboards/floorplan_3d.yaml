@@ -11,7 +11,8 @@
 #   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
 #   garaj_door (garage door), yemek_blind (garden door), mutfak_blind (kitchen window),
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
-#   curtain) and kat2 koridor2_cover (attic hall window curtain) have no device: template covers
+#   curtain), kat2 koridor2_cover (attic hall window curtain) and melike_cover (curtain of melike's
+#   roof window) have no device: template covers
 #   on a position number (packages/covers.yaml, initial position at its top; the configs tab sets
 #   them). They are manual: selectable: false (card 1.14), background like none, but the picture
 #   follows their position.
@@ -19,7 +20,8 @@
 # All floors are in one card (floors:); the floor button of the card's dock goes on to the next floor.
 # Kat1: balkon_light is the balcony lamp; the bedroom (yatak) has three blinds: north window, balcony door, east window.
 #   A tap or hold on any of the three goes to their group cover.yatak_cover; each shows its own position.
-# Kat2 (attic): the covers and climates of the old floorplan's kat2 view; no lamps in the render yet.
+# Kat2 (attic): the lamps, covers and climates of the old floorplan's kat2 view; misafir_light hangs on the
+#   wall over the guest room's door, tavan_light (light.tavan_light_2) lights the top of the wardrobes.
 # Climates are the rooms' radiators (kat1, kat2).
 #
 # Lighting of the house (no render needed): `lighting.default` everywhere, also at night; while the sun
@@ -204,12 +206,12 @@ views:
                 entity: light.kaan_light
           - floor: kat2
             rooms:
-              misafir: {sun: 1, covers: 2}
+              misafir: {sun: 1, covers: 2}                  # the whole guest room, up to where its slope meets the walls
+              melike: {sun: 0, covers: 3}                   # light only through the roof window: dark when its curtain is closed
               cati_arasi: {sun: 0, covers: 0}               # behind the knee wall: only default
-              misafir_cati_arasi: {sun: 0, covers: 0}       # guest room under the roof, below 1 m: only default
               other: {sun: 3}
             entities:
-              # covers: the guest room's dormer curtain, the hall window's curtain
+              # covers: the guest room's dormer curtain, the hall window's curtain, melike's roof window curtain
               misafir_cover:
                 entity: cover.misafir_cover
                 tap_action:
@@ -222,6 +224,9 @@ views:
               koridor2_cover:                 # attic hall window curtain (manual: follows its position, not selectable)
                 entity: cover.koridor2_cover
                 selectable: false
+              melike_cover:                   # melike's roof window curtain (manual: follows its position, not selectable)
+                entity: cover.melike_cover
+                selectable: false
               # radiators (climate: the room's thermostat)
               misafir_climate:
                 <<: *climate
@@ -229,6 +234,19 @@ views:
               melike_climate:
                 <<: *climate
                 entity: climate.melike_thermostat
+              # lights
+              misafir_light:                  # on the wall over the door
+                <<: *light
+                entity: light.misafir_light
+              melike_light:
+                <<: *light
+                entity: light.melike_light
+              koridor2_light:
+                <<: *light
+                entity: light.koridor2_light
+              tavan_light:                    # over the wardrobes
+                <<: *light
+                entity: light.tavan_light_2
   # Positions of the covers without a device (input numbers in packages/covers.yaml; their
   # initial value after a restart is set there)
   - title: configs
@@ -247,5 +265,7 @@ views:
             name: Banyo perde
           - entity: input_number.koridor2_cover_position
             name: Koridor2 perde
+          - entity: input_number.melike_cover_position
+            name: Melike cati penceresi perde
           - entity: input_number.garaj_door_position
             name: Garaj kapisi
