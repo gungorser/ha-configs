@@ -4,7 +4,8 @@
 
 # --- Covers without a device ---------------------------------------------------------
 # Kitchen (mutfak) and dining (yemek) blinds, the small living room curtain (salon kucuk),
-# the bathroom (banyo) curtain, the attic hall (koridor2) window curtain and the garage door:
+# the bathroom (banyo) curtain, the attic hall (koridor2) window curtain, the curtain of melike's
+# roof window and the garage door:
 # a position number each, 0-100 (0 closed).
 # `initial` is the position after a restart or a reload of input numbers; change it here. Move
 # the cover by setting the number (the floorplan_3d dashboard's configs tab, or through its
@@ -49,6 +50,15 @@ input_number:
   koridor2_cover_position:
     name: Koridor2 cover position
     initial: 100 # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:curtains
+
+  melike_cover_position:
+    name: Melike cover position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
     min: 0
     max: 100
     step: 1
@@ -178,6 +188,29 @@ template:
           - action: input_number.set_value
             target:
               entity_id: input_number.koridor2_cover_position
+            data:
+              value: "{{ position }}"
+
+      - name: melike_cover
+        unique_id: melike_cover
+        device_class: curtain
+        position: "{{ states('input_number.melike_cover_position') | int(0) }}"
+        open_cover:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.melike_cover_position
+            data:
+              value: 100
+        close_cover:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.melike_cover_position
+            data:
+              value: 0
+        set_cover_position:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.melike_cover_position
             data:
               value: "{{ position }}"
 
