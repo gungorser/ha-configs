@@ -11,7 +11,7 @@
 #   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
 #   garaj_door (garage door), yemek_blind (garden door), mutfak_blind (kitchen window),
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
-#   curtain), kat2 koridor2_cover (attic hall window curtain) and melike_cover (curtain of melike's
+#   blind), kat2 koridor2_cover (attic hall window blind) and melike_cover (blind of melike's
 #   roof window) have no device: template covers
 #   on a position number (packages/covers.yaml, initial position at its top; the configs tab sets
 #   them). They are manual: selectable: false (card 1.14), background like none, but the picture
@@ -121,7 +121,7 @@ views:
               bebek: {sun: 1, covers: 2}
               yatak: {sun: 1, covers: 2}                    # three blinds: their mean
               koridor1: {sun: 1, covers: 2}
-              banyo: {sun: 1, covers: 2}                    # the window curtain (banyo_cover)
+              banyo: {sun: 1, covers: 2}                    # the window blind (banyo_cover)
               other: {sun: 3}
             entities:
               # covers (blinds cover the whole window: both panes and the top-hung sash)
@@ -169,7 +169,7 @@ views:
               yatak_blind_dogu:               # east window (window contact: guarded)
                 entity: cover.yatak_cover_window
                 <<: *yatak_blind
-              banyo_cover:                    # bathroom window curtain (manual: follows its position, not selectable)
+              banyo_cover:                    # bathroom window blind (manual: follows its position, not selectable)
                 entity: cover.banyo_cover
                 selectable: false
               # radiators (climate: the room's thermostat)
@@ -207,11 +207,11 @@ views:
           - floor: kat2
             rooms:
               misafir: {sun: 1, covers: 2}                  # the whole guest room, up to where its slope meets the walls
-              melike: {sun: 0, covers: 3}                   # light only through the roof window: dark when its curtain is closed
+              melike: {sun: 0, covers: 3}                   # light only through the roof window: dark when its blind is closed
               cati_arasi: {sun: 0, covers: 0}               # behind the knee wall: only default
               other: {sun: 3}
             entities:
-              # covers: the guest room's dormer curtain, the hall window's curtain, melike's roof window curtain
+              # covers: the guest room's dormer curtain, the hall window's blind, melike's roof window blind
               misafir_cover:
                 entity: cover.misafir_cover
                 tap_action:
@@ -221,10 +221,10 @@ views:
                     cover: cover.misafir_cover
                 hold_action:
                   action: more-info
-              koridor2_cover:                 # attic hall window curtain (manual: follows its position, not selectable)
+              koridor2_cover:                 # attic hall window blind (manual: follows its position, not selectable)
                 entity: cover.koridor2_cover
                 selectable: false
-              melike_cover:                   # melike's roof window curtain (manual: follows its position, not selectable)
+              melike_cover:                   # melike's roof window blind (manual: follows its position, not selectable)
                 entity: cover.melike_cover
                 selectable: false
               # radiators (climate: the room's thermostat)
@@ -262,10 +262,10 @@ views:
           - entity: input_number.salon_kucuk_cover_position
             name: Salon kucuk perde
           - entity: input_number.banyo_cover_position
-            name: Banyo perde
+            name: Banyo blind
           - entity: input_number.koridor2_cover_position
-            name: Koridor2 perde
+            name: Koridor2 blind
           - entity: input_number.melike_cover_position
-            name: Melike cati penceresi perde
+            name: Melike cati penceresi blind
           - entity: input_number.garaj_door_position
             name: Garaj kapisi
