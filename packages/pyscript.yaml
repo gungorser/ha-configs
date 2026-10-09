@@ -1,0 +1,5 @@
+# Pyscript (HACS custom-components/pyscript) settings. Scripts live in ../pyscript/,
+# which HA reads through the /config/pyscript -> gungors/pyscript symlink.
+pyscript:
+  allow_all_imports: true
+  hass_is_global: true
