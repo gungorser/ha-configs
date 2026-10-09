@@ -34,4 +34,4 @@ Assistant MCP best-practice skill before automations, helpers, scripts or dashbo
 ## Never
 Touch Blender, ha-floorplan files, or ha-integrations Python.
 
-End with the handoff note: what is live, entity ids, what qa should check.
+End with the handoff note: what is live, entity ids, how you checked it.
