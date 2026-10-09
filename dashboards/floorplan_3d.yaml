@@ -21,7 +21,8 @@
 # Kat1: balkon_light is the balcony lamp; the bedroom (yatak) has three blinds: north window, balcony door, east window.
 #   A tap or hold on any of the three goes to their group cover.yatak_cover; each shows its own position.
 # Kat2 (attic): the lamps, covers and climates of the old floorplan's kat2 view; misafir_light hangs on the
-#   wall over the guest room's door, tavan_light (light.tavan_light_2) lights the top of the wardrobes.
+#   wall over the guest room's door.
+# Kat3 (the attic over kat2, under the roof): tavan_light (light.tavan_light_2) on the sloped ceiling.
 # Climates are the rooms' radiators (kat1, kat2).
 #
 # Lighting of the house (no render needed): `lighting.default` everywhere, also at night; while the sun
@@ -244,7 +245,13 @@ views:
               koridor2_light:
                 <<: *light
                 entity: light.koridor2_light
-              tavan_light:                    # over the wardrobes
+          - floor: kat3
+            rooms:
+              tavan: {sun: 0, covers: 0}                    # no windows: only default
+              other: {sun: 3}
+            entities:
+              # lights
+              tavan_light:                    # on the attic's sloped ceiling
                 <<: *light
                 entity: light.tavan_light_2
   # Positions of the covers without a device (input numbers in packages/covers.yaml; their
