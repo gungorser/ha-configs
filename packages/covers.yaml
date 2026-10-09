@@ -5,7 +5,7 @@
 # --- Covers without a device ---------------------------------------------------------
 # Kitchen (mutfak) and dining (yemek) blinds, the small living room curtain (salon kucuk),
 # the bathroom (banyo) blind, the attic hall (koridor2) window blind, the blind of melike's
-# roof window and the garage door:
+# roof window, the garage door and the sliding doors of the kat2 wardrobes (melike, misafir):
 # a position number each, 0-100 (0 closed).
 # `initial` is the position after a restart or a reload of input numbers; change it here. Move
 # the cover by setting the number (the floorplan_3d dashboard's configs tab, or through its
@@ -73,6 +73,24 @@ input_number:
     step: 1
     unit_of_measurement: "%"
     icon: mdi:garage
+
+  melike_dolap_kapi_position:
+    name: Melike dolap kapi position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:door-sliding
+
+  misafir_dolap_kapi_position:
+    name: Misafir dolap kapi position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:door-sliding
 
 template:
   - cover:
@@ -234,6 +252,52 @@ template:
           - action: input_number.set_value
             target:
               entity_id: input_number.garaj_door_position
+            data:
+              value: "{{ position }}"
+
+      - name: melike_dolap_kapi
+        unique_id: melike_dolap_kapi
+        device_class: door
+        position: "{{ states('input_number.melike_dolap_kapi_position') | int(0) }}"
+        open_cover:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.melike_dolap_kapi_position
+            data:
+              value: 100
+        close_cover:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.melike_dolap_kapi_position
+            data:
+              value: 0
+        set_cover_position:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.melike_dolap_kapi_position
+            data:
+              value: "{{ position }}"
+
+      - name: misafir_dolap_kapi
+        unique_id: misafir_dolap_kapi
+        device_class: door
+        position: "{{ states('input_number.misafir_dolap_kapi_position') | int(0) }}"
+        open_cover:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.misafir_dolap_kapi_position
+            data:
+              value: 100
+        close_cover:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.misafir_dolap_kapi_position
+            data:
+              value: 0
+        set_cover_position:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.misafir_dolap_kapi_position
             data:
               value: "{{ position }}"
 

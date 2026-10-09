@@ -22,7 +22,8 @@
 #   A tap or hold on any of the three goes to their group cover.yatak_cover; each shows its own position.
 # Kat2 (attic): the lamps, covers and climates of the old floorplan's kat2 view; misafir_light hangs on the
 #   wall over the guest room's door.
-#   melike_dolap_kapi / misafir_dolap_kapi: the wardrobes' sliding doors, page-only covers (entity none + slider).
+#   melike_dolap_kapi / misafir_dolap_kapi: the wardrobes' sliding doors, template covers on a position
+#   number like the manual covers above (configs tab), not selectable.
 # Kat3 (the attic over kat2, under the roof): tavan_light (light.tavan_light_2) on the sloped ceiling.
 # Climates are the rooms' radiators (kat1, kat2).
 #
@@ -229,16 +230,14 @@ views:
               melike_cover:                   # melike's roof window blind (manual: follows its position, not selectable)
                 entity: cover.melike_cover
                 selectable: false
-              # wardrobe sliding doors between melike and misafir: page only (no Home Assistant entity),
-              # a slider in the dock and a tap open/close them; the position is kept in the browser (card 1.17)
+              # wardrobe sliding doors between melike and misafir (manual: follow their position, set on
+              # the configs tab, not selectable)
               melike_dolap_kapi:
-                entity: none
-                slider: true
-                name: Melike dolap
+                entity: cover.melike_dolap_kapi
+                selectable: false
               misafir_dolap_kapi:
-                entity: none
-                slider: true
-                name: Misafir dolap
+                entity: cover.misafir_dolap_kapi
+                selectable: false
               # radiators (climate: the room's thermostat)
               misafir_climate:
                 <<: *climate
@@ -287,3 +286,7 @@ views:
             name: Melike cati penceresi blind
           - entity: input_number.garaj_door_position
             name: Garaj kapisi
+          - entity: input_number.melike_dolap_kapi_position
+            name: Melike dolap kapisi
+          - entity: input_number.misafir_dolap_kapi_position
+            name: Misafir dolap kapisi
