@@ -4,7 +4,7 @@
 
 # --- Covers without a device ---------------------------------------------------------
 # Kitchen (mutfak) and dining (yemek) blinds, the small living room curtain (salon kucuk),
-# the bathroom (banyo) curtain, the attic hall (koridor2) window curtain, the curtain of melike's
+# the bathroom (banyo) blind, the attic hall (koridor2) window blind, the blind of melike's
 # roof window and the garage door:
 # a position number each, 0-100 (0 closed).
 # `initial` is the position after a restart or a reload of input numbers; change it here. Move
@@ -45,7 +45,7 @@ input_number:
     max: 100
     step: 1
     unit_of_measurement: "%"
-    icon: mdi:curtains
+    icon: mdi:roller-shade
 
   koridor2_cover_position:
     name: Koridor2 cover position
@@ -54,7 +54,7 @@ input_number:
     max: 100
     step: 1
     unit_of_measurement: "%"
-    icon: mdi:curtains
+    icon: mdi:roller-shade
 
   melike_cover_position:
     name: Melike cover position
@@ -63,7 +63,7 @@ input_number:
     max: 100
     step: 1
     unit_of_measurement: "%"
-    icon: mdi:curtains
+    icon: mdi:roller-shade
 
   garaj_door_position:
     name: Garaj door position
@@ -147,7 +147,7 @@ template:
 
       - name: banyo_cover
         unique_id: banyo_cover
-        device_class: curtain
+        device_class: shade
         position: "{{ states('input_number.banyo_cover_position') | int(0) }}"
         open_cover:
           - action: input_number.set_value
@@ -170,7 +170,7 @@ template:
 
       - name: koridor2_cover
         unique_id: koridor2_cover
-        device_class: curtain
+        device_class: shade
         position: "{{ states('input_number.koridor2_cover_position') | int(0) }}"
         open_cover:
           - action: input_number.set_value
@@ -193,7 +193,7 @@ template:
 
       - name: melike_cover
         unique_id: melike_cover
-        device_class: curtain
+        device_class: shade
         position: "{{ states('input_number.melike_cover_position') | int(0) }}"
         open_cover:
           - action: input_number.set_value
