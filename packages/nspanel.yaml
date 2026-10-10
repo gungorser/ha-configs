@@ -65,11 +65,11 @@ automation:
 
         # button page 3 (entity17, the washing machine automation, was removed on 2026-09-28)
         button_page03_label: 3. kat
-        entity18: cover.misafir_curtain
+        entity18: cover.misafir_cover
         entity18_name: Misafir odası perde
-        entity19: cover.yatak_blinds
+        entity19: cover.yatak_cover
         entity19_name: Yatak odası perde
-        entity20: cover.sercan_blind
+        entity20: cover.sercan_cover
         entity20_name: Sercan perde
         entity21: fan.banyo_fan
         entity21_name: Banyo fan
