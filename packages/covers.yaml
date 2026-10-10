@@ -1,14 +1,13 @@
-# Covers: window-guarded IKEA blinds and timed Tuya curtains, all wrapped by the gungors
-# integration (previously ikea_sensor_covers.yaml and tuya_covers.yaml), and template covers
-# for the covers without a device (manual or not connected yet).
+# Covers: every cover is a gungors wrapper (ha-integrations): IKEA blinds, Tuya curtains and
+# the covers without a device (manual or not connected yet), which drive a position number.
 
 # --- Covers without a device ---------------------------------------------------------
 # Kitchen (mutfak) and dining (yemek) blinds, the small living room curtain (salon kucuk),
 # the bathroom (banyo) curtain, the attic hall (koridor2) window curtain and the garage door:
 # a position number each, 0-100 (0 closed).
 # `initial` is the position after a restart or a reload of input numbers; change it here. Move
-# the cover by setting the number (the floorplan_3d dashboard's configs tab, or through its
-# template cover below); swap the actions for a real device later.
+# the cover by setting the number (the floorplan_3d dashboard's configs tab) or through its
+# gungors cover below; for a real device later, change the cover's `link`.
 input_number:
   mutfak_cover_position:
     name: Mutfak cover position
@@ -64,216 +63,158 @@ input_number:
     unit_of_measurement: "%"
     icon: mdi:garage
 
-template:
-  - cover:
-      - name: mutfak_cover
-        unique_id: mutfak_cover
-        device_class: shade
-        position: "{{ states('input_number.mutfak_cover_position') | int(0) }}"
-        open_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.mutfak_cover_position
-            data:
-              value: 100
-        close_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.mutfak_cover_position
-            data:
-              value: 0
-        set_cover_position:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.mutfak_cover_position
-            data:
-              value: "{{ position }}"
-
-      - name: yemek_cover
-        unique_id: yemek_cover
-        device_class: shade
-        position: "{{ states('input_number.yemek_cover_position') | int(0) }}"
-        open_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.yemek_cover_position
-            data:
-              value: 100
-        close_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.yemek_cover_position
-            data:
-              value: 0
-        set_cover_position:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.yemek_cover_position
-            data:
-              value: "{{ position }}"
-
-      - name: salon_kucuk_cover
-        unique_id: salon_kucuk_cover
-        device_class: curtain
-        position: "{{ states('input_number.salon_kucuk_cover_position') | int(0) }}"
-        open_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.salon_kucuk_cover_position
-            data:
-              value: 100
-        close_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.salon_kucuk_cover_position
-            data:
-              value: 0
-        set_cover_position:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.salon_kucuk_cover_position
-            data:
-              value: "{{ position }}"
-
-      - name: banyo_cover
-        unique_id: banyo_cover
-        device_class: curtain
-        position: "{{ states('input_number.banyo_cover_position') | int(0) }}"
-        open_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.banyo_cover_position
-            data:
-              value: 100
-        close_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.banyo_cover_position
-            data:
-              value: 0
-        set_cover_position:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.banyo_cover_position
-            data:
-              value: "{{ position }}"
-
-      - name: koridor2_cover
-        unique_id: koridor2_cover
-        device_class: curtain
-        position: "{{ states('input_number.koridor2_cover_position') | int(0) }}"
-        open_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.koridor2_cover_position
-            data:
-              value: 100
-        close_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.koridor2_cover_position
-            data:
-              value: 0
-        set_cover_position:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.koridor2_cover_position
-            data:
-              value: "{{ position }}"
-
-      - name: garaj_door
-        unique_id: garaj_door
-        device_class: garage
-        position: "{{ states('input_number.garaj_door_position') | int(0) }}"
-        open_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.garaj_door_position
-            data:
-              value: 100
-        close_cover:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.garaj_door_position
-            data:
-              value: 0
-        set_cover_position:
-          - action: input_number.set_value
-            target:
-              entity_id: input_number.garaj_door_position
-            data:
-              value: "{{ position }}"
-
 cover:
-  # --- IKEA blinds -------------------------------------------------------------------
-  # Window-guarded blinds (gungors custom integration). Remote commands are
-  # held while the window is open. Physical buttons go through the pushbutton
-  # blueprint, which fires gungors_physical_cover for these covers.
+  # gungors covers (ha-integrations README, Features): a domain base plus a `features:` list,
+  # combined in list order. `link` (always last) is the original the wrapper drives; dashboards
+  # and automations use the wrapper, never the original.
+
+  # --- Covers without a device ---------------------------------------------------------
+  # Linked to their position number above; moving the cover sets the number.
   - platform: gungors
-    type: window_guard
+    name: mutfak_cover
+    unique_id: mutfak_cover
+    device_class: shade
+    features:
+      - link: input_number.mutfak_cover_position
+
+  - platform: gungors
+    name: yemek_cover
+    unique_id: yemek_cover
+    device_class: shade
+    features:
+      - link: input_number.yemek_cover_position
+
+  - platform: gungors
+    name: salon_kucuk_cover
+    unique_id: salon_kucuk_cover
+    device_class: curtain
+    features:
+      - link: input_number.salon_kucuk_cover_position
+
+  - platform: gungors
+    name: banyo_cover
+    unique_id: banyo_cover
+    device_class: curtain
+    features:
+      - link: input_number.banyo_cover_position
+
+  - platform: gungors
+    name: koridor2_cover
+    unique_id: koridor2_cover
+    device_class: curtain
+    features:
+      - link: input_number.koridor2_cover_position
+
+  - platform: gungors
+    name: garaj_door
+    unique_id: garaj_door
+    device_class: garage
+    features:
+      - link: input_number.garaj_door_position
+
+  # --- IKEA blinds -------------------------------------------------------------------
+  # direction: movement tracking (opening/closing, real position while moving).
+  # window: remote commands are held while the window is open. buttons: the pushbutton
+  # blueprint sends wall button presses as physical requests (allowed with the window open).
+  # hold: gungors.hold / gungors.release.
+  - platform: gungors
     name: sercan_cover
     unique_id: sercan_cover
-    cover: cover.sercan_blind
-    window: binary_sensor.sercan_window_contact
-    start_timeout: 8
-    stop_silence: 3
+    device_class: blind
+    features:
+      - hold
+      - buttons
+      - window: binary_sensor.sercan_window_contact
+      - direction
+      - link: cover.sercan_blind
 
   - platform: gungors
-    type: window_guard
     name: bebek_cover
     unique_id: bebek_cover
-    cover: cover.bebek_blind
-    window: binary_sensor.bebek_window_contact
-    start_timeout: 8
-    stop_silence: 3
+    device_class: blind
+    features:
+      - hold
+      - buttons
+      - window: binary_sensor.bebek_window_contact
+      - direction
+      - link: cover.bebek_blind
 
   - platform: gungors
-    type: window_guard
     name: yatak_cover_window
     unique_id: yatak_cover_window
-    cover: cover.yatak_blind_2
-    window: binary_sensor.yatak_window_contact
-    start_timeout: 8
-    stop_silence: 3
+    device_class: blind
+    features:
+      - hold
+      - buttons
+      - window: binary_sensor.yatak_window_contact
+      - direction
+      - link: cover.yatak_blind_2
 
-  - platform: group
-    name: Yatak cover
-    unique_id: yatak_cover
-    entities:
-      - cover.yatak_cover_window
-      - cover.yatak_blind_1
-      - cover.yatak_blind_3
-
-  # No window sensor: nothing to guard, the wrapper only adds opening/closing.
+  # No window sensor: nothing to guard.
   - platform: gungors
-    type: window_guard
     name: koridor1_cover
     unique_id: koridor1_cover
-    cover: cover.koridor1_blind
-    start_timeout: 8
-    stop_silence: 3
+    device_class: blind
+    features:
+      - hold
+      - buttons
+      - direction
+      - link: cover.koridor1_blind
+
+  # Yatak: the two blinds without a window contact, and the group of all three.
+  - platform: gungors
+    name: yatak_cover_1
+    unique_id: yatak_cover_1
+    device_class: blind
+    features:
+      - hold
+      - direction
+      - link: cover.yatak_blind_1
+
+  - platform: gungors
+    name: yatak_cover_3
+    unique_id: yatak_cover_3
+    device_class: blind
+    features:
+      - hold
+      - direction
+      - link: cover.yatak_blind_3
+
+  - platform: gungors
+    name: yatak_cover
+    unique_id: yatak_cover
+    device_class: blind
+    features:
+      - hold
+      - link:
+          - cover.yatak_cover_window
+          - cover.yatak_cover_1
+          - cover.yatak_cover_3
 
   # --- Tuya curtains -----------------------------------------------------------------
-  # Tuya curtain motors (Zigbee2MQTT) wrapped by the gungors integration:
-  # estimate position/direction while moving (no reports in between),
-  # take the real position from stop / end-of-move reports. Full-run times
-  # are learned per direction (open_time / close_time attributes).
-  # invert: the motor's open is the room's close; the wrapper flips commands
-  # and positions itself (Z2M's invert_cover only flips positions for this
-  # device, so it is left as it was).
+  # travel_time: the motors report no position while moving; the wrapper estimates it from
+  # learned full-run times (open_time / close_time) and takes the real position from stop /
+  # end-of-move reports. invert: the motor's open is the room's close (Z2M's invert_cover
+  # only flips positions for this device, so it is left as it was).
   - platform: gungors
-    type: timed_curtain
     name: salon_cover
     unique_id: salon_cover
-    cover: cover.salon_curtain
-    invert: true
+    device_class: curtain
+    features:
+      - hold
+      - invert
+      - travel_time
+      - link: cover.salon_curtain
 
   - platform: gungors
-    type: timed_curtain
     name: misafir_cover
     unique_id: misafir_cover
-    cover: cover.misafir_curtain
-    invert: true
+    device_class: curtain
+    features:
+      - hold
+      - invert
+      - travel_time
+      - link: cover.misafir_curtain
 
 script:
   # Single-tap behaviour for covers on dashboards (used by floorplan.yaml).

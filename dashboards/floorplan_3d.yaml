@@ -11,8 +11,8 @@
 #   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
 #   garaj_door (garage door), yemek_blind (garden door), mutfak_blind (kitchen window),
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
-#   curtain) and kat2 koridor2_cover (attic hall window curtain) have no device: template covers
-#   on a position number (packages/covers.yaml, initial position at its top; the configs tab sets
+#   curtain) and kat2 koridor2_cover (attic hall window curtain) have no device: gungors covers
+#   linked to a position number (packages/covers.yaml, initial position at its top; the configs tab sets
 #   them). They are manual: selectable: false (card 1.14), background like none, but the picture
 #   follows their position.
 # A page entity left out of the list shows up on the page (top right) with its name: map it or set none.
@@ -151,8 +151,8 @@ views:
                 hold_action:
                   action: more-info
               yatak_blind_pencere:            # north window
-                entity: cover.yatak_blind_1
-                <<: &yatak_blind              # all three command the group cover.yatak_cover; position from its own blind
+                entity: cover.yatak_cover_1
+                <<: &yatak_blind              # all three command the group cover.yatak_cover; position from its own cover
                   tap_action:
                     action: perform-action
                     perform_action: script.cover_tap
@@ -162,7 +162,7 @@ views:
                     action: more-info
                     entity: cover.yatak_cover
               yatak_blind_kapi:               # balcony door
-                entity: cover.yatak_blind_3
+                entity: cover.yatak_cover_3
                 <<: *yatak_blind
               yatak_blind_dogu:               # east window (window contact: guarded)
                 entity: cover.yatak_cover_window
