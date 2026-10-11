@@ -3,7 +3,8 @@
 
 # --- Covers without a device ---------------------------------------------------------
 # Kitchen (mutfak) and dining (yemek) blinds, the small living room curtain (salon kucuk),
-# the bathroom (banyo) curtain, the attic hall (koridor2) window curtain and the garage door:
+# the bathroom (banyo) blind, the attic hall (koridor2) window blind, the blind of melike's
+# roof window, the garage door and the sliding doors of the kat2 wardrobes (melike, misafir):
 # a position number each, 0-100 (0 closed).
 # `initial` is the position after a restart or a reload of input numbers; change it here. Move
 # the cover by setting the number (the floorplan_3d dashboard's configs tab) or through its
@@ -43,7 +44,7 @@ input_number:
     max: 100
     step: 1
     unit_of_measurement: "%"
-    icon: mdi:curtains
+    icon: mdi:roller-shade
 
   koridor2_cover_position:
     name: Koridor2 cover position
@@ -52,7 +53,16 @@ input_number:
     max: 100
     step: 1
     unit_of_measurement: "%"
-    icon: mdi:curtains
+    icon: mdi:roller-shade
+
+  melike_cover_position:
+    name: Melike cover position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:roller-shade
 
   garaj_door_position:
     name: Garaj door position
@@ -62,6 +72,24 @@ input_number:
     step: 1
     unit_of_measurement: "%"
     icon: mdi:garage
+
+  melike_dolap_kapi_position:
+    name: Melike dolap kapi position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:door-sliding
+
+  misafir_dolap_kapi_position:
+    name: Misafir dolap kapi position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:door-sliding
 
 cover:
   # gungors covers (ha-integrations README, Features): a domain base plus a `features:` list,
@@ -94,16 +122,23 @@ cover:
   - platform: gungors
     name: banyo_cover
     unique_id: banyo_cover
-    device_class: curtain
+    device_class: shade
     features:
       - link: input_number.banyo_cover_position
 
   - platform: gungors
     name: koridor2_cover
     unique_id: koridor2_cover
-    device_class: curtain
+    device_class: shade
     features:
       - link: input_number.koridor2_cover_position
+
+  - platform: gungors
+    name: melike_cover
+    unique_id: melike_cover
+    device_class: shade
+    features:
+      - link: input_number.melike_cover_position
 
   - platform: gungors
     name: garaj_door
@@ -111,6 +146,20 @@ cover:
     device_class: garage
     features:
       - link: input_number.garaj_door_position
+
+  - platform: gungors
+    name: melike_dolap_kapi
+    unique_id: melike_dolap_kapi
+    device_class: door
+    features:
+      - link: input_number.melike_dolap_kapi_position
+
+  - platform: gungors
+    name: misafir_dolap_kapi
+    unique_id: misafir_dolap_kapi
+    device_class: door
+    features:
+      - link: input_number.misafir_dolap_kapi_position
 
   # --- IKEA blinds -------------------------------------------------------------------
   # direction: movement tracking (opening/closing, real position while moving).
