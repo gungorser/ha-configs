@@ -287,9 +287,10 @@ action:
                             target:
                               entity_id: "scene.{{ backup_id }}"
             # single / double: the room's covers, open / close. Physical press:
-            # window-guarded gungors covers get the gungors_physical_cover event
-            # (overrides the guard), all other covers get the normal service.
-            # Groups are expanded so guarded members get the event as well.
+            # gungors covers with the `buttons` feature (physical_buttons attribute)
+            # get the gungors_physical_cover event (allowed with the window open),
+            # all other covers get the normal service. Groups are expanded so those
+            # members get the event as well.
             default:
               - variables:
                   direction: >-
@@ -297,11 +298,11 @@ action:
                   guarded: >-
                     {{ expand(covers)
                       | selectattr('entity_id', 'in', integration_entities('gungors'))
-                      | selectattr('attributes.is_sync', 'defined')
+                      | selectattr('attributes.physical_buttons', 'defined')
                       | map(attribute='entity_id') | list }}
                   plain: >-
                     {{ expand(covers)
-                      | rejectattr('attributes.is_sync', 'defined')
+                      | rejectattr('attributes.physical_buttons', 'defined')
                       | map(attribute='entity_id') | list }}
               - if:
                   - condition: template

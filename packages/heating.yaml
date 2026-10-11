@@ -1,59 +1,59 @@
-# Heating: sync thermostats (gungors climate platform), the heating demand sensor and
+# Heating: gungors thermostats (climate), the heating demand sensor and
 # the boiler relay automation. Previously split over thermostats/climates.yaml and
 # thermostats/switch_automation.yaml.
 
 climate:
-  # gungors sync thermostat: kept in sync with the physical TRV (`input_device`). `heater` as a
-  # dict maps the internal heater value (0-100) onto the TRV valve opening/closing degree
-  # (valve_min = minimum opening percentage). min_temp is intentionally omitted: the
-  # physical thermostat's min_temp is used. A sync thermostat is unavailable while its
-  # physical thermostat is.
+  # gungors thermostats (ha-integrations README, Features). TRV rooms: the PID turns the room
+  # temperature into a demand 0-100, `valve` maps it onto the TRV valve opening/closing degree
+  # (min = minimum opening %), `link` keeps the wrapper and the TRV in two-way sync (the
+  # wrapper is unavailable while the TRV is; the TRV's min_temp is used). `hold`:
+  # gungors.hold / gungors.release. force_off: false keeps SmartThermostat's old
+  # force_off_state: false.
+
   - platform: gungors
     name: sercan_thermostat
     unique_id: sercan_thermostat
     target_temp: 19
-    keep_alive:
-      minutes: 15
-    debug: true
-    kp: 16
-    ki: 0.01
-    kd: 4
-    pwm: 0
-    min_cycle_duration: 60
     max_temp: 35
-    sensor_stall: 0
-    force_off_state: false
-    input_device:
-      entity: climate.sercan_climate
-      cooldown_time: 1
-    heater:
-      valve_opening: number.sercan_climate_valve_opening_degree
-      valve_closing: number.sercan_climate_valve_closing_degree
-      valve_min: 10
-    target_sensor: sensor.sercan_sensor_temperature
+    features:
+      - hold
+      - pid:
+          kp: 16
+          ki: 0.01
+          kd: 4
+          keep_alive: {minutes: 15}
+          force_off: false
+          debug: true
+      - valve:
+          opening: number.sercan_climate_valve_opening_degree
+          closing: number.sercan_climate_valve_closing_degree
+          min: 10
+      - temperature: sensor.sercan_sensor_temperature
+      - link:
+          entity: climate.sercan_climate
+          cooldown_time: 1
 
   - platform: gungors
     name: misafir_thermostat
     unique_id: misafir_thermostat
     target_temp: 19
-    keep_alive:
-      minutes: 15
-    debug: true
-    kp: 90
-    ki: 0.08
-    kd: 80
-    pwm: 0
-    min_cycle_duration: 60
     max_temp: 35
-    sensor_stall: 0
-    force_off_state: false
-    input_device:
-      entity: climate.misafir_climate
-      cooldown_time: 1
-    heater:
-      valve_opening: number.misafir_climate_valve_opening_degree
-      valve_closing: number.misafir_climate_valve_closing_degree
-    target_sensor: sensor.misafir_sensor_temperature
+    features:
+      - hold
+      - pid:
+          kp: 90
+          ki: 0.08
+          kd: 80
+          keep_alive: {minutes: 15}
+          force_off: false
+          debug: true
+      - valve:
+          opening: number.misafir_climate_valve_opening_degree
+          closing: number.misafir_climate_valve_closing_degree
+      - temperature: sensor.misafir_sensor_temperature
+      - link:
+          entity: climate.misafir_climate
+          cooldown_time: 1
 
   # NOTE: the bebek TRV (climate.bebek_climate) is currently disconnected, so
   # bebek_thermostat stays unavailable until it is back.
@@ -61,121 +61,118 @@ climate:
     name: bebek_thermostat
     unique_id: bebek_thermostat
     target_temp: 19
-    keep_alive:
-      minutes: 15
-    debug: true
-    kp: 30
-    ki: 0.06
-    kd: 80
-    pwm: 0
-    min_cycle_duration: 60
     max_temp: 35
-    sensor_stall: 0
-    force_off_state: false
-    input_device:
-      entity: climate.bebek_climate
-      cooldown_time: 1
-    heater:
-      valve_opening: number.bebek_climate_valve_opening_degree
-      valve_closing: number.bebek_climate_valve_closing_degree
-    target_sensor: sensor.bebek_sensor_temperature
+    features:
+      - hold
+      - pid:
+          kp: 30
+          ki: 0.06
+          kd: 80
+          keep_alive: {minutes: 15}
+          force_off: false
+          debug: true
+      - valve:
+          opening: number.bebek_climate_valve_opening_degree
+          closing: number.bebek_climate_valve_closing_degree
+      - temperature: sensor.bebek_sensor_temperature
+      - link:
+          entity: climate.bebek_climate
+          cooldown_time: 1
 
   - platform: gungors
     name: melike_thermostat
     unique_id: melike_thermostat
     target_temp: 19
-    keep_alive:
-      minutes: 15
-    debug: true
-    kp: 40
-    ki: 0.02
-    kd: 60
-    pwm: 0
-    min_cycle_duration: 60
     max_temp: 35
-    sensor_stall: 0
-    force_off_state: false
-    input_device:
-      entity: climate.melike_climate
-      cooldown_time: 1
-    heater:
-      valve_opening: number.melike_climate_valve_opening_degree
-      valve_closing: number.melike_climate_valve_closing_degree
-    target_sensor: sensor.melike_sensor_temperature
+    features:
+      - hold
+      - pid:
+          kp: 40
+          ki: 0.02
+          kd: 60
+          keep_alive: {minutes: 15}
+          force_off: false
+          debug: true
+      - valve:
+          opening: number.melike_climate_valve_opening_degree
+          closing: number.melike_climate_valve_closing_degree
+      - temperature: sensor.melike_sensor_temperature
+      - link:
+          entity: climate.melike_climate
+          cooldown_time: 1
 
   - platform: gungors
     name: banyo_thermostat
     unique_id: banyo_thermostat
     target_temp: 19
-    keep_alive:
-      minutes: 15
-    debug: true
-    kp: 50
-    ki: 0.02
-    kd: 60
-    pwm: 0
-    min_cycle_duration: 60
     max_temp: 35
-    sensor_stall: 0
-    force_off_state: false
-    input_device:
-      entity: climate.banyo_climate
-      cooldown_time: 1
-    heater:
-      valve_opening: number.banyo_climate_valve_opening_degree
-      valve_closing: number.banyo_climate_valve_closing_degree
-    target_sensor: sensor.banyo_moisture_temperature
+    features:
+      - hold
+      - pid:
+          kp: 50
+          ki: 0.02
+          kd: 60
+          keep_alive: {minutes: 15}
+          force_off: false
+          debug: true
+      - valve:
+          opening: number.banyo_climate_valve_opening_degree
+          closing: number.banyo_climate_valve_closing_degree
+      - temperature: sensor.banyo_moisture_temperature
+      - link:
+          entity: climate.banyo_climate
+          cooldown_time: 1
 
   - platform: gungors
     name: yatak_thermostat
     unique_id: yatak_thermostat
     target_temp: 19
-    keep_alive:
-      minutes: 15
-    debug: true
-    kp: 40
-    ki: 0.05
-    kd: 60
-    pwm: 0
-    min_cycle_duration: 60
     max_temp: 35
-    sensor_stall: 0
-    force_off_state: false
-    input_device:
-      entity: climate.yatak_climate
-      cooldown_time: 1
-    heater:
-      valve_opening: number.yatak_climate_valve_opening_degree
-      valve_closing: number.yatak_climate_valve_closing_degree
-      valve_min: 10
-    target_sensor: sensor.yatak_sensor_temperature
+    features:
+      - hold
+      - pid:
+          kp: 40
+          ki: 0.05
+          kd: 60
+          keep_alive: {minutes: 15}
+          force_off: false
+          debug: true
+      - valve:
+          opening: number.yatak_climate_valve_opening_degree
+          closing: number.yatak_climate_valve_closing_degree
+          min: 10
+      - temperature: sensor.yatak_sensor_temperature
+      - link:
+          entity: climate.yatak_climate
+          cooldown_time: 1
 
-  # salon: PWM switch heater (heater is an entity, not a dict). No valve degree mapping
-  # (sync only).
+  # salon: the boiler circuit thermostat (EMS-ESP hc1) and a socket heater driven by PWM.
   - platform: gungors
     name: salon_thermostat
     unique_id: salon_thermostat
     target_temp: 19
-    keep_alive:
-      minutes: 15
-    debug: true
-    kp: 150
-    ki: 0
-    kd: 0
-    pwm: 00:15:00
-    min_cycle_duration: 60
     max_temp: 35
-    sensor_stall: 0
-    force_off_state: false
-    input_device:
-      entity: climate.thermostat_hc1
-      cooldown_time: 1
-    heater: switch.koridor0_socket
-    target_sensor: sensor.thermostat_hc1_currtemp
+    features:
+      - hold
+      - pid:
+          kp: 150
+          ki: 0
+          kd: 0
+          keep_alive: {minutes: 15}
+          force_off: false
+          debug: true
+      - pwm:
+          entity: switch.koridor0_socket
+          period: "00:15:00"
+          min_cycle_duration: 60
+      - temperature: sensor.thermostat_hc1_currtemp
+      - link:
+          entity: climate.thermostat_hc1
+          cooldown_time: 1
 
 template:
   # Heating demand: on while at least one thermostat reports hvac_action heating.
-  # Unavailable thermostats (e.g. a sync thermostat whose TRV dropped) don't count.
+  # Unavailable thermostats (e.g. one whose TRV dropped) don't count.
   - binary_sensor:
       - name: kombi_talebi
         unique_id: kombi_talebi
