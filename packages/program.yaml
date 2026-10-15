@@ -1,0 +1,21 @@
+# Programs: calendar.program from gungors (ha-integrations README, Programs).
+# Each calendar entry is a program: a target (areas, entities) and rules that the entities
+# with the `program` feature follow while it runs (lights, thermostats, covers). The program
+# card on the `program` dashboard edits the entries. Replaces schedules.yaml (the three
+# person calendars and the climate_schedule / cover_schedule automations).
+#
+# defaults: what an attribute returns to when the program that held it with an exact value
+# (eq) ends; covers also take their position default at sunrise and sunset. A wrapper can
+# override them with `- program: {<attribute>: <value>}`.
+
+calendar:
+  - platform: gungors
+    name: program
+    defaults:
+      light:
+        "on": false
+        color: white
+      climate:
+        hvac_mode: "off"
+      cover:
+        position: sun

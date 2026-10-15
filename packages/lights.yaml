@@ -9,6 +9,7 @@ light:
     name: banyo_light
     unique_id: banyo_light
     features:
+      - program
       - hold
       - link: light.banyo_lamp
 
@@ -16,6 +17,7 @@ light:
     name: bebek_light
     unique_id: bebek_light
     features:
+      - program
       - hold
       - link: light.bebek_lamp
 
@@ -23,6 +25,7 @@ light:
     name: car_light
     unique_id: car_light
     features:
+      - program
       - hold
       - link: light.car_lamp
 
@@ -30,6 +33,7 @@ light:
     name: garaj_light
     unique_id: garaj_light
     features:
+      - program
       - hold
       - link: light.garaj_lamp
 
@@ -37,6 +41,7 @@ light:
     name: kaan_light
     unique_id: kaan_light
     features:
+      - program
       - hold
       - link: light.kaan_lamp
 
@@ -44,6 +49,7 @@ light:
     name: koridor0_light
     unique_id: koridor0_light
     features:
+      - program
       - hold
       - link: light.koridor0_lamp
 
@@ -51,6 +57,7 @@ light:
     name: koridor1_light
     unique_id: koridor1_light
     features:
+      - program
       - hold
       - link: light.koridor1_lamp
 
@@ -58,6 +65,7 @@ light:
     name: salon_light
     unique_id: salon_light
     features:
+      - program
       - hold
       - link: light.salon_lamp
 
@@ -65,6 +73,7 @@ light:
     name: sercan_light
     unique_id: sercan_light
     features:
+      - program
       - hold
       - link: light.sercan_lamp
 
@@ -72,6 +81,7 @@ light:
     name: yatak_light
     unique_id: yatak_light
     features:
+      - program
       - hold
       - link: light.yatak_lamp
 
@@ -79,6 +89,7 @@ light:
     name: yemek_light
     unique_id: yemek_light
     features:
+      - program
       - hold
       - link: light.yemek_lamp
 
@@ -86,6 +97,7 @@ light:
     name: koridor2_light
     unique_id: koridor2_light
     features:
+      - program
       - hold
       - link: light.koridor2_lamp
 
@@ -93,6 +105,7 @@ light:
     name: melike_light
     unique_id: melike_light
     features:
+      - program
       - hold
       - link: light.melike_lamp
 
@@ -100,6 +113,7 @@ light:
     name: misafir_light
     unique_id: misafir_light
     features:
+      - program
       - hold
       - link: light.misafir_lamp
 
@@ -107,6 +121,7 @@ light:
     name: tavan_light_2
     unique_id: tavan_light_2
     features:
+      - program
       - hold
       - link: light.tavan_lamp_2
 
@@ -115,6 +130,7 @@ light:
     name: mutfak_light
     unique_id: mutfak_light
     features:
+      - program
       - hold
       - link: switch.yemek_2
 
@@ -124,6 +140,7 @@ light:
     name: bahce_light_1
     unique_id: bahce_light_1
     features:
+      - program
       - hold
       - link: light.bahce_lamp_1
 
