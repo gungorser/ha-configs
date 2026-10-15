@@ -5,15 +5,14 @@
 climate:
   # gungors thermostats (ha-integrations README, Features). TRV rooms: the PID turns the room
   # temperature into a demand 0-100, `valve` maps it onto the TRV valve opening/closing degree
-  # (min = minimum opening %), `link` keeps the wrapper and the TRV in two-way sync (the
-  # wrapper is unavailable while the TRV is; the TRV's min_temp is used). `hold`:
+  # (min = minimum opening %), `link` is the TRV: the wrapper's mode and target are the
+  # TRV's (no own state, no sync; unavailable while the TRV is; the TRV's min_temp is used). `hold`:
   # gungors.hold / gungors.release. force_off: false keeps SmartThermostat's old
   # force_off_state: false.
 
   - platform: gungors
     name: sercan_thermostat
     unique_id: sercan_thermostat
-    target_temp: 19
     max_temp: 35
     features:
       - hold
@@ -29,14 +28,11 @@ climate:
           closing: number.sercan_climate_valve_closing_degree
           min: 10
       - temperature: sensor.sercan_sensor_temperature
-      - link:
-          entity: climate.sercan_climate
-          cooldown_time: 1
+      - link: climate.sercan_climate
 
   - platform: gungors
     name: misafir_thermostat
     unique_id: misafir_thermostat
-    target_temp: 19
     max_temp: 35
     features:
       - hold
@@ -51,16 +47,13 @@ climate:
           opening: number.misafir_climate_valve_opening_degree
           closing: number.misafir_climate_valve_closing_degree
       - temperature: sensor.misafir_sensor_temperature
-      - link:
-          entity: climate.misafir_climate
-          cooldown_time: 1
+      - link: climate.misafir_climate
 
   # NOTE: the bebek TRV (climate.bebek_climate) is currently disconnected, so
   # bebek_thermostat stays unavailable until it is back.
   - platform: gungors
     name: bebek_thermostat
     unique_id: bebek_thermostat
-    target_temp: 19
     max_temp: 35
     features:
       - hold
@@ -75,14 +68,11 @@ climate:
           opening: number.bebek_climate_valve_opening_degree
           closing: number.bebek_climate_valve_closing_degree
       - temperature: sensor.bebek_sensor_temperature
-      - link:
-          entity: climate.bebek_climate
-          cooldown_time: 1
+      - link: climate.bebek_climate
 
   - platform: gungors
     name: melike_thermostat
     unique_id: melike_thermostat
-    target_temp: 19
     max_temp: 35
     features:
       - hold
@@ -97,14 +87,11 @@ climate:
           opening: number.melike_climate_valve_opening_degree
           closing: number.melike_climate_valve_closing_degree
       - temperature: sensor.melike_sensor_temperature
-      - link:
-          entity: climate.melike_climate
-          cooldown_time: 1
+      - link: climate.melike_climate
 
   - platform: gungors
     name: banyo_thermostat
     unique_id: banyo_thermostat
-    target_temp: 19
     max_temp: 35
     features:
       - hold
@@ -119,14 +106,11 @@ climate:
           opening: number.banyo_climate_valve_opening_degree
           closing: number.banyo_climate_valve_closing_degree
       - temperature: sensor.banyo_moisture_temperature
-      - link:
-          entity: climate.banyo_climate
-          cooldown_time: 1
+      - link: climate.banyo_climate
 
   - platform: gungors
     name: yatak_thermostat
     unique_id: yatak_thermostat
-    target_temp: 19
     max_temp: 35
     features:
       - hold
@@ -142,15 +126,12 @@ climate:
           closing: number.yatak_climate_valve_closing_degree
           min: 10
       - temperature: sensor.yatak_sensor_temperature
-      - link:
-          entity: climate.yatak_climate
-          cooldown_time: 1
+      - link: climate.yatak_climate
 
   # salon: the boiler circuit thermostat (EMS-ESP hc1) and a socket heater driven by PWM.
   - platform: gungors
     name: salon_thermostat
     unique_id: salon_thermostat
-    target_temp: 19
     max_temp: 35
     features:
       - hold
@@ -166,9 +147,7 @@ climate:
           period: "00:15:00"
           min_cycle_duration: 60
       - temperature: sensor.thermostat_hc1_currtemp
-      - link:
-          entity: climate.thermostat_hc1
-          cooldown_time: 1
+      - link: climate.thermostat_hc1
 
 template:
   # Heating demand: on while at least one thermostat reports hvac_action heating.
