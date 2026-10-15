@@ -1,31 +1,7 @@
 views:
   - title: Program
     path: program
-    type: sections
-    max_columns: 2
-    sections:
-      - type: grid
-        cards:
-          - type: custom:gungors-schedule-card
-            title: Program
-            temp_min: 16
-            temp_max: 28
-            temp_step: 0.5
-            toggles:
-              - entity: automation.climate_schedule
-                name: Isınma
-                icon: mdi:radiator
-                group: climate
-                sync: script.climate_schedule_sync_room
-              - entity: automation.cover_schedule
-                name: Perdeler
-                icon: mdi:curtains
-                group: cover
-                sync: script.cover_schedule_sync_room
-            calendars:
-              - calendar.sercan
-              - calendar.melike
-              - calendar.misafir
-            grid_options:
-              columns: full
-              rows: auto
+    type: panel
+    cards:
+      - type: custom:gungors-program-card
+        entity: calendar.program

@@ -94,7 +94,9 @@ input_number:
 cover:
   # gungors covers (ha-integrations README, Features): a domain base plus a `features:` list,
   # combined in list order. `link` (always last) is the original the wrapper drives; dashboards
-  # and automations use the wrapper, never the original.
+  # and automations use the wrapper, never the original. `program` (first): follows
+  # calendar.program (packages/program.yaml) and opens at sunrise / closes at sunset; doors and
+  # the yatak group have none.
 
   # --- Covers without a device ---------------------------------------------------------
   # Linked to their position number above; moving the cover sets the number.
@@ -103,6 +105,7 @@ cover:
     unique_id: mutfak_cover
     device_class: shade
     features:
+      - program
       - link: input_number.mutfak_cover_position
 
   - platform: gungors
@@ -110,6 +113,7 @@ cover:
     unique_id: yemek_cover
     device_class: shade
     features:
+      - program
       - link: input_number.yemek_cover_position
 
   - platform: gungors
@@ -117,6 +121,7 @@ cover:
     unique_id: salon_kucuk_cover
     device_class: curtain
     features:
+      - program
       - link: input_number.salon_kucuk_cover_position
 
   - platform: gungors
@@ -124,6 +129,7 @@ cover:
     unique_id: banyo_cover
     device_class: shade
     features:
+      - program
       - link: input_number.banyo_cover_position
 
   - platform: gungors
@@ -131,6 +137,7 @@ cover:
     unique_id: koridor2_cover
     device_class: shade
     features:
+      - program
       - link: input_number.koridor2_cover_position
 
   - platform: gungors
@@ -138,6 +145,7 @@ cover:
     unique_id: melike_cover
     device_class: shade
     features:
+      - program
       - link: input_number.melike_cover_position
 
   - platform: gungors
@@ -171,6 +179,7 @@ cover:
     unique_id: sercan_cover
     device_class: blind
     features:
+      - program
       - hold
       - buttons
       - window: binary_sensor.sercan_window_contact
@@ -182,6 +191,7 @@ cover:
     unique_id: bebek_cover
     device_class: blind
     features:
+      - program
       - hold
       - buttons
       - window: binary_sensor.bebek_window_contact
@@ -193,6 +203,7 @@ cover:
     unique_id: yatak_cover_window
     device_class: blind
     features:
+      - program
       - hold
       - buttons
       - window: binary_sensor.yatak_window_contact
@@ -205,6 +216,7 @@ cover:
     unique_id: koridor1_cover
     device_class: blind
     features:
+      - program
       - hold
       - buttons
       - direction
@@ -216,6 +228,7 @@ cover:
     unique_id: yatak_cover_1
     device_class: blind
     features:
+      - program
       - hold
       - direction
       - link: cover.yatak_blind_1
@@ -225,6 +238,7 @@ cover:
     unique_id: yatak_cover_3
     device_class: blind
     features:
+      - program
       - hold
       - direction
       - link: cover.yatak_blind_3
@@ -250,6 +264,7 @@ cover:
     unique_id: salon_cover
     device_class: curtain
     features:
+      - program
       - hold
       - invert
       - travel_time
@@ -260,6 +275,7 @@ cover:
     unique_id: misafir_cover
     device_class: curtain
     features:
+      - program
       - hold
       - invert
       - travel_time
