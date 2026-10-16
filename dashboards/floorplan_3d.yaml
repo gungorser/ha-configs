@@ -8,6 +8,7 @@
 # Action standard (same as floorplan.yaml):
 #   lights: tap toggle, hold more-info
 #   rooms (climate) and objects (tv, vacuum): tap and hold more-info
+#   bins (cop_kutulari): tap opens a popup with the Afvalwijzer collection dates, hold more-info
 #   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
 #   garaj_door (garage door), yemek_blind (garden door), mutfak_blind (kitchen window),
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
@@ -89,6 +90,50 @@ views:
               salon_vacuum:
                 <<: *object
                 entity: vacuum.xiaomi_c102gl_9267_robot_cleaner
+              cop_kutulari:           # the bins beside the driveway: tap opens the Afvalwijzer collection
+                entity: sensor.afvalwijzer_5685js_17_next_date   # window (card 1.18 popup), hold more-info
+                tap_action:
+                  action: popup
+                  title: Çöp takvimi
+                  card:
+                    type: vertical-stack
+                    cards:
+                      - type: markdown
+                        content: |-
+                          {%- set p = 'sensor.afvalwijzer_5685js_17_' -%}
+                          {%- set ad = {'gft': 'GFT (organik)', 'restafval': 'Restafval (genel çöp)', 'pmd': 'PMD (plastik, metal, karton kutu)', 'papier': 'Kağıt', 'keukenafval': 'Mutfak atığı', 'luiers': 'Bez'} -%}
+                          {%- set gun = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'] -%}
+                          {%- set ay = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'] -%}
+                          {%- macro tarih(s) -%}{%- set d = as_datetime(s) -%}{%- if d -%}{%- set d = d | as_local -%}{{ gun[d.weekday()] }} {{ d.day }} {{ ay[d.month - 1] }}{%- else -%}-{%- endif -%}{%- endmacro -%}
+                          {%- macro kalan(n) -%}{%- if n is none -%}-{%- elif n | int == 0 -%}**bugün**{%- elif n | int == 1 -%}**yarın**{%- else -%}{{ n }} gün sonra{%- endif -%}{%- endmacro -%}
+                          {%- macro adlar(s) -%}{%- set ns = namespace(l=[]) -%}{%- for t in s.split(',') -%}{%- set t = t | trim | lower -%}{%- set ns.l = ns.l + [ad.get(t, t)] -%}{%- endfor -%}{{ ns.l | join(', ') }}{%- endmacro -%}
+                          {%- set bugun = states(p ~ 'today') -%}
+                          {%- set yarin = states(p ~ 'tomorrow') -%}
+                          {%- if bugun not in ['geen', 'unknown', 'unavailable'] %}
+                          <ha-alert alert-type="warning">Bugün toplanıyor: <b>{{ adlar(bugun) }}</b></ha-alert>
+                          {% endif -%}
+                          {%- if yarin not in ['geen', 'unknown', 'unavailable'] %}
+                          <ha-alert alert-type="info">Yarın toplanıyor: <b>{{ adlar(yarin) }}</b>. Kutuları bu akşam dışarı çıkar.</ha-alert>
+                          {% endif %}
+                          ## Sonraki toplama
+                          **{{ tarih(states(p ~ 'next_date')) }}** · {{ kalan(states(p ~ 'next_in_days')) }}
+
+                          {{ adlar(states(p ~ 'next_type')) }}
+
+                          ## Tarihler
+                          | | Çöp | Tarih | Kalan |
+                          |---|---|---|---|
+                          {%- set rows = namespace(l=[]) %}
+                          {%- for k in ad %}{% set e = p ~ k %}{% if states(e) not in ['unknown', 'unavailable'] %}{% set rows.l = rows.l + [{'k': k, 'e': e, 'n': state_attr(e, 'days_until_collection_date')}] %}{% endif %}{% endfor %}
+                          {%- for r in rows.l | sort(attribute='n') %}
+                          | <ha-icon icon="{{ state_attr(r.e, 'icon') or 'mdi:trash-can' }}"></ha-icon> | {{ ad[r.k] }} | {{ tarih(states(r.e)) }} | {{ kalan(r.n) }} |
+                          {%- endfor %}
+                      - type: calendar
+                        entities:
+                          - calendar.afvalwijzer_5685js_17
+                        initial_view: dayGridMonth
+                hold_action:
+                  action: more-info
               # lights
               garaj_light: &light
                 entity: light.garaj_light
