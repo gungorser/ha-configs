@@ -170,6 +170,7 @@ views:
               bahce_light:
                 <<: *light
                 entity: light.bahce_light
+                gain: 0.35                    # the lawn bollard: its render (100 W spot) glares on the lawn
           - floor: kat1
             rooms:
               sercan: {sun: 1, covers: 2}
