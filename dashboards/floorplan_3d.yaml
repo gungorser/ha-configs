@@ -9,6 +9,7 @@
 #   lights: tap toggle, hold more-info
 #   rooms (climate) and objects (tv, vacuum): tap and hold more-info
 #   bins (cop_kutulari): tap opens a popup with the Afvalwijzer collection dates, hold more-info
+#   garden irrigation (bahce_sulama, the back lawn): tap toggle, hold more-info; watering effect while open
 #   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
 #   garaj_door (garage door), yemek_blind (garden door), mutfak_blind (kitchen window),
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
@@ -132,6 +133,12 @@ views:
                         entities:
                           - calendar.afvalwijzer_5685js_17
                         initial_view: dayGridMonth
+                hold_action:
+                  action: more-info
+              bahce_sulama:           # the back garden lawn: garden irrigation valve, tap toggle, hold more-info
+                entity: valve.bahce_valve   # (like its icon on floorplan.yaml); the page waters the lawn while open
+                tap_action:
+                  action: toggle
                 hold_action:
                   action: more-info
               # lights
