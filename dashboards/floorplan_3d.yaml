@@ -8,6 +8,8 @@
 # Action standard (same as floorplan.yaml):
 #   lights: tap toggle, hold more-info
 #   rooms (climate) and objects (tv, vacuum): tap and hold more-info
+#   climates: name and humidity (a sensor) show in the card's heating mode (one room per press of
+#   its heating button; the screen runs the room's tap / hold)
 #   bins (cop_kutulari): tap opens a popup with the Afvalwijzer collection dates, hold more-info
 #   garden irrigation (bahce_sulama, the back lawn): tap toggle, hold more-info; watering effect while open
 #   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
@@ -77,6 +79,7 @@ views:
               # underfloor heating (climate): every room but the garage, below lamps and covers
               salon_climate: &climate
                 entity: climate.salon_thermostat
+                name: Salon
                 tap_action:
                   action: more-info
                 hold_action:
@@ -228,15 +231,23 @@ views:
               bebek_climate:
                 <<: *climate
                 entity: climate.bebek_thermostat
+                name: Bebek
+                humidity: sensor.bebek_sensor_humidity
               yatak_climate:
                 <<: *climate
                 entity: climate.yatak_thermostat
+                name: Yatak
+                humidity: sensor.yatak_sensor_humidity
               sercan_climate:
                 <<: *climate
                 entity: climate.sercan_thermostat
+                name: Sercan
+                humidity: sensor.sercan_sensor_humidity
               banyo_climate:                  # the towel radiator
                 <<: *climate
                 entity: climate.banyo_thermostat
+                name: Banyo
+                humidity: sensor.banyo_moisture_humidity
               # lights
               yatak_light:
                 <<: *light
@@ -291,9 +302,13 @@ views:
               misafir_climate:
                 <<: *climate
                 entity: climate.misafir_thermostat
+                name: Misafir
+                humidity: sensor.misafir_sensor_humidity
               melike_climate:
                 <<: *climate
                 entity: climate.melike_thermostat
+                name: Melike
+                humidity: sensor.melike_sensor_humidity
               # lights
               misafir_light:                  # on the wall over the door
                 <<: *light
