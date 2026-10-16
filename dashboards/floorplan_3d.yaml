@@ -164,13 +164,9 @@ views:
               car_light:
                 <<: *light
                 entity: light.car_light
-              bahce_light_1:
-                <<: *light
-                entity: light.bahce_light_1
-              bahce_light:
+              bahce_light:            # the garden's only lamp, on the back wall
                 <<: *light
                 entity: light.bahce_light
-                gain: 0.35                    # the lawn bollard: its render (100 W spot) glares on the lawn
           - floor: kat1
             rooms:
               sercan: {sun: 1, covers: 2}
