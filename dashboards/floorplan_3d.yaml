@@ -272,6 +272,7 @@ views:
               misafir: {sun: 1, covers: 2}                  # the whole guest room, up to where its slope meets the walls
               melike: {sun: 0, covers: 3}                   # light only through the roof window: dark when its blind is closed
               cati_arasi: {sun: 0, covers: 0}               # behind the knee wall: only default
+              misafir_cati_arasi: {sun: 0, covers: 0}       # under the roof behind the guest room's knee wall: only default
               other: {sun: 3}
             entities:
               # covers: the guest room's dormer curtain, the hall window's blind, melike's roof window blind
