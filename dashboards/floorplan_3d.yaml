@@ -12,6 +12,8 @@
 #   its heating button; the screen runs the room's tap / hold)
 #   bins (cop_kutulari): tap opens a popup with the Afvalwijzer collection dates, hold more-info
 #   garden irrigation (bahce_sulama, the back lawn): tap toggle, hold more-info; watering effect while open
+#   cameras (bahce_kamera, kapi_kamera; card 1.23): tap live view popup (action camera), hold more-info;
+#   the card's camera mode lists them one at a time
 #   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
 #   garaj_door (garage door), yemek_blind (garden door), mutfak_blind (kitchen window),
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
@@ -142,6 +144,25 @@ views:
                 entity: valve.bahce_valve   # (like its icon on floorplan.yaml); the page waters the lawn while open
                 tap_action:
                   action: toggle
+                hold_action:
+                  action: more-info
+              # cameras (Eufy): the card's camera mode; tap opens the live view (the card starts the P2P
+              # stream and stops it when the popup closes), hold more-info
+              bahce_kamera:           # back garden security camera, back wall by the west corner
+                entity: camera.backyard
+                name: Bahçe
+                motion: binary_sensor.backyard_motion_detected
+                tap_action: &camera_live
+                  action: camera
+                  start: eufy_security.start_p2p_livestream
+                  stop: eufy_security.stop_p2p_livestream
+                hold_action:
+                  action: more-info
+              kapi_kamera:            # doorbell camera beside the front door
+                entity: camera.doorbell
+                name: Kapı
+                motion: binary_sensor.doorbell_motion_detected
+                tap_action: *camera_live
                 hold_action:
                   action: more-info
               # lights
