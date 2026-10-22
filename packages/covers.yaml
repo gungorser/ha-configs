@@ -171,17 +171,14 @@ cover:
 
   # --- IKEA blinds -------------------------------------------------------------------
   # direction: movement tracking (opening/closing, real position while moving).
-  # window: remote commands are held while the window is open. buttons: the pushbutton
-  # blueprint sends wall button presses as physical requests (allowed with the window open).
-  # hold: gungors.hold / gungors.release.
+  # window: remote commands are held while the window is open; wall button presses come
+  # from the pushbutton blueprint as physical requests (allowed with the window open).
   - platform: gungors
     name: sercan_cover
     unique_id: sercan_cover
     device_class: blind
     features:
       - program
-      - hold
-      - buttons
       - window: binary_sensor.sercan_window_contact
       - direction
       - link: cover.sercan_blind
@@ -192,8 +189,6 @@ cover:
     device_class: blind
     features:
       - program
-      - hold
-      - buttons
       - window: binary_sensor.bebek_window_contact
       - direction
       - link: cover.bebek_blind
@@ -204,8 +199,6 @@ cover:
     device_class: blind
     features:
       - program
-      - hold
-      - buttons
       - window: binary_sensor.yatak_window_contact
       - direction
       - link: cover.yatak_blind_2
@@ -217,8 +210,6 @@ cover:
     device_class: blind
     features:
       - program
-      - hold
-      - buttons
       - direction
       - link: cover.koridor1_blind
 
@@ -229,7 +220,6 @@ cover:
     device_class: blind
     features:
       - program
-      - hold
       - direction
       - link: cover.yatak_blind_1
 
@@ -239,7 +229,6 @@ cover:
     device_class: blind
     features:
       - program
-      - hold
       - direction
       - link: cover.yatak_blind_3
 
@@ -248,7 +237,6 @@ cover:
     unique_id: yatak_cover
     device_class: blind
     features:
-      - hold
       - link:
           - cover.yatak_cover_window
           - cover.yatak_cover_1
@@ -265,7 +253,6 @@ cover:
     device_class: curtain
     features:
       - program
-      - hold
       - invert
       - travel_time
       - link: cover.salon_curtain
@@ -276,7 +263,6 @@ cover:
     device_class: curtain
     features:
       - program
-      - hold
       - invert
       - travel_time
       - link: cover.misafir_curtain
