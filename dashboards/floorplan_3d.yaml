@@ -146,23 +146,26 @@ views:
                   action: toggle
                 hold_action:
                   action: more-info
-              # cameras (Eufy): the card's camera mode; tap opens the live view (the card starts the P2P
+              # cameras (Eufy): the card's camera mode; tap opens the live view (the card starts the
               # stream and stops it when the popup closes), hold more-info
               bahce_kamera:           # back garden security camera, back wall by the west corner
                 entity: camera.backyard
                 name: Bahçe
                 motion: binary_sensor.backyard_motion_detected
-                tap_action: &camera_live
+                tap_action:           # RTSP is on for this camera: its stream starts over RTSP, P2P fails
                   action: camera
-                  start: eufy_security.start_p2p_livestream
-                  stop: eufy_security.stop_p2p_livestream
+                  start: eufy_security.start_rtsp_livestream
+                  stop: eufy_security.stop_rtsp_livestream
                 hold_action:
                   action: more-info
-              kapi_kamera:            # doorbell camera beside the front door
+              kapi_kamera:            # doorbell camera beside the front door (battery: P2P stream)
                 entity: camera.doorbell
                 name: Kapı
                 motion: binary_sensor.doorbell_motion_detected
-                tap_action: *camera_live
+                tap_action:
+                  action: camera
+                  start: eufy_security.start_p2p_livestream
+                  stop: eufy_security.stop_p2p_livestream
                 hold_action:
                   action: more-info
               # lights
