@@ -6,9 +6,8 @@ climate:
   # gungors thermostats (ha-integrations README, Features). TRV rooms: the PID turns the room
   # temperature into a demand 0-100, `valve` maps it onto the TRV valve opening/closing degree
   # (min = minimum opening %), `link` is the TRV: the wrapper's mode and target are the
-  # TRV's (no own state, no sync; unavailable while the TRV is; the TRV's min_temp is used). `hold`:
-  # gungors.hold / gungors.release. force_off: false keeps SmartThermostat's old
-  # force_off_state: false.
+  # TRV's (no own state, no sync; unavailable while the TRV is; the TRV's min_temp is used).
+  # force_off: false keeps SmartThermostat's old force_off_state: false.
 
   - platform: gungors
     name: sercan_thermostat
@@ -16,7 +15,6 @@ climate:
     max_temp: 35
     features:
       - program
-      - hold
       - pid:
           kp: 16
           ki: 0.01
@@ -37,7 +35,6 @@ climate:
     max_temp: 35
     features:
       - program
-      - hold
       - pid:
           kp: 90
           ki: 0.08
@@ -59,7 +56,6 @@ climate:
     max_temp: 35
     features:
       - program
-      - hold
       - pid:
           kp: 30
           ki: 0.06
@@ -79,7 +75,6 @@ climate:
     max_temp: 35
     features:
       - program
-      - hold
       - pid:
           kp: 40
           ki: 0.02
@@ -99,7 +94,6 @@ climate:
     max_temp: 35
     features:
       - program
-      - hold
       - pid:
           kp: 50
           ki: 0.02
@@ -119,7 +113,6 @@ climate:
     max_temp: 35
     features:
       - program
-      - hold
       - pid:
           kp: 40
           ki: 0.05
@@ -141,7 +134,6 @@ climate:
     max_temp: 35
     features:
       - program
-      - hold
       - pid:
           kp: 150
           ki: 0

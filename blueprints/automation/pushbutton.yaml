@@ -287,7 +287,7 @@ action:
                             target:
                               entity_id: "scene.{{ backup_id }}"
             # single / double: the room's covers, open / close. Physical press:
-            # gungors covers with the `buttons` feature (physical_buttons attribute)
+            # gungors covers with the `window` feature (physical_buttons attribute)
             # get the gungors_physical_cover event (allowed with the window open),
             # all other covers get the normal service. Groups are expanded so those
             # members get the event as well.
