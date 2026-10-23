@@ -30,3 +30,9 @@ lovelace:
       icon: mdi:home-lightbulb
       show_in_sidebar: true
       filename: gungors/dashboards/floorplan_3d.yaml
+
+# Floorplan 3D settings (configs tab of floorplan_3d.yaml)
+input_boolean:
+  floorplan_araba:
+    name: Floorplan araba   # the car on the kat0 driveway shown (card show.araba); keeps its state over restarts
+    icon: mdi:car-hatchback
