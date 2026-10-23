@@ -32,22 +32,23 @@ lovelace:
       filename: gungors/dashboards/floorplan_3d.yaml
 
 # Floorplan 3D: the car on the kat0 driveway (card show.araba) follows whether a car is parked in
-# our spot. The doorbell camera's top view looks along the driveway: our spot is its foreground, in
-# front of the door; the cars further away (middle, right under the roof) are the neighbours'. The
-# picture goes to the Google AI task, which answers yes or no. The doorbell runs on a battery, so its
-# picture is the last one it took (on motion or a live view): checked 5 minutes after a doorbell
-# event (motion cleared for 5 minutes) and every hour. A failed or unclear answer keeps the last state.
+# our spot. The doorbell camera's top view looks along the driveway: our spot is in its middle,
+# straight ahead; the car on the right under the roof is the neighbours'. The picture goes to the
+# Google AI task, which answers yes or no. The doorbell runs on a battery, so its picture is the last
+# one it took. Its motion sensor stays off; an event shows as a new image.doorbell_event_image, so
+# the check runs 5 minutes after the last event, every hour, at start and after a template reload.
+# A failed or unclear answer keeps the last state.
 template:
   - triggers:
-      - trigger: motion.cleared
-        target:
-          entity_id: binary_sensor.doorbell_motion_detected
-        options:
-          for: "00:05:00"
+      - trigger: state
+        entity_id: image.doorbell_event_image
+        for: "00:05:00"
       - trigger: time_pattern
         minutes: 0
       - trigger: homeassistant
         event: start
+      - trigger: event
+        event_type: event_template_reloaded
     actions:
       - action: ai_task.generate_data
         continue_on_error: true
@@ -56,13 +57,13 @@ template:
           entity_id: ai_task.google_ai_task
           instructions: >-
             Doorbell camera picture: two views stacked. Look only at the top view, which looks
-            along the driveway. Our parking spot is the paved area in the foreground of the top
-            view, the part closest to the camera, in front of our door. Cars further away (in the
-            middle of the picture or on the right under the roof) are the neighbours' and do not
-            count. Is a car parked in our spot in the foreground? Answer present true or false.
+            along the driveway. Our parking spot is in the middle of the top view, straight ahead
+            from the camera, left of the covered parking place on the right. The car on the right
+            under the roof is the neighbour's: ignore it. Is a car parked in our spot in the middle?
+            Answer present true or false.
           structure:
             present:
-              description: true if a car is parked in our spot in the foreground of the top view
+              description: true if a car is parked in our spot in the middle of the top view
               required: true
               selector:
                 boolean:
