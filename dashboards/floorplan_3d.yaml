@@ -63,6 +63,7 @@ views:
               araba: binary_sensor.floorplan_araba   #   shown while the doorbell camera sees a car in our spot
             vacuum_map: camera.xiaomi_robot_vacuum_x20_map   # card 1.26: the robot vacuum's live map on the
                                                              #   floor, under the furniture, no-go zones trimmed
+            vacuum_opacity: 0.6                      # the map's opacity 0-1
             entities:
               # covers
               salon_cover:
