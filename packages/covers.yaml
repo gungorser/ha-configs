@@ -95,8 +95,8 @@ cover:
   # gungors covers (ha-integrations README, Features): a domain base plus a `features:` list,
   # combined in list order. `link` (always last) is the original the wrapper drives; dashboards
   # and automations use the wrapper, never the original. `program` (first): follows
-  # calendar.program (packages/program.yaml) and opens at sunrise / closes at sunset; doors and
-  # the yatak group have none.
+  # calendar.program (packages/program.yaml) and opens at sunrise / closes at sunset; doors have
+  # none. In yatak the group carries it (area-targeted rules see the group, not the three blinds).
 
   # --- Covers without a device ---------------------------------------------------------
   # Linked to their position number above; moving the cover sets the number.
@@ -198,7 +198,6 @@ cover:
     unique_id: yatak_cover_window
     device_class: blind
     features:
-      - program
       - window: binary_sensor.yatak_window_contact
       - direction
       - link: cover.yatak_blind_2
@@ -213,13 +212,13 @@ cover:
       - direction
       - link: cover.koridor1_blind
 
-  # Yatak: the two blinds without a window contact, and the group of all three.
+  # Yatak: the two blinds without a window contact, and the group of all three, which carries
+  # `program` for the room (the members have none, so commands are not sent twice).
   - platform: gungors
     name: yatak_cover_1
     unique_id: yatak_cover_1
     device_class: blind
     features:
-      - program
       - direction
       - link: cover.yatak_blind_1
 
@@ -228,7 +227,6 @@ cover:
     unique_id: yatak_cover_3
     device_class: blind
     features:
-      - program
       - direction
       - link: cover.yatak_blind_3
 
@@ -237,6 +235,7 @@ cover:
     unique_id: yatak_cover
     device_class: blind
     features:
+      - program
       - link:
           - cover.yatak_cover_window
           - cover.yatak_cover_1
