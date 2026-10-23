@@ -31,6 +31,17 @@ lovelace:
       show_in_sidebar: true
       filename: gungors/dashboards/floorplan_3d.yaml
 
+# Floorplan 3D: opacity of the robot vacuum's map on the kat0 floor (floorplan_3d.yaml vacuum_opacity),
+# set on its configs tab; no initial, so it keeps its value over restarts.
+input_number:
+  vacuum_map_opacity:
+    name: Vacuum map opacity
+    min: 0
+    max: 100
+    step: 5
+    unit_of_measurement: "%"
+    icon: mdi:robot-vacuum
+
 # Floorplan 3D: the car on the kat0 driveway (card show.araba) follows whether a car is parked in
 # our spot. The doorbell camera's top view looks along the driveway: our spot is in its middle,
 # straight ahead; the car on the right under the roof is the neighbours'. The picture goes to the
