@@ -58,7 +58,7 @@ views:
               koridor0: {sun: 0.7, covers: 1.4}             # the hallway 30% darker by day
               other: {sun: 3}
             show:                             # decor of the render (card 1.25): the car on the driveway,
-              araba: binary_sensor.floorplan_araba   #   shown while the doorbell camera sees it parked
+              araba: binary_sensor.floorplan_araba   #   shown while the doorbell camera sees a car in our spot
             entities:
               # covers
               salon_cover:
