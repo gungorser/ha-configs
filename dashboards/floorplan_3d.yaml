@@ -23,7 +23,7 @@
 #   them). They are manual: selectable: false (card 1.14), background like none, but the picture
 #   follows their position.
 # Decor (card 1.25 show, ha-floorplan config decor): kat0 araba, the car on the driveway, follows
-#   input_boolean.floorplan_araba (packages/dashboards.yaml), switched on the configs tab.
+#   binary_sensor.floorplan_araba (packages/dashboards.yaml: the doorbell picture checked by the AI task).
 # A page entity left out of the list shows up on the page (top right) with its name: map it or set none.
 # All floors are in one card (floors:); the floor button of the card's dock goes on to the next floor.
 # Kat1: balkon_light is the balcony lamp; the bedroom (yatak) has three blinds: north window, balcony door, east window.
@@ -58,7 +58,7 @@ views:
               koridor0: {sun: 0.7, covers: 1.4}             # the hallway 30% darker by day
               other: {sun: 3}
             show:                             # decor of the render (card 1.25): the car on the driveway,
-              araba: input_boolean.floorplan_araba   #   shown while the configs tab's switch is on
+              araba: binary_sensor.floorplan_araba   #   shown while the doorbell camera sees it parked
             entities:
               # covers
               salon_cover:
@@ -362,11 +362,6 @@ views:
   - title: configs
     path: configs
     cards:
-      - type: entities
-        title: Floorplan
-        entities:
-          - entity: input_boolean.floorplan_araba
-            name: Araba
       - type: entities
         title: Cover positions
         entities:

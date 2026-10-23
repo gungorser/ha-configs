@@ -31,8 +31,47 @@ lovelace:
       show_in_sidebar: true
       filename: gungors/dashboards/floorplan_3d.yaml
 
-# Floorplan 3D settings (configs tab of floorplan_3d.yaml)
-input_boolean:
-  floorplan_araba:
-    name: Floorplan araba   # the car on the kat0 driveway shown (card show.araba); keeps its state over restarts
-    icon: mdi:car-hatchback
+# Floorplan 3D: the car on the kat0 driveway (card show.araba) follows whether the white Opel Astra
+# is parked in front of the garage. The doorbell camera sees the driveway; its picture goes to the
+# Google AI task, which answers yes or no. The doorbell runs on a battery, so its picture is the last
+# one it took (on motion or a live view): checked when its motion clears and every 15 minutes.
+# A failed or unclear answer keeps the last state.
+template:
+  - triggers:
+      - trigger: motion.cleared
+        target:
+          entity_id: binary_sensor.doorbell_motion_detected
+      - trigger: time_pattern
+        minutes: "/15"
+      - trigger: homeassistant
+        event: start
+    actions:
+      - action: ai_task.generate_data
+        continue_on_error: true
+        data:
+          task_name: floorplan araba
+          entity_id: ai_task.google_ai_task
+          instructions: >-
+            This is a doorbell camera picture (two views stacked; the top view looks along the
+            driveway). Is a white Opel Astra hatchback parked on the driveway? Other cars do not
+            count. Answer present true or false.
+          structure:
+            present:
+              description: true if the white Opel Astra hatchback is parked on the driveway
+              required: true
+              selector:
+                boolean:
+          attachments:
+            - media_content_id: media-source://camera/camera.doorbell
+              media_content_type: image/jpeg
+        response_variable: result
+    binary_sensor:
+      - name: Floorplan araba
+        unique_id: floorplan_araba
+        icon: mdi:car-hatchback
+        state: >-
+          {% if result is defined and result.data is mapping and result.data.present is boolean %}
+            {{ result.data.present }}
+          {% else %}
+            {{ this.state == 'on' }}
+          {% endif %}
