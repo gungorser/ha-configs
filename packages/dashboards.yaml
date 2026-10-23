@@ -31,11 +31,12 @@ lovelace:
       show_in_sidebar: true
       filename: gungors/dashboards/floorplan_3d.yaml
 
-# Floorplan 3D: the car on the kat0 driveway (card show.araba) follows whether the white Opel Astra
-# is parked in front of the garage. The doorbell camera sees the driveway; its picture goes to the
-# Google AI task, which answers yes or no. The doorbell runs on a battery, so its picture is the last
-# one it took (on motion or a live view): checked when its motion clears and every 15 minutes.
-# A failed or unclear answer keeps the last state.
+# Floorplan 3D: the car on the kat0 driveway (card show.araba) follows whether a car is parked in
+# our spot. The doorbell camera's top view looks along the driveway: our spot is its foreground, in
+# front of the door; the cars further away (middle, right under the roof) are the neighbours'. The
+# picture goes to the Google AI task, which answers yes or no. The doorbell runs on a battery, so its
+# picture is the last one it took (on motion or a live view): checked when its motion clears and
+# every 15 minutes. A failed or unclear answer keeps the last state.
 template:
   - triggers:
       - trigger: motion.cleared
@@ -52,12 +53,14 @@ template:
           task_name: floorplan araba
           entity_id: ai_task.google_ai_task
           instructions: >-
-            This is a doorbell camera picture (two views stacked; the top view looks along the
-            driveway). Is a white Opel Astra hatchback parked on the driveway? Other cars do not
-            count. Answer present true or false.
+            Doorbell camera picture: two views stacked. Look only at the top view, which looks
+            along the driveway. Our parking spot is the paved area in the foreground of the top
+            view, the part closest to the camera, in front of our door. Cars further away (in the
+            middle of the picture or on the right under the roof) are the neighbours' and do not
+            count. Is a car parked in our spot in the foreground? Answer present true or false.
           structure:
             present:
-              description: true if the white Opel Astra hatchback is parked on the driveway
+              description: true if a car is parked in our spot in the foreground of the top view
               required: true
               selector:
                 boolean:
