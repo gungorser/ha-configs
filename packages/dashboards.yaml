@@ -35,15 +35,17 @@ lovelace:
 # our spot. The doorbell camera's top view looks along the driveway: our spot is its foreground, in
 # front of the door; the cars further away (middle, right under the roof) are the neighbours'. The
 # picture goes to the Google AI task, which answers yes or no. The doorbell runs on a battery, so its
-# picture is the last one it took (on motion or a live view): checked when its motion clears and
-# every 15 minutes. A failed or unclear answer keeps the last state.
+# picture is the last one it took (on motion or a live view): checked 5 minutes after a doorbell
+# event (motion cleared for 5 minutes) and every hour. A failed or unclear answer keeps the last state.
 template:
   - triggers:
       - trigger: motion.cleared
         target:
           entity_id: binary_sensor.doorbell_motion_detected
+        options:
+          for: "00:05:00"
       - trigger: time_pattern
-        minutes: "/15"
+        minutes: 0
       - trigger: homeassistant
         event: start
     actions:
