@@ -50,6 +50,10 @@ views:
     cards:
       - type: custom:gungors-floor-card
         sun: sun.sun
+        family:                               # portraits bottom right (card 1.39): left, middle, top;
+          - /local/family/sercan.svg          #   files in /config/www/family/ (not in git), each made for
+          - /local/family/oglum.svg           #   its cell's box
+          - /local/family/melike.svg
         lighting:
           default: 0.15
         floors:
