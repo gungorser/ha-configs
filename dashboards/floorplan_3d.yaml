@@ -51,8 +51,16 @@ views:
       - type: custom:gungors-floor-card
         sun: sun.sun
         family:                               # portraits bottom right (card 1.39): left, middle, top;
-          - /local/family/sercan.svg          #   files in /config/www/family/ (not in git), each made for
-          - /local/family/oglum.svg           #   its cell's box
+          - image: /local/family/sercan.svg   #   files in /config/www/family/ (not in git), each made for
+            tap_action:                       #   its cell's box; a tap on Sercan rings his phone (card 1.42,
+              action: perform-action          #   packages/phones.yaml)
+              perform_action: script.turn_on
+              target:
+                entity_id: script.telefon_caldir
+              data:
+                variables:
+                  notify: notify.mobile_app_sm_s931b
+          - /local/family/oglum.svg
           - /local/family/melike.svg
         lighting:
           default: 0.15

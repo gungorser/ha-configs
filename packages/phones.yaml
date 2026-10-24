@@ -1,0 +1,53 @@
+# Ring a lost phone, like Find My: the companion app speaks on the alarm stream at full volume
+# (media_stream alarm_stream_max), which also sounds on silent and do not disturb (Android).
+# A notification with a "Buldum" button comes with it; tapping it (or 5 rounds) stops the ringing.
+# Started from the Floorplan 3D card: a tap on a family portrait (floorplan_3d.yaml family tap_action).
+script:
+  telefon_caldir:
+    alias: Telefonu çaldır
+    description: Rings a phone through its companion app until "Buldum" is tapped (at most 5 rounds).
+    icon: mdi:cellphone-sound
+    mode: restart
+    fields:
+      notify:
+        name: Telefon
+        description: The phone's companion app notify action
+        example: notify.mobile_app_sm_s931b
+        required: true
+        selector:
+          text:
+    sequence:
+      - action: "{{ notify }}"
+        data:
+          title: Telefon burada
+          message: Home Assistant bu telefonu çaldırıyor.
+          data:
+            tag: telefon_caldir
+            priority: high
+            ttl: 0
+            sticky: true
+            actions:
+              - action: TELEFON_BULDUM
+                title: Buldum
+      - repeat:
+          sequence:
+            - action: "{{ notify }}"
+              data:
+                message: TTS
+                data:
+                  tts_text: Telefon burada
+                  media_stream: alarm_stream_max
+                  priority: high
+                  ttl: 0
+            - wait_for_trigger:
+                - trigger: event
+                  event_type: mobile_app_notification_action
+                  event_data:
+                    action: TELEFON_BULDUM
+              timeout: "00:00:06"
+          until: "{{ wait.trigger is not none or repeat.index >= 5 }}"
+      - action: "{{ notify }}"
+        data:
+          message: clear_notification
+          data:
+            tag: telefon_caldir
