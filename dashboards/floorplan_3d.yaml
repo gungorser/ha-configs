@@ -60,6 +60,8 @@ views:
               data:
                 variables:
                   notify: notify.mobile_app_sm_s931b
+              confirmation:                   # card 1.45: asks first (Vazgeç / Evet)
+                text: Sercan'ın telefonu çalsın mı?
           - /local/family/oglum.svg
           - /local/family/melike.svg
         lighting:
