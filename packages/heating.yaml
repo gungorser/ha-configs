@@ -58,7 +58,7 @@ climate:
       - program
       - pid:
           kp: 30
-          ki: 0.06
+          ki: 0.01  # the sensor reports hourly: 0.06 swung the integral 0-65 per sample
           kd: 80
           keep_alive: {minutes: 15}
           force_off: false
