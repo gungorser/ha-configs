@@ -78,6 +78,7 @@ views:
           default: 0.15
         floors:
           - floor: kat0
+            focus: salon_light                # card 1.46: the remote's first pick on this floor
             rooms:
               salon: {sun: 1, covers: 2}
               garaj: {sun: 1, covers: 2}
