@@ -63,7 +63,17 @@ views:
               confirmation:                   # card 1.45: asks first (Vazgeç / Evet)
                 text: Sercan'ın telefonu çalsın mı?
           - /local/family/oglum.svg
-          - /local/family/melike.svg
+          - image: /local/family/melike.svg   # a tap on Melike rings her phone, after the same question
+            tap_action:
+              action: perform-action
+              perform_action: script.turn_on
+              target:
+                entity_id: script.telefon_caldir
+              data:
+                variables:
+                  notify: notify.mobile_app_melike
+              confirmation:
+                text: Melike'nin telefonu çalsın mı?
         lighting:
           default: 0.15
         floors:
