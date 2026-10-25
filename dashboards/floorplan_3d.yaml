@@ -62,7 +62,11 @@ views:
                   notify: notify.mobile_app_sm_s931b
               confirmation:                   # card 1.45: asks first (Vazgeç / Evet)
                 text: Sercan'ın telefonu çalsın mı?
-          - /local/family/oglum.svg
+          - image: /local/family/oglum.svg    # a tap on Kaan opens the baby monitor's live picture (card 1.47)
+            tap_action:
+              action: camera
+              entity: camera.philips_avent_baby_monitor_2_camera
+              title: Kaan
           - image: /local/family/melike.svg   # a tap on Melike rings her phone, after the same question
             tap_action:
               action: perform-action
