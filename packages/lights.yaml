@@ -16,7 +16,7 @@ light:
     unique_id: bebek_light
     features:
       - program
-      - link: light.bebek_lamp
+      - link: light.phys_bebek_light
 
   - platform: gungors
     name: car_light
