@@ -181,7 +181,7 @@ cover:
       - program
       - window: binary_sensor.sercan_window_contact
       - direction
-      - link: cover.sercan_blind
+      - link: cover.phys_sercan_cover
 
   - platform: gungors
     name: bebek_cover
@@ -191,7 +191,7 @@ cover:
       - program
       - window: binary_sensor.bebek_window_contact
       - direction
-      - link: cover.bebek_blind
+      - link: cover.phys_bebek_cover
 
   - platform: gungors
     name: yatak_cover_window
@@ -200,7 +200,7 @@ cover:
     features:
       - window: binary_sensor.yatak_window_contact
       - direction
-      - link: cover.yatak_blind_2
+      - link: cover.phys_yatak2_cover
 
   # No window sensor: nothing to guard.
   - platform: gungors
@@ -210,7 +210,7 @@ cover:
     features:
       - program
       - direction
-      - link: cover.koridor1_blind
+      - link: cover.phys_koridor1_cover
 
   # Yatak: the two blinds without a window contact, and the group of all three, which carries
   # `program` for the room (the members have none, so commands are not sent twice).
@@ -220,7 +220,7 @@ cover:
     device_class: blind
     features:
       - direction
-      - link: cover.yatak_blind_1
+      - link: cover.phys_yatak1_cover
 
   - platform: gungors
     name: yatak_cover_3
@@ -228,7 +228,7 @@ cover:
     device_class: blind
     features:
       - direction
-      - link: cover.yatak_blind_3
+      - link: cover.phys_yatak3_cover
 
   - platform: gungors
     name: yatak_cover
@@ -254,7 +254,7 @@ cover:
       - program
       - invert
       - travel_time
-      - link: cover.salon_curtain
+      - link: cover.phys_salon_cover
 
   - platform: gungors
     name: misafir_cover
@@ -264,7 +264,7 @@ cover:
       - program
       - invert
       - travel_time
-      - link: cover.misafir_curtain
+      - link: cover.phys_misafir_cover
 
 script:
   # Single-tap behaviour for covers on dashboards (used by floorplan.yaml).
