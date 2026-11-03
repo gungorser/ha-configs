@@ -117,8 +117,8 @@ light:
       - program
       - link: switch.yemek_2
 
-  # bahce: garden lamp 1 on its own, and the group of all garden lights (lamp 1, the UI group
-  # light.bahce_light_2 and lamp 3).
+  # bahce: garden lamp 1 on its own, and the group of all garden lights (the lamp 1 wrapper,
+  # the UI group light.bahce_light_2 and the physical lamp 3).
   - platform: gungors
     name: bahce_light_1
     unique_id: bahce_light_1
@@ -131,6 +131,6 @@ light:
     unique_id: bahce_light
     features:
       - link:
-          - light.phys_bahce1_light
+          - light.bahce_light_1
           - light.bahce_light_2
           - light.phys_bahce3_light
