@@ -17,8 +17,9 @@ rules become clear.
 ## How
 - Live path: `/config/gungors/pyscript` (HA reads `/config/pyscript`, a symlink to it; check it
   exists before the first deploy).
-- Deploy only after Sercan approved: write the file with the HA MCP (`ha_write_file`,
-  `gungors/pyscript/...`), call `pyscript.reload` (no restart), check `ha_get_logs`.
+- Deploy only after Sercan approved: merge to master, pull it live with
+  `ha_call_service(shell_command, gungors_git_pull, return_response=true)` (ha-configs CLAUDE.md),
+  call `pyscript.reload` (no restart), check `ha_get_logs`.
 - Use `gungors` wrapper entities, never the hidden originals. Credentials only via `!secret`.
 
 ## Never

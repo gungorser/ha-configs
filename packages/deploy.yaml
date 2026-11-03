@@ -1,0 +1,21 @@
+# Deploy this repository to the live Home Assistant without a terminal.
+# /config/gungors is a git checkout of master; Claude (and anyone) runs these
+# through the HA MCP: ha_call_service(shell_command, <name>, return_response=true)
+# and reads stdout/stderr/returncode. See CLAUDE.md "Live apply".
+shell_command:
+  # Fetch and show how the live checkout differs from origin/master.
+  gungors_git_status: >-
+    cd /config/gungors &&
+    git -c safe.directory=/config/gungors fetch --quiet origin &&
+    git -c safe.directory=/config/gungors status --short --branch &&
+    git -c safe.directory=/config/gungors log --oneline -1 origin/master
+  # The deploy: fast-forward the live checkout to origin/master.
+  gungors_git_pull: >-
+    cd /config/gungors &&
+    git -c safe.directory=/config/gungors pull --ff-only origin master
+  # Discards live edits that are not in master. Only with Sercan's approval.
+  gungors_git_reset: >-
+    cd /config/gungors &&
+    git -c safe.directory=/config/gungors fetch --quiet origin &&
+    git -c safe.directory=/config/gungors checkout --quiet master &&
+    git -c safe.directory=/config/gungors reset --hard origin/master
