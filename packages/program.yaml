@@ -5,18 +5,10 @@
 # person calendars and the climate_schedule / cover_schedule automations).
 #
 # Defaults (what a device returns to when a set rule ends; covers also at sunrise and
-# sunset) live here only: change them, then call gungors.reload. A default may be a Jinja
-# template (re-applied whenever its result changes). The program card's Varsayılanlar tab
-# only shows them. A wrapper can override them with `- program: {<attribute>: <value>}`.
+# sunset) are the `default` presets in presets.yaml: change them there, then call
+# gungors.reload. The program card's Varsayılanlar tab only shows them. A wrapper can
+# override them with `- program: {<attribute>: <value>}`.
 
 calendar:
   - platform: gungors
     name: program
-    defaults:
-      light:
-        state: "off"
-        rgb_color: [255, 255, 255]
-      climate:
-        state: "off"
-      cover:  # open while the sun is up
-        current_position: "{{ 100 if is_state('sun.sun', 'above_horizon') else 0 }}"

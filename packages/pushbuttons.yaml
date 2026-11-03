@@ -1,212 +1,119 @@
-script:
-  blink_light:
-    fields:
-      lights:
-        description: "The light entities to blink"
-      color:
-        description: "the color to blink"
-    sequence:
-      - action: scene.create
-        data:
-          scene_id: blink_scene_1
-          snapshot_entities: "{{ lights }}"
-      - action: light.turn_on
-        data:
-          transition: .5
-        target:
-          entity_id: "{{ lights }}"
-      - delay: .5
-      - action: scene.create
-        data:
-          scene_id: blink_scene_2
-          snapshot_entities: "{{ lights }}"
-      - action: light.turn_on
-        data:
-          rgb_color: "{{ color }}"
-          effect: blink
-        target:
-          entity_id: "{{ lights }}"
-      - delay: 2
-      - action: scene.turn_on
-        data:
-          entity_id: scene.blink_scene_2
-      - delay: .5
-      - action: scene.turn_on
-        data:
-          entity_id: scene.blink_scene_1
+# Pushbuttons: gungors wrappers (ha-integrations README, Pushbuttons) for the Moes scene
+# remotes on Zigbee2MQTT. Each wrapper links the device's Z2M event entity
+# (event.<device>_action; Z2M's Home Assistant option for event entities must be on) and acts
+# on its presses. Targets are the device's area unless a `target` is given.
+#
+# Slots are <button>_<gesture> (single, double, hold). `light` and `cover` take all three of
+# their button, `climate` the single press (and the double press with a `program`). `custom`
+# actions go on free slots only.
+#
+# - light: single off / on (default preset); double brightness dim <-> default; hold colour
+#   night <-> default (presets.yaml).
+# - climate: single toggles (lights blink once: green on, blue off); with
+#   `climate: {program: "<timeless program>"}` double starts / stops it (two blinks).
+# - cover: single open, double close (physical: also with the window open); hold closes the
+#   whole floor with a backup scene, or restores it.
+# - A press a program rule limits is applied as the rule allows; the lights blink red twice.
 
-automation:
-  # Blueprint based automations
-  - id: "bahce_pushbutton"
-    alias: bahce_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: bahce
-        device: 8e701a3dcd1931b7132dfdcf8e31615b
-        button1: light
-        button2: none
-        button3: none
+event:
+  - platform: gungors
+    name: bahce_pushbutton
+    unique_id: bahce_pushbutton
+    features:
+      - buttons:
+          1: light
+      - link: event.bahce_pushbutton_action
 
-  - id: "koridor0_pushbutton"
-    alias: koridor0_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: koridor0
-        device: 11a1c6bc68faf4b5b988027ca757eb1b
-        button1: none
-        button2: light
-        button3: none
+  - platform: gungors
+    name: garaj_pushbutton
+    unique_id: garaj_pushbutton
+    features:
+      - buttons:
+          1: light
+      - link: event.gardirop_pushbutton_action
 
-  - id: "koridor1_pushbutton"
-    alias: koridor1_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: koridor1
-        device: 3b076af749562b3dfa18416768178b40
-        button1: light
-        button2: cover
-        button3: none
+  - platform: gungors
+    name: koridor0_pushbutton
+    unique_id: koridor0_pushbutton
+    features:
+      - buttons:
+          2: light
+      - custom:
+          1_single:
+            action: light.toggle
+            target: {entity_id: light.car_light}
+      - link: event.koridor0_pushbutton_action
 
-  - id: "koridor2_pushbutton"
-    alias: koridor2_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: koridor2
-        device: 6c88534b8be990d5fe3cc0782ae96138
-        button1: light
-        button2: none
-        button3: none
+  - platform: gungors
+    name: koridor1_pushbutton
+    unique_id: koridor1_pushbutton
+    features:
+      - buttons:
+          1: light
+          2: cover
+      - link: event.koridor1_pushbutton_action
 
-  - id: "garaj_pushbutton"
-    alias: garaj_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: garaj
-        device: 645fdd8ff68dd5824c305ae84447042a
-        button1: light
-        button2: none
-        button3: none
+  - platform: gungors
+    name: koridor2_pushbutton
+    unique_id: koridor2_pushbutton
+    features:
+      - buttons:
+          1: light
+      - custom:
+          2_single:
+            action: light.toggle
+            target: {entity_id: light.tavan_light_2}
+      - link: event.koridor2_pushbutton_action
 
-  - id: "bebek_pushbutton"
-    alias: bebek_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: bebek
-        device: 85669db7ab596b90d81e78d86364a693
-        button1: cover
-        button2: climate
-        button3: light
+  - platform: gungors
+    name: melike_pushbutton
+    unique_id: melike_pushbutton
+    features:
+      - buttons:
+          1: light
+          2: climate
+      - link: event.melike_pushbutton_action
 
-  - id: "sercan_pushbutton"
-    alias: sercan_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: sercan
-        device: d3fd09e3b60a91f37e64b9137c1bba7b
-        button1: light
-        button2: climate
-        button3: cover
+  - platform: gungors
+    name: bebek_pushbutton
+    unique_id: bebek_pushbutton
+    features:
+      - buttons:
+          1: cover
+          2: climate
+          3: light
+      - link: event.bebek_pushbutton_action
 
-  - id: "yatak_pushbutton"
-    alias: yatak_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        button1: cover
-        button2: climate
-        button3: light
-        room: yatak
-        device: 1d49a19304191ce333202639e9ed74d5
+  - platform: gungors
+    name: sercan_pushbutton
+    unique_id: sercan_pushbutton
+    features:
+      - buttons:
+          1: light
+          2: climate
+          3: cover
+      - custom:
+          2_hold:  # the monitors' outlet
+            action: switch.toggle
+            target: {entity_id: switch.sercan_plug}
+      - link: event.sercan_pushbutton_action
 
-  - id: "misafir_pushbutton"
-    alias: misafir_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: misafir
-        device: 7f94718f6e3179997e7f7f42c2b287c4
-        button1: cover
-        button2: climate
-        button3: light
+  - platform: gungors
+    name: yatak_pushbutton
+    unique_id: yatak_pushbutton
+    features:
+      - buttons:
+          1: cover
+          2: climate
+          3: light
+      - link: event.yatak_pushbutton_action
 
-  - id: "melike_pushbutton"
-    alias: melike_pushbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/pushbutton.yaml
-      input:
-        room: melike
-        device: 325f6eeb70e622f7c6c41c53b80583e3
-        button1: light
-        button2: climate
-        button3: none
-
-  # These two automation are not blueprint based!
-  - id: "tavan_pushbutton"
-    alias: tavan_pushbutton
-    description: ""
-    triggers:
-      - domain: mqtt
-        device_id: 6c88534b8be990d5fe3cc0782ae96138
-        type: action
-        subtype: 2_single
-        trigger: device
-    conditions: []
-    actions:
-      - type: toggle
-        device_id: f8730c7d7f85382ebc3ad729d68fb1cd
-        entity_id: f2950d0d00b1d03e0893d6a115201513
-        domain: light
-    mode: single
-
-  - id: "car_pushbutton"
-    alias: car_pushbutton
-    description: ""
-    trigger:
-      - platform: device
-        domain: mqtt
-        device_id: 11a1c6bc68faf4b5b988027ca757eb1b
-        type: action
-        subtype: 1_single
-    condition: []
-    action:
-      - action: light.toggle
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.car_light
-    mode: single
-
-  - id: sercan_plug
-    alias: sercan_plug
-    description: "long press for toggling the AC outlet"
-    triggers:
-      - domain: mqtt
-        device_id: d3fd09e3b60a91f37e64b9137c1bba7b
-        type: action
-        subtype: 2_hold
-        trigger: device
-    conditions: []
-    actions:
-      - action: switch.toggle
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.sercan_plug
-    mode: single
+  - platform: gungors
+    name: misafir_pushbutton
+    unique_id: misafir_pushbutton
+    features:
+      - buttons:
+          1: cover
+          2: climate
+          3: light
+      - link: event.misafir_pushbutton_action
