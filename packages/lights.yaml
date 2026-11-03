@@ -1,6 +1,6 @@
 # Lights: gungors wrappers (ha-integrations README, Features) for every light on the floor
 # plans (floorplan_3d and the old 2D floorplan). Each wrapper has the light's old entity id;
-# the Zigbee2MQTT original is renamed to light.<room>_lamp and hidden (dashboards and
+# the Zigbee2MQTT original is renamed to light.phys_<room>_light and hidden (dashboards and
 # automations use the wrapper). `link` mirrors the original and sends commands to it.
 
 light:
@@ -9,7 +9,7 @@ light:
     unique_id: banyo_light
     features:
       - program
-      - link: light.banyo_lamp
+      - link: light.phys_banyo_light
 
   - platform: gungors
     name: bebek_light
@@ -23,91 +23,91 @@ light:
     unique_id: car_light
     features:
       - program
-      - link: light.car_lamp
+      - link: light.phys_car_light
 
   - platform: gungors
     name: garaj_light
     unique_id: garaj_light
     features:
       - program
-      - link: light.garaj_lamp
+      - link: light.phys_garaj_light
 
   - platform: gungors
     name: kaan_light
     unique_id: kaan_light
     features:
       - program
-      - link: light.kaan_lamp
+      - link: light.phys_kaan_light
 
   - platform: gungors
     name: koridor0_light
     unique_id: koridor0_light
     features:
       - program
-      - link: light.koridor0_lamp
+      - link: light.phys_koridor0_light
 
   - platform: gungors
     name: koridor1_light
     unique_id: koridor1_light
     features:
       - program
-      - link: light.koridor1_lamp
+      - link: light.phys_koridor1_light
 
   - platform: gungors
     name: salon_light
     unique_id: salon_light
     features:
       - program
-      - link: light.salon_lamp
+      - link: light.phys_salon_light
 
   - platform: gungors
     name: sercan_light
     unique_id: sercan_light
     features:
       - program
-      - link: light.sercan_lamp
+      - link: light.phys_sercan_light
 
   - platform: gungors
     name: yatak_light
     unique_id: yatak_light
     features:
       - program
-      - link: light.yatak_lamp
+      - link: light.phys_yatak_light
 
   - platform: gungors
     name: yemek_light
     unique_id: yemek_light
     features:
       - program
-      - link: light.yemek_lamp
+      - link: light.phys_yemek_light
 
   - platform: gungors
     name: koridor2_light
     unique_id: koridor2_light
     features:
       - program
-      - link: light.koridor2_lamp
+      - link: light.phys_koridor2_light
 
   - platform: gungors
     name: melike_light
     unique_id: melike_light
     features:
       - program
-      - link: light.melike_lamp
+      - link: light.phys_melike_light
 
   - platform: gungors
     name: misafir_light
     unique_id: misafir_light
     features:
       - program
-      - link: light.misafir_lamp
+      - link: light.phys_misafir_light
 
   - platform: gungors
     name: tavan_light_2
     unique_id: tavan_light_2
     features:
       - program
-      - link: light.tavan_lamp_2
+      - link: light.phys_tavan2_light
 
   # mutfak: a relay (switch.yemek_2) without a light entity of its own.
   - platform: gungors
@@ -117,20 +117,20 @@ light:
       - program
       - link: switch.yemek_2
 
-  # bahce: the garden lamp 1 (on the floor plan by itself too) and the group of all garden
-  # lights: lamp 1's wrapper, light.bahce_light_2 (a light group of the UI) and lamp 3.
+  # bahce: garden lamp 1 on its own, and the group of all garden lights (lamp 1, the UI group
+  # light.bahce_light_2 and lamp 3).
   - platform: gungors
     name: bahce_light_1
     unique_id: bahce_light_1
     features:
       - program
-      - link: light.bahce_lamp_1
+      - link: light.phys_bahce1_light
 
   - platform: gungors
     name: bahce_light
     unique_id: bahce_light
     features:
       - link:
-          - light.bahce_light_1
+          - light.phys_bahce1_light
           - light.bahce_light_2
-          - light.bahce_light_3
+          - light.phys_bahce3_light
