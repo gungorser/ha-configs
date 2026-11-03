@@ -23,11 +23,11 @@ climate:
           force_off: false
           debug: true
       - valve:
-          opening: number.sercan_climate_valve_opening_degree
-          closing: number.sercan_climate_valve_closing_degree
+          opening: number.phys_sercan_climate_valve_opening_degree
+          closing: number.phys_sercan_climate_valve_closing_degree
           min: 10
       - temperature: sensor.sercan_sensor_temperature
-      - link: climate.sercan_climate
+      - link: climate.phys_sercan_climate
 
   - platform: gungors
     name: misafir_thermostat
@@ -43,13 +43,11 @@ climate:
           force_off: false
           debug: true
       - valve:
-          opening: number.misafir_climate_valve_opening_degree
-          closing: number.misafir_climate_valve_closing_degree
+          opening: number.phys_misafir_climate_valve_opening_degree
+          closing: number.phys_misafir_climate_valve_closing_degree
       - temperature: sensor.misafir_sensor_temperature
-      - link: climate.misafir_climate
+      - link: climate.phys_misafir_climate
 
-  # NOTE: the bebek TRV (climate.bebek_climate) is currently disconnected, so
-  # bebek_thermostat stays unavailable until it is back.
   - platform: gungors
     name: bebek_thermostat
     unique_id: bebek_thermostat
@@ -64,10 +62,10 @@ climate:
           force_off: false
           debug: true
       - valve:
-          opening: number.bebek_climate_valve_opening_degree
-          closing: number.bebek_climate_valve_closing_degree
+          opening: number.phys_bebek_climate_valve_opening_degree
+          closing: number.phys_bebek_climate_valve_closing_degree
       - temperature: sensor.bebek_sensor_temperature
-      - link: climate.bebek_climate
+      - link: climate.phys_bebek_climate
 
   - platform: gungors
     name: melike_thermostat
@@ -83,10 +81,10 @@ climate:
           force_off: false
           debug: true
       - valve:
-          opening: number.melike_climate_valve_opening_degree
-          closing: number.melike_climate_valve_closing_degree
+          opening: number.phys_melike_climate_valve_opening_degree
+          closing: number.phys_melike_climate_valve_closing_degree
       - temperature: sensor.melike_sensor_temperature
-      - link: climate.melike_climate
+      - link: climate.phys_melike_climate
 
   - platform: gungors
     name: banyo_thermostat
@@ -102,10 +100,10 @@ climate:
           force_off: false
           debug: true
       - valve:
-          opening: number.banyo_climate_valve_opening_degree
-          closing: number.banyo_climate_valve_closing_degree
+          opening: number.phys_banyo_climate_valve_opening_degree
+          closing: number.phys_banyo_climate_valve_closing_degree
       - temperature: sensor.banyo_moisture_temperature
-      - link: climate.banyo_climate
+      - link: climate.phys_banyo_climate
 
   - platform: gungors
     name: yatak_thermostat
@@ -121,11 +119,11 @@ climate:
           force_off: false
           debug: true
       - valve:
-          opening: number.yatak_climate_valve_opening_degree
-          closing: number.yatak_climate_valve_closing_degree
+          opening: number.phys_yatak_climate_valve_opening_degree
+          closing: number.phys_yatak_climate_valve_closing_degree
           min: 10
       - temperature: sensor.yatak_sensor_temperature
-      - link: climate.yatak_climate
+      - link: climate.phys_yatak_climate
 
   # salon: the boiler circuit thermostat (EMS-ESP hc1) and a socket heater driven by PWM.
   - platform: gungors
