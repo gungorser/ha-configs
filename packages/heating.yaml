@@ -14,7 +14,8 @@ climate:
     unique_id: sercan_thermostat
     max_temp: 35
     features:
-      - program
+      - program:
+          preheat: {rate: 1.5}  # °C/h: reach a program's set temperature by its start
       - pid:
           kp: 16
           ki: 0.01
@@ -34,7 +35,8 @@ climate:
     unique_id: misafir_thermostat
     max_temp: 35
     features:
-      - program
+      - program:
+          preheat: {rate: 1.5}  # °C/h: reach a program's set temperature by its start
       - pid:
           kp: 90
           ki: 0.08
@@ -53,7 +55,8 @@ climate:
     unique_id: bebek_thermostat
     max_temp: 35
     features:
-      - program
+      - program:
+          preheat: {rate: 1.5}  # °C/h: reach a program's set temperature by its start
       - pid:
           kp: 30
           ki: 0.01  # the sensor reports hourly: 0.06 swung the integral 0-65 per sample
@@ -72,7 +75,8 @@ climate:
     unique_id: melike_thermostat
     max_temp: 35
     features:
-      - program
+      - program:
+          preheat: {rate: 1.5}  # °C/h: reach a program's set temperature by its start
       - pid:
           kp: 40
           ki: 0.02
@@ -91,7 +95,8 @@ climate:
     unique_id: banyo_thermostat
     max_temp: 35
     features:
-      - program
+      - program:
+          preheat: {rate: 1.5}  # °C/h: reach a program's set temperature by its start
       - pid:
           kp: 50
           ki: 0.02
@@ -110,7 +115,8 @@ climate:
     unique_id: yatak_thermostat
     max_temp: 35
     features:
-      - program
+      - program:
+          preheat: {rate: 1.5}  # °C/h: reach a program's set temperature by its start
       - pid:
           kp: 40
           ki: 0.05
@@ -131,7 +137,8 @@ climate:
     unique_id: salon_thermostat
     max_temp: 35
     features:
-      - program
+      - program:
+          preheat: {rate: 1.0}  # °C/h: reach a program's set temperature by its start
       - pid:
           kp: 150
           ki: 0
