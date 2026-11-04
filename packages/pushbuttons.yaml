@@ -93,7 +93,7 @@ event:
           - light
           - cover
           - climate
-          - program: "Kaan gündüz uyku"
+          - program: {program: "Kaan gündüz uyku", duration: "03:00:00"}  # at most 3 h
       - link: event.bebek_pushbutton_action
 
   - platform: gungors
