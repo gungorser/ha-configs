@@ -107,7 +107,7 @@ binary_sensor:
     on_release:
       - light.turn_off: led_status
 
-  # Key 1: sends 1_single / 1_double / 1_hold (Moes-style); does not touch the relay.
+  # Key 1: sends 1_single / 1_double / 1_hold (Moes-style, hold on release); does not touch the relay.
   - platform: gpio
     name: "Left"
     pin:
@@ -126,6 +126,7 @@ binary_sensor:
           - event.trigger: {id: action, event_type: 1_double}
       - timing:
           - ON for at least 0.8s
+          - OFF for at least 0.05s
         then:
           - event.trigger: {id: action, event_type: 1_hold}
       - timing:
@@ -134,7 +135,7 @@ binary_sensor:
         then:
           - event.trigger: {id: action, event_type: 1_single}
 
-  # Key 2: sends 2_single / 2_double / 2_hold (Moes-style); does not touch the relay.
+  # Key 2: sends 2_single / 2_double / 2_hold (Moes-style, hold on release); does not touch the relay.
   - platform: gpio
     name: "Right"
     pin:
@@ -153,6 +154,7 @@ binary_sensor:
           - event.trigger: {id: action, event_type: 2_double}
       - timing:
           - ON for at least 0.8s
+          - OFF for at least 0.05s
         then:
           - event.trigger: {id: action, event_type: 2_hold}
       - timing:
