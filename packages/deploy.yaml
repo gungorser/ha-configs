@@ -19,3 +19,29 @@ shell_command:
     git -c safe.directory=/config/gungors fetch --quiet origin &&
     git -c safe.directory=/config/gungors checkout --quiet master &&
     git -c safe.directory=/config/gungors reset --hard origin/master
+
+  # --- New deploy (one folder = one live target, see README.md). ---
+  # A bare clone /config/.ha-configs.git holds the repository; each top folder
+  # with a deploy.sh is an area that its own script writes to its live target.
+
+  # One time: create the bare clone and check the tools the area scripts need.
+  configs_clone: >-
+    for t in git tar diff mv; do command -v $t >/dev/null || { echo "missing $t"; exit 1; }; done;
+    if [ ! -d /config/.ha-configs.git ]; then
+    git clone --quiet --bare https://github.com/gungorser/ha-configs.git /config/.ha-configs.git || exit 1; fi;
+    git -c safe.directory=/config/.ha-configs.git --git-dir=/config/.ha-configs.git log --oneline -1 master
+  # Fetch, then every area: deployed commit, master, and live edits.
+  configs_status: >-
+    G="git -c safe.directory=/config/.ha-configs.git --git-dir=/config/.ha-configs.git";
+    $G fetch --quiet origin +refs/heads/master:refs/heads/master || exit 1;
+    for a in $($G ls-tree --name-only master); do
+    $G cat-file -e "master:$a/deploy.sh" 2>/dev/null || continue;
+    $G show "master:$a/deploy.sh" | sh -s -- status; done
+  # Deploy one area: area = gungors | pyscript | blueprints | esphome,
+  # mode = deploy (default, stops on live edits) | force (Sercan only) | rollback.
+  configs_deploy: >-
+    sh -c 'G="git -c safe.directory=/config/.ha-configs.git --git-dir=/config/.ha-configs.git";
+    $G fetch --quiet origin +refs/heads/master:refs/heads/master || exit 1;
+    $G cat-file -e "master:$1/deploy.sh" || exit 1;
+    $G show "master:$1/deploy.sh" | sh -s -- "$2"'
+    configs-deploy {{ area }} {{ mode | default("deploy") }}
