@@ -1,4 +1,5 @@
-# Banyo wall switch (ESP32, 2 relays + 2 buttons). Written to /config/esphome by configs_deploy (esphome/README.md).
+# Banyo wall switch (ESP32, 2 relays + 2 keys). Keys only send events; relays are HA switches
+# (left: no load, drives its key LED; right: the banyo fan). Written to /config/esphome by configs_deploy (esphome/README.md).
 esphome:
   name: "banyo-switchbutton"
 
@@ -81,6 +82,14 @@ output:
     pin: GPIO18
     frequency: 1000 Hz
 
+# Key presses for the gungors pushbutton wrapper (ha-configs gungors/packages/switchbuttons.yaml):
+# event.<device>_action, event types <key>_<single|double|hold>, key 1 = leftmost.
+event:
+  - platform: template
+    name: "Action"
+    id: action
+    event_types: [1_single, 1_double, 1_hold, 2_single, 2_double, 2_hold]
+
 binary_sensor:
   - platform: status
     name: "Status"
@@ -98,23 +107,59 @@ binary_sensor:
     on_release:
       - light.turn_off: led_status
 
+  # Key 1: sends 1_single / 1_double / 1_hold (Moes-style); does not touch the relay.
   - platform: gpio
     name: "Left"
     pin:
       number: GPIO04
       mode: INPUT_PULLUP
-      inverted: False
-    on_press:
-      - switch.toggle: relay_1
+      inverted: true
+    filters:
+      - delayed_on: 10ms
+    on_multi_click:
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at most 0.3s
+          - ON for at most 0.4s
+          - OFF for at least 0.1s
+        then:
+          - event.trigger: {id: action, event_type: 1_double}
+      - timing:
+          - ON for at least 0.8s
+        then:
+          - event.trigger: {id: action, event_type: 1_hold}
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at least 0.3s
+        then:
+          - event.trigger: {id: action, event_type: 1_single}
 
+  # Key 2: sends 2_single / 2_double / 2_hold (Moes-style); does not touch the relay.
   - platform: gpio
     name: "Right"
     pin:
       number: GPIO15
       mode: INPUT_PULLUP
-      inverted: False
-    on_press:
-      - switch.toggle: relay_2
+      inverted: true
+    filters:
+      - delayed_on: 10ms
+    on_multi_click:
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at most 0.3s
+          - ON for at most 0.4s
+          - OFF for at least 0.1s
+        then:
+          - event.trigger: {id: action, event_type: 2_double}
+      - timing:
+          - ON for at least 0.8s
+        then:
+          - event.trigger: {id: action, event_type: 2_hold}
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at least 0.3s
+        then:
+          - event.trigger: {id: action, event_type: 2_single}
 
 light:
   - platform: status_led

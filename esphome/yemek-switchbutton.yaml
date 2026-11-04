@@ -1,7 +1,8 @@
-# Yemek wall switch (ESP32, 3 relays + 3 buttons). Written to /config/esphome by configs_deploy (esphome/README.md).
+# Yemek wall switch (ESP32, 3 relays + 3 keys). Keys only send events; relays are HA switches
+# (A, C: no load, drive their key LEDs; B: the mutfak lamp). Written to /config/esphome by configs_deploy (esphome/README.md).
 substitutions:
   # Shown by the "Deployment Version" sensor; bump when the firmware is reinstalled.
-  sw_version: "2026.11.0"
+  sw_version: "2026.11.1"
 
 esphome:
   name: "yemek-switchbutton"
@@ -101,33 +102,6 @@ switch:
     pin: GPIO22
     id: relay_c
 
-  # Config-only switch to decouple relay from button
-  - platform: template
-    name: "Decoupling - Relay A"
-    id: relay_a_decoupled
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_OFF
-    icon: 'mdi:link-box-outline'
-    entity_category: 'config'
-
-  # Config-only switch to decouple relay from button
-  - platform: template
-    name: "Decoupling - Relay B"
-    id: relay_b_decoupled
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_OFF
-    icon: 'mdi:link-box-outline'
-    entity_category: 'config'
-
-  # Config-only switch to decouple relay from button
-  - platform: template
-    name: "Decoupling - Relay C"
-    id: relay_c_decoupled
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_OFF
-    icon: 'mdi:link-box-outline'
-    entity_category: 'config'
-
 output:
   # Physical GPIO PWM for off-state background brightness
   # This pin controls the background brightness for all LEDs
@@ -136,6 +110,14 @@ output:
     id: pwm_output
     pin: GPIO18
     frequency: 1000 Hz
+
+# Key presses for the gungors pushbutton wrapper (ha-configs gungors/packages/switchbuttons.yaml):
+# event.<device>_action, event types <key>_<single|double|hold>, key 1 = leftmost.
+event:
+  - platform: template
+    name: "Action"
+    id: action
+    event_types: [1_single, 1_double, 1_hold, 2_single, 2_double, 2_hold, 3_single, 3_double, 3_hold]
 
 binary_sensor:
   # Diagnostic sensor for connection
@@ -156,7 +138,7 @@ binary_sensor:
     on_release:
       - light.turn_on: led_status
 
-  # Physical Button A
+  # Key 1: sends 1_single / 1_double / 1_hold (Moes-style); does not touch the relay.
   - platform: gpio
     name: "Button A"
     id: button_a
@@ -166,9 +148,25 @@ binary_sensor:
       inverted: true
     filters:
       - delayed_on: 10ms
-    on_press:
-      - switch.toggle: relay_a
+    on_multi_click:
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at most 0.3s
+          - ON for at most 0.4s
+          - OFF for at least 0.1s
+        then:
+          - event.trigger: {id: action, event_type: 1_double}
+      - timing:
+          - ON for at least 0.8s
+        then:
+          - event.trigger: {id: action, event_type: 1_hold}
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at least 0.3s
+        then:
+          - event.trigger: {id: action, event_type: 1_single}
 
+  # Key 2: sends 2_single / 2_double / 2_hold (Moes-style); does not touch the relay.
   - platform: gpio
     name: "Button B"
     id: button_b
@@ -178,9 +176,25 @@ binary_sensor:
       inverted: true
     filters:
       - delayed_on: 10ms
-    on_press:
-      - switch.toggle: relay_b
+    on_multi_click:
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at most 0.3s
+          - ON for at most 0.4s
+          - OFF for at least 0.1s
+        then:
+          - event.trigger: {id: action, event_type: 2_double}
+      - timing:
+          - ON for at least 0.8s
+        then:
+          - event.trigger: {id: action, event_type: 2_hold}
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at least 0.3s
+        then:
+          - event.trigger: {id: action, event_type: 2_single}
 
+  # Key 3: sends 3_single / 3_double / 3_hold (Moes-style); does not touch the relay.
   - platform: gpio
     name: "Button C"
     id: button_c
@@ -190,8 +204,23 @@ binary_sensor:
       inverted: true
     filters:
       - delayed_on: 10ms
-    on_press:
-      - switch.toggle: relay_c
+    on_multi_click:
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at most 0.3s
+          - ON for at most 0.4s
+          - OFF for at least 0.1s
+        then:
+          - event.trigger: {id: action, event_type: 3_double}
+      - timing:
+          - ON for at least 0.8s
+        then:
+          - event.trigger: {id: action, event_type: 3_hold}
+      - timing:
+          - ON for at most 0.4s
+          - OFF for at least 0.3s
+        then:
+          - event.trigger: {id: action, event_type: 3_single}
 
 light:
   # Physical pin to the connection status LED
