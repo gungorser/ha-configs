@@ -37,6 +37,9 @@ api:
 ota:
   - platform: esphome
 
+# Boots into safe mode (OTA only) after repeated failed boots, so a bad install can be fixed over the air.
+safe_mode:
+
 web_server:
   port: 80
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 # Deploys esphome/*.yaml to /config/esphome (the ESPHome Device Builder folder). Not a swap: that
 # folder also holds secrets.yaml, archive/ and the add-on's own .git, which are never touched.
-# Only our device files are written; nothing is deleted. Installing on a device stays a click in
-# the ESPHome UI. Run by shell_command.configs_deploy / configs_status; see README.md here.
+# Only our device files are written; nothing is deleted. Installing on a device (compile + OTA) is
+# done afterwards through the Device Builder API; see README.md here.
 # mode: status | deploy (stops on live edits) | force (Sercan only) | rollback
 set -u
 MODE=${1:-status}
