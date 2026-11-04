@@ -5,8 +5,8 @@ dummy secrets, on the ESPHome version of the HA add-on.
 
 | File | Device | HA config entry title |
 |---|---|---|
-| `banyo-switchbutton.yaml` | ESP32, 2 relays | yemek_pushbutton (crossed on purpose for now) |
-| `yemek-switchbutton.yaml` | ESP32, 3 relays | banyo_pushbutton |
+| `banyo-switchbutton.yaml` | ESP32, 2 keys + 2 relays; keys send events (`event.*_action`) | yemek_pushbutton (crossed on purpose for now) |
+| `yemek-switchbutton.yaml` | ESP32, 3 keys + 3 relays; keys send events (`event.*_action`) | banyo_pushbutton |
 | `nspanel.yaml` | NSPanel `nspanelhome` (Blackymas remote package) | nspanel home |
 | `slimmelezer.yaml` | P1 reader (ESP8266) | slimmelezer |
 
