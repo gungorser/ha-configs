@@ -172,7 +172,8 @@ cover:
   # --- IKEA blinds -------------------------------------------------------------------
   # direction: movement tracking (opening/closing, real position while moving).
   # window: remote commands are held while the window is open; wall button presses come
-  # from the pushbutton blueprint as physical requests (allowed with the window open).
+  # from the gungors pushbuttons (pushbuttons.yaml) as physical requests (allowed with the
+  # window open).
   - platform: gungors
     name: sercan_cover
     unique_id: sercan_cover
