@@ -35,7 +35,7 @@ views:
               - light.koridor0_light
               - light.koridor1_light
               - light.koridor2_light
-              - light.car_light
+              - light.araba_light
               - light.tavan_light_2
     badges: []
   - title: Kamera

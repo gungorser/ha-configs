@@ -19,11 +19,11 @@ light:
       - link: light.phys_bebek_light
 
   - platform: gungors
-    name: car_light
-    unique_id: car_light
+    name: araba_light
+    unique_id: araba_light
     features:
       - program
-      - link: light.phys_car_light
+      - link: light.phys_araba_light
 
   - platform: gungors
     name: garaj_light
