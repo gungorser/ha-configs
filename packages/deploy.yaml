@@ -13,6 +13,14 @@ shell_command:
   gungors_git_pull: >-
     cd /config/gungors &&
     git -c safe.directory=/config/gungors pull --ff-only origin master
+  # Writes the ESPHome device YAMLs of the live checkout (esphome/) into the ESPHome add-on
+  # folder /config/esphome. Read from git, so it also works if esphome/ is not checked out.
+  # secrets.yaml there is not touched. Installing on a device stays a click in the ESPHome UI.
+  gungors_esphome_sync: >-
+    cd /config/gungors &&
+    for f in $(git -c safe.directory=/config/gungors ls-tree --name-only HEAD esphome/); do
+    git -c safe.directory=/config/gungors show "HEAD:$f" > "/config/esphome/${f#esphome/}" || exit 1;
+    echo "synced ${f#esphome/}"; done
   # Discards live edits that are not in master. Only with Sercan's approval.
   gungors_git_reset: >-
     cd /config/gungors &&

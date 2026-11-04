@@ -8,6 +8,7 @@ this repository) loads `packages/` with `!include_dir_named gungors/packages`.
 | `packages/<topic>.yaml` | One package per topic (file name = package name), any domains mixed |
 | `dashboards/*.yaml` | YAML dashboards registered in `packages/dashboards.yaml` (`floorplan` = old 2D, `floorplan_3d`, `program`, `unnecessary`) |
 | `blueprints/` | Own blueprints, used as `path: gungorser/<name>.yaml` |
+| `esphome/` | ESPHome device YAMLs; `gungors_esphome_sync` (`packages/deploy.yaml`) copies them to `/config/esphome` after the pull, CI runs `esphome config` |
 | `pyscript/` | Python automations for pyscript (settings in `packages/pyscript.yaml`), see `pyscript/README.md` |
 
 - Each file opens with a short English comment saying what it does.
