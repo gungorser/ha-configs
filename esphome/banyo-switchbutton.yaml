@@ -11,6 +11,9 @@ ota:
   - platform: esphome
     password: !secret ota_password
 
+# Boots into safe mode (OTA only) after repeated failed boots, so a bad install can be fixed over the air.
+safe_mode:
+
 # Enable logging
 logger:
 
