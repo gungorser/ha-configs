@@ -1,0 +1,5 @@
+# Pyscript (HACS custom-components/pyscript) settings. Scripts live in the repo's pyscript/,
+# deployed to /config/pyscript (pyscript/README.md).
+pyscript:
+  allow_all_imports: true
+  hass_is_global: true

@@ -1,0 +1,26 @@
+# Validates the ESPHome device YAMLs with dummy secrets (the real ones stay on HA).
+name: esphome
+on:
+  pull_request:
+    paths: ["esphome/**", ".github/workflows/esphome.yml"]
+  push:
+    branches: [master]
+    paths: ["esphome/**", ".github/workflows/esphome.yml"]
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Keep in step with the ESPHome add-on version on HA.
+      - run: pip install esphome==2026.10.0
+      - name: esphome config
+        working-directory: esphome
+        run: |
+          printf 'wifi_ssid: ci\nwifi_password: "ci-password"\nota_password: ci\n' > secrets.yaml
+          for f in *.yaml; do
+            [ "$f" = secrets.yaml ] && continue
+            echo "::group::$f"; esphome config "$f" > /dev/null; echo "::endgroup::"
+          done

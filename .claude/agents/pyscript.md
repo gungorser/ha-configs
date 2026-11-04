@@ -12,13 +12,13 @@ rules become clear.
 
 ## You own (write)
 - `pyscript/<topic>.py` (one file per topic), shared helpers in `pyscript/modules/`
-- `packages/pyscript.yaml` (pyscript settings)
+- `gungors/pyscript.yaml` (pyscript settings)
 
 ## How
-- Live path: `/config/gungors/pyscript` (HA reads `/config/pyscript`, a symlink to it; check it
-  exists before the first deploy).
-- Deploy only after Sercan approved: merge to master, pull it live with
-  `ha_call_service(shell_command, gungors_git_pull, return_response=true)` (ha-configs CLAUDE.md),
+- Live path: `/config/pyscript`, written by the pyscript area deploy (`pyscript/README.md`).
+- Deploy only after Sercan approved: merge to master, deploy it with
+  `ha_call_service(shell_command, configs_deploy, {"area": "pyscript"}, return_response=true)`
+  (ha-configs CLAUDE.md),
   call `pyscript.reload` (no restart), check `ha_get_logs`.
 - Use `gungors` wrapper entities, never the hidden originals. Credentials only via `!secret`.
 

@@ -1,22 +1,22 @@
 # ha-configs
 
-Home Assistant YAML (checked out on HA at `/config/gungors`) and, by the same session, the cards
+Home Assistant and add-on config (HA packages deployed to `/config/gungors`, ESPHome, ...) and, by the same session, the cards
 in ha-dashboards. No agent for YAML or cards: the main session works here itself. Agent here:
 `pyscript` (pyscript automations).
 
 ## This repository
 
-- Apply live only after Sercan approved the change. Live apply = `git pull` on HA, run through the
-  HA MCP (no terminal needed): merge the PR to master, then
-  `ha_call_service(shell_command, gungors_git_pull, return_response=true)` and check `returncode` 0
-  (`gungors_git_status` shows the live checkout vs origin/master first). Then check the config,
-  reload the domain or restart, verify the entities. If the pull refuses because of live edits, show
-  `gungors_git_status` to Sercan; `gungors_git_reset` (discards them) only with his approval. Do not
-  write repo files live with `ha_write_file`: that makes the checkout dirty and breaks the next pull.
-  A dashboard that references a new entity goes after its package. Follow the Home Assistant MCP
-  best-practice skill before automations, helpers, scripts or dashboards. Services:
-  `packages/deploy.yaml`.
-- A new entity on the 3D floor view: find its position in `dashboards/floorplan.yaml` (old 2D) first.
+- Apply live only after Sercan approved the change. Each top folder with a `deploy.sh` is an area
+  with its own live target and deploy (table in README.md); read the README of the area you change.
+  Live apply, through the HA MCP (no terminal): merge the PR to master, then
+  `ha_call_service(shell_command, configs_deploy, {"area": "<area>"}, return_response=true)` and
+  check `returncode` 0 (`configs_status` first). Then check the config, reload the domain or
+  restart, verify the entities. If the deploy stops on live edits, show the diff to Sercan; mode
+  `force` (overwrites them) only with his approval, mode `rollback` restores the previous version.
+  Never write repo files live with `ha_write_file`. A dashboard that references a new entity goes
+  after its package. Follow the Home Assistant MCP best-practice skill before automations,
+  helpers, scripts or dashboards.
+- A new entity on the 3D floor view: find its position in `gungors/dashboards/floorplan.yml` (old 2D) first.
 - `gungors` wrappers drive hidden original entities: dashboards and automations use the wrapper
   (`cover.sercan_cover`, never `cover.sercan_blind`). Options and attributes: ha-integrations README.
 - Credentials only via `!secret`. UI-only integrations stay in the UI. UI automations moved into

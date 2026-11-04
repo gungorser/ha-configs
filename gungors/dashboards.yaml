@@ -11,25 +11,25 @@ lovelace:
       title: Gereksiz
       icon: mdi:power
       show_in_sidebar: true
-      filename: gungors/dashboards/unnecessary.yaml
+      filename: gungors/dashboards/unnecessary.yml
     floorplan-dashboard:
       mode: yaml
       title: Floorplan
       icon: mdi:floor-plan
       show_in_sidebar: true
-      filename: gungors/dashboards/floorplan.yaml
+      filename: gungors/dashboards/floorplan.yml
     program-dashboard:
       mode: yaml
       title: Program
       icon: mdi:calendar-clock
       show_in_sidebar: true
-      filename: gungors/dashboards/program.yaml
+      filename: gungors/dashboards/program.yml
     floorplan3d-dashboard:
       mode: yaml
       title: Floorplan 3D
       icon: mdi:home-lightbulb
       show_in_sidebar: true
-      filename: gungors/dashboards/floorplan_3d.yaml
+      filename: gungors/dashboards/floorplan_3d.yml
 
 # Floorplan 3D: opacity of the robot vacuum's map on the kat0 floor (floorplan_3d.yaml vacuum_opacity),
 # set on its configs tab; no initial, so it keeps its value over restarts.
