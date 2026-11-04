@@ -12,7 +12,7 @@ rules become clear.
 
 ## You own (write)
 - `pyscript/<topic>.py` (one file per topic), shared helpers in `pyscript/modules/`
-- `gungors/pyscript.yaml` (pyscript settings)
+- `gungors/packages/pyscript.yaml` (pyscript settings)
 
 ## How
 - Live path: `/config/pyscript`, written by the pyscript area deploy (`pyscript/README.md`).

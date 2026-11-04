@@ -19,11 +19,11 @@
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
 #   blind), kat2 koridor2_cover (attic hall window blind) and melike_cover (blind of melike's
 #   roof window) have no device: gungors covers
-#   linked to a position number (gungors/covers.yaml, initial position at its top; the configs tab sets
+#   linked to a position number (gungors/packages/covers.yaml, initial position at its top; the configs tab sets
 #   them). They are manual: selectable: false (card 1.14), background like none, but the picture
 #   follows their position.
 # Decor (card 1.25 show, ha-floorplan config decor): kat0 araba, the car on the driveway, follows
-#   binary_sensor.floorplan_araba (gungors/dashboards.yaml: the doorbell picture checked by the AI task).
+#   binary_sensor.floorplan_araba (gungors/packages/dashboards.yaml: the doorbell picture checked by the AI task).
 # Vacuum map (card 1.26 vacuum_map, ha-floorplan floor_mask + settings.json kat0 vacuum): kat0 shows the
 #   robot vacuum's map camera on its floor, under the furniture and walls; its "No go" rooms are trimmed.
 # A page entity left out of the list shows up on the page (top right) with its name: map it or set none.
@@ -53,7 +53,7 @@ views:
         family:                               # portraits bottom right (card 1.39): left, middle, top;
           - image: /local/family/sercan.svg   #   files in /config/www/family/ (not in git), each made for
             tap_action:                       #   its cell's box; a tap on Sercan rings his phone (card 1.42,
-              action: perform-action          #   gungors/phones.yaml)
+              action: perform-action          #   gungors/packages/phones.yaml)
               perform_action: script.turn_on
               target:
                 entity_id: script.telefon_caldir
@@ -391,7 +391,7 @@ views:
               tavan_light:                    # on the attic's sloped ceiling
                 <<: *light
                 entity: light.tavan_light_2
-  # Positions of the covers without a device (input numbers in gungors/covers.yaml; their
+  # Positions of the covers without a device (input numbers in gungors/packages/covers.yaml; their
   # initial value after a restart is set there)
   - title: configs
     path: configs

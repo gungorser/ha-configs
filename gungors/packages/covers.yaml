@@ -95,7 +95,7 @@ cover:
   # gungors covers (ha-integrations README, Features): a domain base plus a `features:` list,
   # combined in list order. `link` (always last) is the original the wrapper drives; dashboards
   # and automations use the wrapper, never the original. `program` (first): follows
-  # calendar.program (gungors/program.yaml) and opens at sunrise / closes at sunset; doors have
+  # calendar.program (gungors/packages/program.yaml) and opens at sunrise / closes at sunset; doors have
   # none. In yatak the group carries it (area-targeted rules see the group, not the three blinds).
 
   # --- Covers without a device ---------------------------------------------------------
