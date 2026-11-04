@@ -33,11 +33,11 @@ light:
       - link: light.phys_garaj_light
 
   - platform: gungors
-    name: kaan_light
-    unique_id: kaan_light
+    name: balkon_light
+    unique_id: kaan_light    # the balcony lamp, once kaan_light: the old unique_id keeps its history
     features:
       - program
-      - link: light.phys_kaan_light
+      - link: light.phys_balkon_light
 
   - platform: gungors
     name: koridor0_light

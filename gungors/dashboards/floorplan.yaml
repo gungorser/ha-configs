@@ -380,7 +380,7 @@ views:
             entity: light.yatak_light
             style: {left: 66%, top: 36%}
           - <<: *room_light
-            entity: light.kaan_light
+            entity: light.balkon_light
             style: {left: 50%, top: 15%}
           - <<: *room_light
             entity: light.banyo_light

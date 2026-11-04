@@ -326,9 +326,9 @@ views:
               koridor1_light:
                 <<: *light
                 entity: light.koridor1_light
-              balkon_light:           # the balcony lamp (Home Assistant still calls it kaan_light)
+              balkon_light:           # the balcony lamp
                 <<: *light
-                entity: light.kaan_light
+                entity: light.balkon_light
           - floor: kat2
             rooms:
               misafir: {sun: 1, covers: 2}                  # the whole guest room, up to where its slope meets the walls
