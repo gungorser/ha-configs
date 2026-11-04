@@ -77,6 +77,11 @@ button:
     name: "Restart"
     id: button_restart
 
+  # Reboots into safe mode (OTA only, API off) to test recovery; leaves it after an install or 5 min.
+  - platform: safe_mode
+    name: "Safe Mode Boot"
+    entity_category: "diagnostic"
+
 switch:
   # Physical GPIO Relay
   - platform: gpio

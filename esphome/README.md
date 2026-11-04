@@ -37,6 +37,9 @@ OTA uses `!secret ota_password` (in `secrets.yaml`, set by Sercan). Every device
 (not implied by `ota` since ESPHome 2024.6; nspanel gets it from its package): a device that fails
 to boot several times in a row boots into safe mode and still accepts OTA, so a fix or the previous
 YAML (rollback, then install) can be flashed again.
+The switchbuttons also have a "Safe Mode Boot" button: pressing it reboots the device into safe
+mode (offline in HA, OTA only) to test recovery; an install brings it back (it also leaves safe
+mode by itself after 5 minutes).
 
 ## Check
 `validate_config` passes on every file; after an install, the device is online in HA.
