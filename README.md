@@ -1,23 +1,40 @@
 # ha-configs
 
-Sercan's Home Assistant YAML, checked out on HA at `/config/gungors`. `configuration.yaml` (not in
-this repository) loads `packages/` with `!include_dir_named gungors/packages`.
+Sercan's Home Assistant config and the config of the add-ons around it. **Each top folder with a
+`deploy.sh` is an area: one live target, its own deploy, its own README** (read only the README of
+the area you change).
 
-| Folder | What |
-|---|---|
-| `packages/<topic>.yaml` | One package per topic (file name = package name), any domains mixed |
-| `dashboards/*.yaml` | YAML dashboards registered in `packages/dashboards.yaml` (`floorplan` = old 2D, `floorplan_3d`, `program`, `unnecessary`) |
-| `blueprints/` | Own blueprints, used as `path: gungorser/<name>.yaml` |
-| `pyscript/` | Python automations for pyscript (settings in `packages/pyscript.yaml`), see `pyscript/README.md` |
+| Area | Live target | Deploy | README |
+|---|---|---|---|
+| `gungors/` | `/config/gungors` (HA packages, YAML dashboards) | swap, then reload or restart | [gungors/README.md](gungors/README.md) |
+| `pyscript/` | `/config/pyscript` | swap, then `pyscript.reload` | [pyscript/README.md](pyscript/README.md) |
+| `blueprints/` | `/config/blueprints/{automation,template}/gungorser` | swap, then reload | [blueprints/README.md](blueprints/README.md) |
+| `esphome/` | `/config/esphome` (ESPHome Device Builder) | writes our files only | [esphome/README.md](esphome/README.md) |
 
-- Each file opens with a short English comment saying what it does.
-- UI automations moved into packages keep their `id`. Credentials only via `!secret`.
-- `platform: gungors` comes from ha-integrations; the cards from ha-dashboards.
+## How deploy works (all areas)
+
+- On HA the repository is a bare clone, `/config/.ha-configs.git` (no checkout).
+- Everything runs through the HA MCP (no terminal):
+  `ha_call_service(shell_command, <name>, <data>, return_response=true)`, defined in
+  `gungors/deploy.yaml`:
+  - `configs_status`: fetch master, then per area the deployed commit, master and live edits.
+  - `configs_deploy` with `{"area": "<area>", "mode": "<mode>"}`: fetches master and runs
+    `<area>/deploy.sh` from git. Modes: `deploy` (default; stops and shows the diff when the live
+    target was edited), `force` (overwrites live edits, Sercan's approval only), `rollback`
+    (restores the previous version; again to undo).
+- `swap.sh` is the shared "swap" deploy: unpack `master:<area>` into
+  `/config/.ha-configs-stage/`, `mv` it over the target, keep the old one in
+  `/config/.ha-configs-prev/`, write the commit to `<target>/.deployed`. Files removed from the
+  repo disappear live.
+- A new area: a top folder with `deploy.sh` (modes `status`, `deploy`, `force`, `rollback`) and a
+  README with the sections Live target, Deploy, Check, Rollback, Don't.
+- Change files only through a PR. Never write deployed files live (`ha_write_file`): the next
+  deploy stops on them.
 
 ## Naming physical devices
 
-Zigbee2MQTT devices that a gungors wrapper drives (the `link` targets in `packages/lights.yaml`,
-`packages/covers.yaml` and `packages/heating.yaml`) are named in Z2M as:
+Zigbee2MQTT devices that a gungors wrapper drives (the `link` targets in `gungors/lights.yaml`,
+`gungors/covers.yaml` and `gungors/heating.yaml`) are named in Z2M as:
 
 `phys_<name>_<domain>`
 
@@ -33,6 +50,10 @@ Zigbee2MQTT devices that a gungors wrapper drives (the `link` targets in `packag
 - Wrappers keep the room name without a prefix (`bebek_light`, `koridor1_light`).
 - When a device is renamed, every reference to its entity IDs is updated in the same change:
   `link` values, blueprints, automations, dashboards and scripts.
+
+- Each file opens with a short English comment saying what it does.
+- UI automations moved into packages keep their `id`. Credentials only via `!secret`.
+- `platform: gungors` comes from ha-integrations; the cards from ha-dashboards.
 
 Claude: YAML and cards are worked on by the main session (no agent); agent `pyscript`
 (`.claude/agents/`) for pyscript automations. Rules and the other agents: [CLAUDE.md](CLAUDE.md).
