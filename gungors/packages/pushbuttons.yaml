@@ -37,17 +37,15 @@ event:
           - light
       - link: event.gardirop_pushbutton_action
 
-  # Three keys although Z2M's model says two.
   - platform: gungors
     name: koridor0_pushbutton
     unique_id: koridor0_pushbutton
-    keys: 3
+    keys: 2
     door: right
     features:
       - buttons:
-          - light                                          # 3: koridor0
-          - light: {button: 2, target: {area_id: araba}}   # 2: araba
-          - light: {button: 1, target: {area_id: garaj}}   # 1: garaj
+          - light                                          # 2: koridor0
+          - light: {button: 1, target: {area_id: araba}}   # 1: araba
       - link: event.koridor0_pushbutton_action
 
   - platform: gungors
