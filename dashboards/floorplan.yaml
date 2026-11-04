@@ -214,7 +214,7 @@ views:
             image: local/images/floorplan/kat0/salon_light.png
             state_filter: *filter_50
           - <<: *overlay
-            entity: light.car_light
+            entity: light.araba_light
             image: local/images/floorplan/kat0/car_light.png
           - <<: *overlay
             entity: light.koridor0_light
@@ -233,7 +233,7 @@ views:
             image: local/images/floorplan/kat0/bahce_light.png
           # lights
           - <<: *room_light
-            entity: light.car_light
+            entity: light.araba_light
             style: {left: 72%, top: 50%}
           - <<: *room_light
             entity: light.koridor0_light

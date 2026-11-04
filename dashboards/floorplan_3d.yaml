@@ -228,7 +228,7 @@ views:
                 entity: light.yemek_light
               car_light:
                 <<: *light
-                entity: light.car_light
+                entity: light.araba_light
               bahce_light:            # the garden's only lamp, on the back wall
                 <<: *light
                 entity: light.bahce_light

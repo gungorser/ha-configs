@@ -41,7 +41,7 @@ event:
       - custom:
           1_single:
             action: light.toggle
-            target: {entity_id: light.car_light}
+            target: {entity_id: light.araba_light}
       - link: event.koridor0_pushbutton_action
 
   - platform: gungors
