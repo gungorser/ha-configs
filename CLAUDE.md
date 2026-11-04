@@ -16,7 +16,7 @@ in ha-dashboards. No agent for YAML or cards: the main session works here itself
   Never write repo files live with `ha_write_file`. A dashboard that references a new entity goes
   after its package. Follow the Home Assistant MCP best-practice skill before automations,
   helpers, scripts or dashboards.
-- A new entity on the 3D floor view: find its position in `gungors/dashboards/floorplan.yml` (old 2D) first.
+- A new entity on the 3D floor view: find its position in `gungors/dashboards/floorplan.yaml` (old 2D) first.
 - `gungors` wrappers drive hidden original entities: dashboards and automations use the wrapper
   (`cover.sercan_cover`, never `cover.sercan_blind`). Options and attributes: ha-integrations README.
 - Credentials only via `!secret`. UI-only integrations stay in the UI. UI automations moved into

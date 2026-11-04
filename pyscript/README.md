@@ -1,7 +1,7 @@
 # pyscript
 
 Python automations for the HACS integration [pyscript](https://github.com/custom-components/pyscript).
-Settings are in `gungors/pyscript.yaml`.
+Settings are in `gungors/packages/pyscript.yaml`.
 
 - `<topic>.py`: one file per topic (like packages); shared helpers in `modules/`.
 
