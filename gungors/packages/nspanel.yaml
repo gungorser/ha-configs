@@ -1,0 +1,98 @@
+# NSPanel in the salon (Blackymas NSPanel blueprint, /config/blueprints/automation/Blackymas/).
+# Moved from the UI (automations.yaml); the id is kept so the entity keeps its history. Edit here
+# and reload automations; the blueprint form in the UI is read-only for package automations.
+
+automation:
+  - id: "1724707841190"
+    alias: NSPanelhome Configuration
+    description: ""
+    use_blueprint:
+      path: Blackymas/nspanel_blueprint.yaml
+      input:
+        nspanel_name: b9ff3a4002d4f3cb5bab1389328fb215
+        timezone: Europe/Amsterdam (CET-1CEST,M3.5.0,M10.5.0/3)
+        screensaver_display_time: true
+        media_player_update_interval: 4267
+        qrcode_enabled: true
+        qrcode_value: !secret nspanel_qrcode
+
+        # hardware buttons
+        hw_button_bar_left_always_show: true
+        hw_button_bar_right_always_show: true
+        left_button_entity: cover.salon_cover
+        left_button_name: Perde
+        right_button_entity: light.salon_light
+        right_button_name: Avize
+
+        # button page 1
+        button_page01_label: Giris
+        entity01: media_player.gungors_tv
+        entity01_name: TV
+        entity02: vacuum.robot_vacuum
+        entity02_name: supurge
+        entity03: light.koridor0_light
+        entity03_name: Koridor
+        entity04: switch.banyo_roomstate
+        entity04_name: Banyo
+        entity05: climate.thermostat_hc1
+        entity05_name: termostat
+        entity08: light.yemek_light
+        entity08_name: Yemek Masasi
+
+        # button page 2
+        button_page02_label: Odalar (Gereksizse sondur...)
+        entity09: switch.melike_roomstate
+        entity09_name: Melike Ofis
+        entity09_icon: ""
+        entity09_icon_color: [246, 0, 250]
+        entity10: switch.misafir_roomstate
+        entity10_name: Misafir Odasi
+        entity10_icon_color: [0, 187, 250]
+        entity11: switch.koridor_roomstate
+        entity11_name: Koridorlar
+        entity12: switch.banyo_roomstate
+        entity12_name: Banyo
+        entity12_icon_color: [250, 0, 0]
+        entity13: switch.sercan_roomstate
+        entity13_name: Sercan Ofis
+        entity14: switch.yatak_roomstate
+        entity14_name: Yatak Odasi
+        entity14_icon_color: [250, 242, 0]
+        entity15: switch.garaj_roomstate
+        entity15_name: Garaj
+        entity16: switch.bahce_roomstate
+        entity16_name: Bahçe
+
+        # button page 3 (entity17, the washing machine automation, was removed on 2026-09-28)
+        button_page03_label: 3. kat
+        entity18: cover.misafir_cover
+        entity18_name: Misafir odası perde
+        entity19: cover.yatak_cover
+        entity19_name: Yatak odası perde
+        entity20: cover.sercan_cover
+        entity20_name: Sercan perde
+        entity21: fan.banyo_fan
+        entity21_name: Banyo fan
+
+        entity_page01_label: isinma
+        entity_page02_label: elektrik
+
+        # climate
+        climate: climate.salon_climate
+        climate_chip_always_visible: true
+        climate_value01: climate.misafir_climate
+        climate_value01_icon: ""
+        climate_value01_icon_color: [0, 0, 255]
+        climate_value02: climate.melike_climate
+        climate_value02_icon_color: [255, 0, 255]
+        climate_value03: climate.yatak_climate_1
+        climate_value03_icon_color: [255, 255, 255]
+        climate_value04: climate.sercan_climate
+        climate_value04_icon: ""
+        climate_value04_icon_color: [0, 0, 255]
+
+        # utilities
+        utilities_enabled: true
+        utilities_page01_grid_value1: sensor.energy_consumed_tariff_1
+        utilities_page01_grid_value2: sensor.energy_consumed_tariff_2
+        utilities_page01_group01_value1: sensor.boiler_nrgww
