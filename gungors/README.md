@@ -3,11 +3,12 @@
 ## Live target
 `/config/gungors`, with two folders:
 
-- `packages/<topic>.yaml`: one package per topic (file name = package name), any domains mixed.
+- `packages/<domain>.yaml`: one package per Home Assistant domain (file name = package name =
+  the only top-level key: `light.yaml` holds `light:`), one commented section per topic inside.
   `configuration.yaml` (not in this repository) loads them with
-  `homeassistant: packages: !include_dir_named gungors/packages`. `packages/deploy.yaml` holds the
+  `homeassistant: packages: !include_dir_named gungors/packages`. `packages/shell_command.yaml` holds the
   deploy shell_commands for all areas (root README).
-- `dashboards/<name>.yaml`: YAML dashboards, registered in `packages/dashboards.yaml`
+- `dashboards/<name>.yaml`: YAML dashboards, registered in `packages/lovelace.yaml`
   (`filename: gungors/dashboards/<name>.yaml`; `floorplan` = old 2D, `floorplan_3d`, `program`,
   `unnecessary`).
 

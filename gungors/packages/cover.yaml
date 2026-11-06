@@ -1,0 +1,107 @@
+# cover: every `cover:` entry of the gungors packages, one section per topic.
+
+cover:
+  # --- covers ------------------------------------------------------------------------------------
+  # gungors covers (ha-integrations README, Features): a domain base plus a `features:` list,
+  # combined in list order. `link` (always last) is the original the wrapper drives; dashboards
+  # and automations use the wrapper, never the original. `program` (first): follows
+  # calendar.program (gungors/packages/calendar.yaml) and opens at sunrise / closes at sunset. In yatak the group carries it (area-targeted rules see the group, not the three blinds).
+
+  # --- IKEA blinds -------------------------------------------------------------------
+  # direction: movement tracking (opening/closing, real position while moving).
+  # window: remote commands are held while the window is open; wall button presses come
+  # from the gungors pushbuttons (event.yaml) as physical requests (allowed with the
+  # window open).
+  - platform: gungors
+    name: sercan_cover
+    unique_id: sercan_cover
+    device_class: blind
+    features:
+      - program
+      - window: binary_sensor.sercan_window_contact
+      - direction
+      - link: cover.phys_sercan_cover
+
+  - platform: gungors
+    name: bebek_cover
+    unique_id: bebek_cover
+    device_class: blind
+    features:
+      - program
+      - window: binary_sensor.bebek_window_contact
+      - direction
+      - link: cover.phys_bebek_cover
+
+  - platform: gungors
+    name: yatak_cover_window
+    unique_id: yatak_cover_window
+    device_class: blind
+    features:
+      - window: binary_sensor.yatak_window_contact
+      - direction
+      - link: cover.phys_yatakwindow_cover
+
+  # No window sensor: nothing to guard.
+  - platform: gungors
+    name: koridor1_cover
+    unique_id: koridor1_cover
+    device_class: blind
+    features:
+      - program
+      - direction
+      - link: cover.phys_koridor1_cover
+
+  # Yatak: the two blinds without a window contact (the middle glass and the balcony door), and
+  # the group of all three, which carries `program` for the room (the members have none, so
+  # commands are not sent twice).
+  - platform: gungors
+    name: yatak_cover_middle
+    unique_id: yatak_cover_1  # the middle (glass) blind, once yatak_cover_1: the old unique_id keeps its history
+    device_class: blind
+    features:
+      - direction
+      - link: cover.phys_yatakmiddle_cover
+
+  - platform: gungors
+    name: yatak_cover_door
+    unique_id: yatak_cover_3  # the balcony door blind, once yatak_cover_3: the old unique_id keeps its history
+    device_class: blind
+    features:
+      - direction
+      - link: cover.phys_yatakdoor_cover
+
+  - platform: gungors
+    name: yatak_cover
+    unique_id: yatak_cover
+    device_class: blind
+    features:
+      - program
+      - link:
+          - cover.yatak_cover_window
+          - cover.yatak_cover_middle
+          - cover.yatak_cover_door
+
+  # --- Tuya curtains -----------------------------------------------------------------
+  # travel_time: the motors report no position while moving; the wrapper estimates it from
+  # learned full-run times (open_time / close_time) and takes the real position from stop /
+  # end-of-move reports. invert: the motor's open is the room's close (Z2M's invert_cover
+  # only flips positions for this device, so it is left as it was).
+  - platform: gungors
+    name: salon_cover
+    unique_id: salon_cover
+    device_class: curtain
+    features:
+      - program
+      - invert
+      - travel_time
+      - link: cover.phys_salon_cover
+
+  - platform: gungors
+    name: misafir_cover
+    unique_id: misafir_cover
+    device_class: curtain
+    features:
+      - program
+      - invert
+      - travel_time
+      - link: cover.phys_misafir_cover

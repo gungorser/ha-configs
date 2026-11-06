@@ -1,0 +1,21 @@
+# gungors: every `gungors:` entry of the gungors packages, one section per topic.
+
+gungors:
+  # --- presets -----------------------------------------------------------------------------------
+  # Presets: named attribute sets per domain, shared by the program defaults and the pushbuttons
+  # (ha-integrations README, Presets). Change them here, then call gungors.reload.
+  #
+  # - `default` is what a device returns to when a program's set rule ends (covers also at
+  #   sunrise and sunset), and the light a single press turns on.
+  # - Light presets carry one axis each: `dim` the brightness (pushbutton double press),
+  #   `night` the colour (pushbutton hold).
+  # - A value may be a Jinja template (re-applied whenever its result changes).
+  presets:
+    light:
+      default: {state: "off", rgb_color: [255, 255, 255], brightness_pct: 100}
+      dim: {brightness_pct: 10}
+      night: {rgb_color: red}
+    climate:
+      default: {state: "off"}
+    cover:  # open while the sun is up
+      default: {current_position: "{{ 100 if is_state('sun.sun', 'above_horizon') else 0 }}"}

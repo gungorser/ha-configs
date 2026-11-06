@@ -1,8 +1,10 @@
-# Heating: gungors thermostats (climate), the heating demand sensor and
-# the boiler relay automation. Previously split over thermostats/climates.yaml and
-# thermostats/switch_automation.yaml.
+# climate: every `climate:` entry of the gungors packages, one section per topic.
 
 climate:
+  # --- heating -----------------------------------------------------------------------------------
+  # Heating: gungors thermostats (climate), the heating demand sensor and
+  # the boiler relay automation. Previously split over thermostats/climates.yaml and
+  # thermostats/switch_automation.yaml.
   # gungors thermostats (ha-integrations README, Features). TRV rooms: the PID turns the room
   # temperature into a demand 0-100, `valve` maps it onto the TRV valve opening/closing degree
   # (min = minimum opening %), `link` is the TRV: the wrapper's mode and target are the
@@ -152,63 +154,3 @@ climate:
           min_cycle_duration: 60
       - temperature: sensor.thermostat_hc1_currtemp
       - link: climate.thermostat_hc1
-
-template:
-  # Heating demand: on while at least one thermostat reports hvac_action heating.
-  # Unavailable thermostats (e.g. one whose TRV dropped) don't count.
-  - binary_sensor:
-      - name: kombi_talebi
-        unique_id: kombi_talebi
-        icon: mdi:fire
-        state: >-
-          {{ ['climate.sercan_thermostat',
-              'climate.yatak_thermostat',
-              'climate.melike_thermostat',
-              'climate.bebek_thermostat',
-              'climate.banyo_thermostat',
-              'climate.misafir_thermostat',
-              'climate.salon_thermostat']
-             | select('is_state_attr', 'hvac_action', 'heating')
-             | list | count > 0 }}
-
-automation:
-  # Mirrors binary_sensor.kombi_talebi onto the (hidden) boiler relay. Also resyncs
-  # at startup and whenever the relay reports on/off (manual change, or back from
-  # unavailable). While the relay is unavailable nothing is sent.
-  - alias: thermostat_switch
-    id: thermostat_switch
-    description: ""
-    mode: restart
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.kombi_talebi
-      - trigger: state
-        entity_id: switch.koridor2_switch
-        to: ["on", "off"]
-      - trigger: homeassistant
-        event: start
-    conditions: []
-    actions:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.kombi_talebi
-                state: "on"
-              - condition: state
-                entity_id: switch.koridor2_switch
-                state: "off"
-            sequence:
-              - action: switch.turn_on
-                target:
-                  entity_id: switch.koridor2_switch
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.kombi_talebi
-                state: "off"
-              - condition: state
-                entity_id: switch.koridor2_switch
-                state: "on"
-            sequence:
-              - action: switch.turn_off
-                target:
-                  entity_id: switch.koridor2_switch

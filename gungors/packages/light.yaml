@@ -1,9 +1,11 @@
-# Lights: gungors wrappers (ha-integrations README, Features) for every light on the floor
-# plans (floorplan_3d and the old 2D floorplan). Each wrapper has the light's old entity id;
-# the Zigbee2MQTT original is renamed to light.phys_<room>_light and hidden (dashboards and
-# automations use the wrapper). `link` mirrors the original and sends commands to it.
+# light: every `light:` entry of the gungors packages, one section per topic.
 
 light:
+  # --- lights ------------------------------------------------------------------------------------
+  # Lights: gungors wrappers (ha-integrations README, Features) for every light on the floor
+  # plans (floorplan_3d and the old 2D floorplan). Each wrapper has the light's old entity id;
+  # the Zigbee2MQTT original is renamed to light.phys_<room>_light and hidden (dashboards and
+  # automations use the wrapper). `link` mirrors the original and sends commands to it.
   - platform: gungors
     name: banyo_light
     unique_id: banyo_light

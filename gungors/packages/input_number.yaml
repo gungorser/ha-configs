@@ -1,0 +1,106 @@
+# input_number: every `input_number:` entry of the gungors packages, one section per topic.
+
+input_number:
+  # --- covers ------------------------------------------------------------------------------------
+  # Covers: every cover with a device is a gungors wrapper (ha-integrations): IKEA blinds and Tuya
+  # curtains. The covers without a device (manual or not connected yet) are only a position number
+  # below, which floorplan_3d shows directly (no wrapper).
+  # --- Covers without a device ---------------------------------------------------------
+  # Kitchen (mutfak) and dining (yemek) blinds, the small living room curtain (salon kucuk),
+  # the bathroom (banyo) blind, the attic hall (koridor2) window blind, the blind of melike's
+  # roof window, the garage door and the sliding doors of the kat2 wardrobes (melike, misafir):
+  # a position number each, 0-100 (0 closed).
+  # `initial` is the position after a restart or a reload of input numbers; change it here. Set the
+  # number by hand (the floorplan_3d dashboard's configs tab) when the real cover is moved; for a
+  # real device later, add a gungors cover linking it.
+  mutfak_cover_position:
+    name: Mutfak cover position
+    initial: 100 # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:roller-shade
+
+  yemek_cover_position:
+    name: Yemek cover position
+    initial: 100 # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:roller-shade
+
+  salon_kucuk_cover_position:
+    name: Salon kucuk cover position
+    initial: 100 # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:curtains
+
+  banyo_cover_position:
+    name: Banyo cover position
+    initial: 100 # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:roller-shade
+
+  koridor2_cover_position:
+    name: Koridor2 cover position
+    initial: 100 # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:roller-shade
+
+  melike_cover_position:
+    name: Melike cover position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:roller-shade
+
+  garaj_door_position:
+    name: Garaj door position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:garage
+
+  melike_dolap_kapi_position:
+    name: Melike dolap kapi position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:door-sliding
+
+  misafir_dolap_kapi_position:
+    name: Misafir dolap kapi position
+    initial: 0   # position after a restart / reload, 0 closed - 100 open
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:door-sliding
+
+  # --- dashboards --------------------------------------------------------------------------------
+  # Floorplan 3D: opacity of the robot vacuum's map on the kat0 floor (floorplan_3d.yaml vacuum_opacity),
+  # set on its configs tab; no initial, so it keeps its value over restarts.
+  vacuum_map_opacity:
+    name: Vacuum map opacity
+    min: 0
+    max: 100
+    step: 5
+    unit_of_measurement: "%"
+    icon: mdi:robot-vacuum

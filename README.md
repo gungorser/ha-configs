@@ -16,7 +16,7 @@ the area you change).
 - On HA the repository is a bare clone, `/config/.ha-configs.git` (no checkout).
 - Everything runs through the HA MCP (no terminal):
   `ha_call_service(shell_command, <name>, <data>, return_response=true)`, defined in
-  `gungors/packages/deploy.yaml`:
+  `gungors/packages/shell_command.yaml`:
   - `configs_status`: fetch master, then per area the deployed commit, master and live edits.
   - `configs_deploy` with `{"area": "<area>", "mode": "<mode>"}`: fetches master and runs
     `<area>/deploy.sh` from git. Modes: `deploy` (default; stops and shows the diff when the live
@@ -33,8 +33,8 @@ the area you change).
 
 ## Naming physical devices
 
-Zigbee2MQTT devices that a gungors wrapper drives (the `link` targets in `gungors/packages/lights.yaml`,
-`gungors/packages/covers.yaml` and `gungors/packages/heating.yaml`) are named in Z2M as:
+Zigbee2MQTT devices that a gungors wrapper drives (the `link` targets in `gungors/packages/light.yaml`,
+`gungors/packages/cover.yaml` and `gungors/packages/climate.yaml`) are named in Z2M as:
 
 `phys_<name>_<domain>`
 

@@ -1,0 +1,16 @@
+# calendar: every `calendar:` entry of the gungors packages, one section per topic.
+
+calendar:
+  # --- program -----------------------------------------------------------------------------------
+  # Programs: calendar.program from gungors (ha-integrations README, Programs).
+  # Each calendar entry is a program: a target (areas, entities) and rules that the entities
+  # with the `program` feature follow while it runs (lights, thermostats, covers). The program
+  # card on the `program` dashboard edits the entries. Replaces schedules.yaml (the three
+  # person calendars and the climate_schedule / cover_schedule automations).
+  #
+  # Defaults (what a device returns to when a set rule ends; covers also at sunrise and
+  # sunset) are the `default` presets in gungors.yaml: change them there, then call
+  # gungors.reload. The program card's Varsayılanlar tab only shows them. A wrapper can
+  # override them with `- program: {<attribute>: <value>}`.
+  - platform: gungors
+    name: program

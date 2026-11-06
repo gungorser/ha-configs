@@ -1,0 +1,196 @@
+# template: every `template:` entry of the gungors packages, one section per topic.
+
+template:
+  # --- dashboards --------------------------------------------------------------------------------
+  # Floorplan 3D: the car on the kat0 driveway (card show.araba) follows whether a car is parked in
+  # our spot. The doorbell camera's top view looks along the driveway: our spot is a fixed polygon in
+  # the image, the car on the right under the roof is the neighbours'. The picture goes to the
+  # Google AI task, which answers yes or no. The doorbell runs on a battery, so its picture is the last
+  # one it took. Its motion sensor stays off; an event shows as a new image.doorbell_event_image, so
+  # the check runs 5 minutes after the last event, every hour, at start and after a template reload.
+  # A failed or unclear answer keeps the last state.
+  - triggers:
+      - trigger: state
+        entity_id: image.doorbell_event_image
+        for: "00:05:00"
+      - trigger: time_pattern
+        minutes: 0
+      - trigger: homeassistant
+        event: start
+      - trigger: event
+        event_type: event_template_reloaded
+    actions:
+      - action: ai_task.generate_data
+        continue_on_error: true
+        data:
+          task_name: floorplan araba
+          entity_id: ai_task.google_ai_task
+          instructions: >-
+            Doorbell camera picture: two views stacked. Look only at the top view, which looks
+            along the driveway. The camera angle is fixed. Our parking spot is the polygon with
+            these corners, as fractions of the image width and height (x from left, y from top):
+            (0.38, 0.57), (0.61, 0.58), (0.93, 0.85), (0.87, 0.99), (0.42, 0.99), (0.40, 0.59).
+            Answer present true only if most of a car's body is inside this polygon. Cars outside
+            it do not count: the neighbour's white car on the right under the roof, cars on the
+            street, cars further in the carport. People and other objects do not count.
+            Answer present true or false.
+          structure:
+            present:
+              description: true if most of a car's body is inside our parking spot polygon in the top view
+              required: true
+              selector:
+                boolean:
+          attachments:
+            - media_content_id: media-source://camera/camera.doorbell
+              media_content_type: image/jpeg
+        response_variable: result
+    binary_sensor:
+      - name: Floorplan araba
+        unique_id: floorplan_araba
+        icon: mdi:car-hatchback
+        state: >-
+          {% if result is defined and result.data is mapping and result.data.present is boolean %}
+            {{ result.data.present }}
+          {% else %}
+            {{ this.state == 'on' }}
+          {% endif %}
+
+  # --- heating -----------------------------------------------------------------------------------
+  # Heating demand: on while at least one thermostat reports hvac_action heating.
+  # Unavailable thermostats (e.g. one whose TRV dropped) don't count.
+  - binary_sensor:
+      - name: kombi_talebi
+        unique_id: kombi_talebi
+        icon: mdi:fire
+        state: >-
+          {{ ['climate.sercan_thermostat',
+              'climate.yatak_thermostat',
+              'climate.melike_thermostat',
+              'climate.bebek_thermostat',
+              'climate.banyo_thermostat',
+              'climate.misafir_thermostat',
+              'climate.salon_thermostat']
+             | select('is_state_attr', 'hvac_action', 'heating')
+             | list | count > 0 }}
+
+  # --- roomstate ---------------------------------------------------------------------------------
+  # Room state switches (template blueprint gungorser/roomstate.yaml).
+  # On while any listed entity is not off (unavailable/unknown skipped).
+  # Turning one off turns off everything in its list; lists may contain other
+  # roomstate switches (koridor -> banyo/garaj, roomstate -> all rooms).
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.salon_light
+          - light.mutfak_light
+          - light.yemek_light
+          - media_player.salon_tv
+          - climate.salon_thermostat
+    name: salon_roomstate
+    unique_id: roomstate_salon
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.veranda_light
+          - light.avlu_light
+          - light.bahce_light
+    name: bahce_roomstate
+    unique_id: roomstate_bahce
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - fan.banyo_fan
+          - light.banyo_light
+          - climate.banyo_thermostat
+    name: banyo_roomstate
+    unique_id: roomstate_banyo
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.bebek_light
+          - climate.bebek_thermostat
+    name: bebek_roomstate
+    unique_id: roomstate_bebek
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.garaj_light
+    name: garaj_roomstate
+    unique_id: roomstate_garaj
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.melike_light
+          - climate.melike_thermostat
+    name: melike_roomstate
+    unique_id: roomstate_melike
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.misafir_light
+          - climate.misafir_thermostat
+    name: misafir_roomstate
+    unique_id: roomstate_misafir
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.sercan_light
+          - climate.sercan_thermostat
+          - switch.sercan_plug
+    name: sercan_roomstate
+    unique_id: roomstate_sercan
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.yatak_light
+          - climate.yatak_thermostat
+    name: yatak_roomstate
+    unique_id: roomstate_yatak
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - light.koridor0_light
+          - light.koridor1_light
+          - light.koridor2_light
+          - light.araba_light
+          - light.tavan_light_2
+          - switch.banyo_roomstate
+          - switch.garaj_roomstate
+    name: koridor_roomstate
+    unique_id: roomstate_koridor
+
+  - use_blueprint:
+      path: gungorser/roomstate.yaml
+      input:
+        entities:
+          - switch.salon_roomstate
+          - switch.bahce_roomstate
+          - switch.banyo_roomstate
+          - switch.bebek_roomstate
+          - switch.garaj_roomstate
+          - switch.melike_roomstate
+          - switch.misafir_roomstate
+          - switch.sercan_roomstate
+          - switch.yatak_roomstate
+          - switch.koridor_roomstate
+    name: roomstate
+    unique_id: roomstate_all
