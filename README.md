@@ -47,7 +47,10 @@ Zigbee2MQTT devices that a gungors wrapper drives (the `link` targets in `gungor
 - Physical devices have no area, neither the device nor its entities. The wrapper carries the area.
 - Rename in Zigbee2MQTT (the device's friendly name), not in Home Assistant. Renaming in Home
   Assistant only changes the entity and is overwritten the next time Z2M re-publishes the device.
-- Wrappers keep the room name without a prefix (`bebek_light`, `koridor1_light`).
+- Wrappers are named by the room alone, without a prefix or a domain suffix: the domain is
+  already in the entity ID (`light.bebek`, `climate.bebek`, `cover.yatak_window`, `event.bebek`).
+  Wrappers have no device, so equal names in different domains do not collide. Their friendly
+  name is set in Home Assistant, readable Turkish (`Bebek ışığı`); `unique_id` keeps the old name.
 - When a device is renamed, every reference to its entity IDs is updated in the same change:
   `link` values, blueprints, automations, dashboards and scripts.
 

@@ -29,12 +29,12 @@
 # A page entity left out of the list shows up on the page (top right) with its name: map it or set none.
 # All floors are in one card (floors:); the floor button of the card's dock goes on to the next floor.
 # Kat1: balkon_light is the balcony lamp; the bedroom (yatak) has three blinds: north window, balcony door, east window.
-#   A tap or hold on any of the three goes to their group cover.yatak_cover; each shows its own position.
+#   A tap or hold on any of the three goes to their group cover.yatak; each shows its own position.
 # Kat2 (attic): the lamps, covers and climates of the old floorplan's kat2 view; misafir_light hangs on the
 #   wall over the guest room's door.
 #   melike_dolap_kapi / misafir_dolap_kapi: the wardrobes' sliding doors, gungors covers on a position
 #   number like the manual covers above (configs tab), not selectable.
-# Kat3 (the attic over kat2, under the roof): tavan_light (light.tavan_light_2) on the sloped ceiling.
+# Kat3 (the attic over kat2, under the roof): tavan_light (light.tavan) on the sloped ceiling.
 # Climates are the rooms' radiators (kat1, kat2).
 #
 # Lighting of the house (no render needed): `lighting.default` everywhere, also at night; while the sun
@@ -96,12 +96,12 @@ views:
             entities:
               # covers
               salon_cover:
-                entity: cover.salon_cover
+                entity: cover.salon
                 tap_action:
                   action: perform-action
                   perform_action: cover.toggle
                   target:
-                    entity_id: cover.salon_cover
+                    entity_id: cover.salon
                 hold_action:
                   action: more-info
               garaj_door:             # garage door (manual: follows its position number, not selectable)
@@ -118,7 +118,7 @@ views:
                 selectable: false
               # underfloor heating (climate): every room but the garage, below lamps and covers
               salon_climate: &climate
-                entity: climate.salon_thermostat
+                entity: climate.salon
                 name: Salon
                 tap_action:
                   action: more-info
@@ -208,30 +208,30 @@ views:
                   action: more-info
               # lights
               garaj_light: &light
-                entity: light.garaj_light
+                entity: light.garaj
                 tap_action:
                   action: toggle
                 hold_action:
                   action: more-info
               salon_light:
                 <<: *light
-                entity: light.salon_light
+                entity: light.salon
                 gain: 2                       # twice as bright as the render
               koridor0_light:
                 <<: *light
-                entity: light.koridor0_light
+                entity: light.koridor0
               mutfak_light:
                 <<: *light
-                entity: light.mutfak_light
+                entity: light.mutfak
               yemek_light:
                 <<: *light
-                entity: light.yemek_light
+                entity: light.yemek
               car_light:
                 <<: *light
                 entity: light.araba
               bahce_light:            # the lawn's lamp (veranda and avlu have no page entity yet)
                 <<: *light
-                entity: light.bahce_light
+                entity: light.bahce
           - floor: kat1
             rooms:
               sercan: {sun: 1, covers: 2}
@@ -243,48 +243,48 @@ views:
             entities:
               # covers (blinds cover the whole window: both panes and the top-hung sash)
               bebek_blind:
-                entity: cover.bebek_cover
+                entity: cover.bebek
                 tap_action:
                   action: perform-action
                   perform_action: cover.toggle
                   target:
-                    entity_id: cover.bebek_cover
+                    entity_id: cover.bebek
                 hold_action:
                   action: more-info
               sercan_blind:
-                entity: cover.sercan_cover
+                entity: cover.sercan
                 tap_action:
                   action: perform-action
                   perform_action: cover.toggle
                   target:
-                    entity_id: cover.sercan_cover
+                    entity_id: cover.sercan
                 hold_action:
                   action: more-info
               koridor1_blind:
-                entity: cover.koridor1_cover
+                entity: cover.koridor1
                 tap_action:
                   action: perform-action
                   perform_action: cover.toggle
                   target:
-                    entity_id: cover.koridor1_cover
+                    entity_id: cover.koridor1
                 hold_action:
                   action: more-info
               yatak_blind_pencere:            # north window
-                entity: cover.yatak_cover_middle
-                <<: &yatak_blind              # all three command the group cover.yatak_cover; position from its own cover
+                entity: cover.yatak_middle
+                <<: &yatak_blind              # all three command the group cover.yatak; position from its own cover
                   tap_action:
                     action: perform-action
                     perform_action: cover.toggle
                     target:
-                      entity_id: cover.yatak_cover
+                      entity_id: cover.yatak
                   hold_action:
                     action: more-info
-                    entity: cover.yatak_cover
+                    entity: cover.yatak
               yatak_blind_kapi:               # balcony door
-                entity: cover.yatak_cover_door
+                entity: cover.yatak_door
                 <<: *yatak_blind
               yatak_blind_dogu:               # east window (window contact: guarded)
-                entity: cover.yatak_cover_window
+                entity: cover.yatak_window
                 <<: *yatak_blind
               banyo_cover:                    # bathroom window blind (manual: follows its position number, not selectable)
                 entity: input_number.banyo_cover_position
@@ -292,43 +292,43 @@ views:
               # radiators (climate: the room's thermostat)
               bebek_climate:
                 <<: *climate
-                entity: climate.bebek_thermostat
+                entity: climate.bebek
                 name: Bebek
                 humidity: sensor.bebek_sensor_humidity
               yatak_climate:
                 <<: *climate
-                entity: climate.yatak_thermostat
+                entity: climate.yatak
                 name: Yatak
                 humidity: sensor.yatak_sensor_humidity
               sercan_climate:
                 <<: *climate
-                entity: climate.sercan_thermostat
+                entity: climate.sercan
                 name: Sercan
                 humidity: sensor.sercan_sensor_humidity
               banyo_climate:                  # the towel radiator
                 <<: *climate
-                entity: climate.banyo_thermostat
+                entity: climate.banyo
                 name: Banyo
                 humidity: sensor.banyo_moisture_humidity
               # lights
               yatak_light:
                 <<: *light
-                entity: light.yatak_light
+                entity: light.yatak
               bebek_light:
                 <<: *light
-                entity: light.bebek_light
+                entity: light.bebek
               sercan_light:
                 <<: *light
-                entity: light.sercan_light
+                entity: light.sercan
               banyo_light:
                 <<: *light
-                entity: light.banyo_light
+                entity: light.banyo
               koridor1_light:
                 <<: *light
-                entity: light.koridor1_light
+                entity: light.koridor1
               balkon_light:           # the balcony lamp
                 <<: *light
-                entity: light.balkon_light
+                entity: light.balkon
           - floor: kat2
             rooms:
               misafir: {sun: 1, covers: 2}                  # the whole guest room, up to where its slope meets the walls
@@ -339,12 +339,12 @@ views:
             entities:
               # covers: the guest room's dormer curtain, the hall window's blind, melike's roof window blind
               misafir_cover:
-                entity: cover.misafir_cover
+                entity: cover.misafir
                 tap_action:
                   action: perform-action
                   perform_action: cover.toggle
                   target:
-                    entity_id: cover.misafir_cover
+                    entity_id: cover.misafir
                 hold_action:
                   action: more-info
               koridor2_cover:                 # attic hall window blind (manual: follows its position number, not selectable)
@@ -364,24 +364,24 @@ views:
               # radiators (climate: the room's thermostat)
               misafir_climate:
                 <<: *climate
-                entity: climate.misafir_thermostat
+                entity: climate.misafir
                 name: Misafir
                 humidity: sensor.misafir_sensor_humidity
               melike_climate:
                 <<: *climate
-                entity: climate.melike_thermostat
+                entity: climate.melike
                 name: Melike
                 humidity: sensor.melike_sensor_humidity
               # lights
               misafir_light:                  # on the wall over the door
                 <<: *light
-                entity: light.misafir_light
+                entity: light.misafir
               melike_light:
                 <<: *light
-                entity: light.melike_light
+                entity: light.melike
               koridor2_light:
                 <<: *light
-                entity: light.koridor2_light
+                entity: light.koridor2
           - floor: kat3
             rooms:
               tavan: {sun: 0, covers: 0}                    # no windows: only default
@@ -390,7 +390,7 @@ views:
               # lights
               tavan_light:                    # on the attic's sloped ceiling
                 <<: *light
-                entity: light.tavan_light_2
+                entity: light.tavan
   # Positions of the manual covers without a device (input numbers in gungors/packages/input_number.yaml;
   # their initial value after a restart is set there): set one by hand to match the real cover
   - title: configs

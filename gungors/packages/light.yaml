@@ -7,14 +7,14 @@ light:
   # the Zigbee2MQTT original is renamed to light.phys_<room>_light and hidden (dashboards and
   # automations use the wrapper). `link` mirrors the original and sends commands to it.
   - platform: gungors
-    name: banyo_light
+    name: banyo
     unique_id: banyo_light
     features:
       - program
       - link: light.phys_banyo_light
 
   - platform: gungors
-    name: bebek_light
+    name: bebek
     unique_id: bebek_light
     features:
       - program
@@ -28,21 +28,21 @@ light:
       - link: light.phys_araba_light
 
   - platform: gungors
-    name: garaj_light
+    name: garaj
     unique_id: garaj_light
     features:
       - program
       - link: light.phys_garaj_light
 
   - platform: gungors
-    name: balkon_light
+    name: balkon
     unique_id: kaan_light    # the balcony lamp, once kaan_light: the old unique_id keeps its history
     features:
       - program
       - link: light.phys_balkon_light
 
   - platform: gungors
-    name: koridor0_light
+    name: koridor0
     unique_id: koridor0_light
     features:
       - program
@@ -50,7 +50,7 @@ light:
       - link: light.phys_koridor0_light
 
   - platform: gungors
-    name: koridor1_light
+    name: koridor1
     unique_id: koridor1_light
     features:
       - program
@@ -58,35 +58,35 @@ light:
       - link: light.phys_koridor1_light
 
   - platform: gungors
-    name: salon_light
+    name: salon
     unique_id: salon_light
     features:
       - program
       - link: light.phys_salon_light
 
   - platform: gungors
-    name: sercan_light
+    name: sercan
     unique_id: sercan_light
     features:
       - program
       - link: light.phys_sercan_light
 
   - platform: gungors
-    name: yatak_light
+    name: yatak
     unique_id: yatak_light
     features:
       - program
       - link: light.phys_yatak_light
 
   - platform: gungors
-    name: yemek_light
+    name: yemek
     unique_id: yemek_light
     features:
       - program
       - link: light.phys_yemek_light
 
   - platform: gungors
-    name: koridor2_light
+    name: koridor2
     unique_id: koridor2_light
     features:
       - program
@@ -94,21 +94,21 @@ light:
       - link: light.phys_koridor2_light
 
   - platform: gungors
-    name: melike_light
+    name: melike
     unique_id: melike_light
     features:
       - program
       - link: light.phys_melike_light
 
   - platform: gungors
-    name: misafir_light
+    name: misafir
     unique_id: misafir_light
     features:
       - program
       - link: light.phys_misafir_light
 
   - platform: gungors
-    name: tavan_light_2
+    name: tavan
     unique_id: tavan_light_2
     features:
       - program
@@ -116,7 +116,7 @@ light:
 
   # mutfak: a relay (switch.yemek_2) without a light entity of its own.
   - platform: gungors
-    name: mutfak_light
+    name: mutfak
     unique_id: mutfak_light
     features:
       - program
@@ -125,7 +125,7 @@ light:
   # The garden has three areas: veranda (the seating group, four colour spots), avlu (the
   # table next to the kitchen) and bahce (the lawn).
   - platform: gungors
-    name: veranda_light
+    name: veranda
     unique_id: veranda_light
     features:
       - program
@@ -136,14 +136,14 @@ light:
           - light.phys_veranda4_light
 
   - platform: gungors
-    name: avlu_light
+    name: avlu
     unique_id: bahce_light_1  # once bahce_light_1: the old unique_id keeps its history
     features:
       - program
       - link: light.phys_avlu_light
 
   - platform: gungors
-    name: bahce_light
+    name: bahce
     unique_id: bahce_light
     features:
       - program

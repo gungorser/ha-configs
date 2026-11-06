@@ -18,7 +18,7 @@ in ha-dashboards. No agent for YAML or cards: the main session works here itself
   helpers, scripts or dashboards.
 - A new entity on the 3D floor view: find its position in `gungors/dashboards/floorplan.yaml` (old 2D) first.
 - `gungors` wrappers drive hidden original entities: dashboards and automations use the wrapper
-  (`cover.sercan_cover`, never `cover.sercan_blind`). Options and attributes: ha-integrations README.
+  (`cover.sercan`, never `cover.sercan_blind`). Options and attributes: ha-integrations README.
 - Credentials only via `!secret`. UI-only integrations stay in the UI. UI automations moved into
   packages keep their `id`.
 - Page entity ids and the card <-> page protocol: ha-floorplan `src/render/config*.json` and

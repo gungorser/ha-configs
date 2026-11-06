@@ -22,7 +22,7 @@ event:
   # - A press a program rule limits is applied as the rule allows; the lights blink red twice.
   # No door at the garden: the light names its key.
   - platform: gungors
-    name: bahce_pushbutton
+    name: bahce
     unique_id: bahce_pushbutton
     keys: 2
     features:
@@ -31,7 +31,7 @@ event:
       - link: event.bahce_pushbutton_action
 
   - platform: gungors
-    name: garaj_pushbutton
+    name: garaj
     unique_id: garaj_pushbutton
     keys: 1
     features:
@@ -40,7 +40,7 @@ event:
       - link: event.gardirop_pushbutton_action
 
   - platform: gungors
-    name: koridor0_pushbutton
+    name: koridor0
     unique_id: koridor0_pushbutton
     keys: 2
     door: right
@@ -51,7 +51,7 @@ event:
       - link: event.koridor0_pushbutton_action
 
   - platform: gungors
-    name: koridor1_pushbutton
+    name: koridor1
     unique_id: koridor1_pushbutton
     keys: 2
     door: left
@@ -62,18 +62,18 @@ event:
       - link: event.koridor1_pushbutton_action
 
   - platform: gungors
-    name: koridor2_pushbutton
+    name: koridor2
     unique_id: koridor2_pushbutton
     keys: 2
     door: left
     features:
       - buttons:
           - light
-          - light: {button: 2, target: {entity_id: light.tavan_light_2}}
+          - light: {button: 2, target: {entity_id: light.tavan}}
       - link: event.koridor2_pushbutton_action
 
   - platform: gungors
-    name: melike_pushbutton
+    name: melike
     unique_id: melike_pushbutton
     keys: 2
     door: left
@@ -84,7 +84,7 @@ event:
       - link: event.melike_pushbutton_action
 
   - platform: gungors
-    name: bebek_pushbutton
+    name: bebek
     unique_id: bebek_pushbutton
     keys: 3
     door: right
@@ -97,7 +97,7 @@ event:
       - link: event.bebek_pushbutton_action
 
   - platform: gungors
-    name: sercan_pushbutton
+    name: sercan
     unique_id: sercan_pushbutton
     keys: 3
     door: left
@@ -112,7 +112,7 @@ event:
       - link: event.sercan_pushbutton_action
 
   - platform: gungors
-    name: yatak_pushbutton
+    name: yatak
     unique_id: yatak_pushbutton
     keys: 3
     door: right
@@ -124,7 +124,7 @@ event:
       - link: event.yatak_pushbutton_action
 
   - platform: gungors
-    name: misafir_pushbutton
+    name: misafir
     unique_id: misafir_pushbutton
     keys: 3
     door: right
@@ -146,7 +146,7 @@ event:
   # key's lights are on. switch.yemek_2 is the mutfak lamp, switch.banyo_right the banyo fan (their
   # LEDs follow the load).
   - platform: gungors
-    name: banyo_switchbutton
+    name: banyo
     unique_id: banyo_switchbutton
     keys: 2
     door: left
@@ -160,14 +160,14 @@ event:
       - link: event.banyo_switchbutton_action
 
   - platform: gungors
-    name: yemek_switchbutton
+    name: yemek
     unique_id: yemek_switchbutton
     keys: 3
     door: left
     features:
       - buttons:
           - light                                                        # 1: yemek
-          - light: {button: 2, target: {entity_id: light.mutfak_light}}  # 2: mutfak
+          - light: {button: 2, target: {entity_id: light.mutfak}}  # 2: mutfak
           - light: {button: 3, target: {area_id: [veranda, avlu, bahce]}}  # 3: the whole garden
       - relay:                                                           # key LEDs
           1: switch.yemek_1

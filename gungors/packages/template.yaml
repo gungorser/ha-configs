@@ -63,13 +63,13 @@ template:
         unique_id: kombi_talebi
         icon: mdi:fire
         state: >-
-          {{ ['climate.sercan_thermostat',
-              'climate.yatak_thermostat',
-              'climate.melike_thermostat',
-              'climate.bebek_thermostat',
-              'climate.banyo_thermostat',
-              'climate.misafir_thermostat',
-              'climate.salon_thermostat']
+          {{ ['climate.sercan',
+              'climate.yatak',
+              'climate.melike',
+              'climate.bebek',
+              'climate.banyo',
+              'climate.misafir',
+              'climate.salon']
              | select('is_state_attr', 'hvac_action', 'heating')
              | list | count > 0 }}
 
@@ -82,11 +82,11 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.salon_light
-          - light.mutfak_light
-          - light.yemek_light
+          - light.salon
+          - light.mutfak
+          - light.yemek
           - media_player.salon_tv
-          - climate.salon_thermostat
+          - climate.salon
     name: salon_roomstate
     unique_id: roomstate_salon
 
@@ -94,9 +94,9 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.veranda_light
-          - light.avlu_light
-          - light.bahce_light
+          - light.veranda
+          - light.avlu
+          - light.bahce
     name: bahce_roomstate
     unique_id: roomstate_bahce
 
@@ -105,8 +105,8 @@ template:
       input:
         entities:
           - fan.banyo_fan
-          - light.banyo_light
-          - climate.banyo_thermostat
+          - light.banyo
+          - climate.banyo
     name: banyo_roomstate
     unique_id: roomstate_banyo
 
@@ -114,8 +114,8 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.bebek_light
-          - climate.bebek_thermostat
+          - light.bebek
+          - climate.bebek
     name: bebek_roomstate
     unique_id: roomstate_bebek
 
@@ -123,7 +123,7 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.garaj_light
+          - light.garaj
     name: garaj_roomstate
     unique_id: roomstate_garaj
 
@@ -131,8 +131,8 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.melike_light
-          - climate.melike_thermostat
+          - light.melike
+          - climate.melike
     name: melike_roomstate
     unique_id: roomstate_melike
 
@@ -140,8 +140,8 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.misafir_light
-          - climate.misafir_thermostat
+          - light.misafir
+          - climate.misafir
     name: misafir_roomstate
     unique_id: roomstate_misafir
 
@@ -149,8 +149,8 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.sercan_light
-          - climate.sercan_thermostat
+          - light.sercan
+          - climate.sercan
           - switch.sercan_plug
     name: sercan_roomstate
     unique_id: roomstate_sercan
@@ -159,8 +159,8 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.yatak_light
-          - climate.yatak_thermostat
+          - light.yatak
+          - climate.yatak
     name: yatak_roomstate
     unique_id: roomstate_yatak
 
@@ -168,11 +168,11 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.koridor0_light
-          - light.koridor1_light
-          - light.koridor2_light
+          - light.koridor0
+          - light.koridor1
+          - light.koridor2
           - light.araba
-          - light.tavan_light_2
+          - light.tavan
           - switch.banyo_roomstate
           - switch.garaj_roomstate
     name: koridor_roomstate
