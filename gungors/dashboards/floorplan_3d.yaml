@@ -104,17 +104,17 @@ views:
                     cover: cover.salon_cover
                 hold_action:
                   action: more-info
-              garaj_door:             # garage door (manual: follows its position, not selectable)
-                entity: cover.garaj_door
+              garaj_door:             # garage door (manual: follows its position number, not selectable)
+                entity: input_number.garaj_door_position
                 selectable: false
-              yemek_blind:            # garden door (manual: follows its position, not selectable)
-                entity: cover.yemek_cover
+              yemek_blind:            # garden door (manual: follows its position number, not selectable)
+                entity: input_number.yemek_cover_position
                 selectable: false
-              mutfak_blind:           # kitchen window (manual: follows its position, not selectable)
-                entity: cover.mutfak_cover
+              mutfak_blind:           # kitchen window (manual: follows its position number, not selectable)
+                entity: input_number.mutfak_cover_position
                 selectable: false
-              salon_kucuk_cover:      # small curtain, salon's east window (manual: follows its position, not selectable)
-                entity: cover.salon_kucuk_cover
+              salon_kucuk_cover:      # small curtain, salon's east window (manual: follows its position number, not selectable)
+                entity: input_number.salon_kucuk_cover_position
                 selectable: false
               # underfloor heating (climate): every room but the garage, below lamps and covers
               salon_climate: &climate
@@ -286,8 +286,8 @@ views:
               yatak_blind_dogu:               # east window (window contact: guarded)
                 entity: cover.yatak_cover_window
                 <<: *yatak_blind
-              banyo_cover:                    # bathroom window blind (manual: follows its position, not selectable)
-                entity: cover.banyo_cover
+              banyo_cover:                    # bathroom window blind (manual: follows its position number, not selectable)
+                entity: input_number.banyo_cover_position
                 selectable: false
               # radiators (climate: the room's thermostat)
               bebek_climate:
@@ -347,19 +347,19 @@ views:
                     cover: cover.misafir_cover
                 hold_action:
                   action: more-info
-              koridor2_cover:                 # attic hall window blind (manual: follows its position, not selectable)
-                entity: cover.koridor2_cover
+              koridor2_cover:                 # attic hall window blind (manual: follows its position number, not selectable)
+                entity: input_number.koridor2_cover_position
                 selectable: false
-              melike_cover:                   # melike's roof window blind (manual: follows its position, not selectable)
-                entity: cover.melike_cover
+              melike_cover:                   # melike's roof window blind (manual: follows its position number, not selectable)
+                entity: input_number.melike_cover_position
                 selectable: false
               # wardrobe sliding doors between melike and misafir (manual: follow their position, set on
               # the configs tab, not selectable)
               melike_dolap_kapi:
-                entity: cover.melike_dolap_kapi
+                entity: input_number.melike_dolap_kapi_position
                 selectable: false
               misafir_dolap_kapi:
-                entity: cover.misafir_dolap_kapi
+                entity: input_number.misafir_dolap_kapi_position
                 selectable: false
               # radiators (climate: the room's thermostat)
               misafir_climate:
@@ -391,8 +391,8 @@ views:
               tavan_light:                    # on the attic's sloped ceiling
                 <<: *light
                 entity: light.tavan_light_2
-  # Positions of the covers without a device (input numbers in gungors/packages/covers.yaml; their
-  # initial value after a restart is set there)
+  # Positions of the manual covers without a device (input numbers in gungors/packages/covers.yaml;
+  # their initial value after a restart is set there): set one by hand to match the real cover
   - title: configs
     path: configs
     cards:
