@@ -1,14 +1,15 @@
-# Covers: every cover is a gungors wrapper (ha-integrations): IKEA blinds, Tuya curtains and
-# the covers without a device (manual or not connected yet), which drive a position number.
+# Covers: every cover with a device is a gungors wrapper (ha-integrations): IKEA blinds and Tuya
+# curtains. The covers without a device (manual or not connected yet) are only a position number
+# below, which floorplan_3d shows directly (no wrapper).
 
 # --- Covers without a device ---------------------------------------------------------
 # Kitchen (mutfak) and dining (yemek) blinds, the small living room curtain (salon kucuk),
 # the bathroom (banyo) blind, the attic hall (koridor2) window blind, the blind of melike's
 # roof window, the garage door and the sliding doors of the kat2 wardrobes (melike, misafir):
 # a position number each, 0-100 (0 closed).
-# `initial` is the position after a restart or a reload of input numbers; change it here. Move
-# the cover by setting the number (the floorplan_3d dashboard's configs tab) or through its
-# gungors cover below; for a real device later, change the cover's `link`.
+# `initial` is the position after a restart or a reload of input numbers; change it here. Set the
+# number by hand (the floorplan_3d dashboard's configs tab) when the real cover is moved; for a
+# real device later, add a gungors cover linking it.
 input_number:
   mutfak_cover_position:
     name: Mutfak cover position
@@ -95,79 +96,7 @@ cover:
   # gungors covers (ha-integrations README, Features): a domain base plus a `features:` list,
   # combined in list order. `link` (always last) is the original the wrapper drives; dashboards
   # and automations use the wrapper, never the original. `program` (first): follows
-  # calendar.program (gungors/packages/program.yaml) and opens at sunrise / closes at sunset; doors have
-  # none. In yatak the group carries it (area-targeted rules see the group, not the three blinds).
-
-  # --- Covers without a device ---------------------------------------------------------
-  # Linked to their position number above; moving the cover sets the number.
-  - platform: gungors
-    name: mutfak_cover
-    unique_id: mutfak_cover
-    device_class: shade
-    features:
-      - program
-      - link: input_number.mutfak_cover_position
-
-  - platform: gungors
-    name: yemek_cover
-    unique_id: yemek_cover
-    device_class: shade
-    features:
-      - program
-      - link: input_number.yemek_cover_position
-
-  - platform: gungors
-    name: salon_kucuk_cover
-    unique_id: salon_kucuk_cover
-    device_class: curtain
-    features:
-      - program
-      - link: input_number.salon_kucuk_cover_position
-
-  - platform: gungors
-    name: banyo_cover
-    unique_id: banyo_cover
-    device_class: shade
-    features:
-      - program
-      - link: input_number.banyo_cover_position
-
-  - platform: gungors
-    name: koridor2_cover
-    unique_id: koridor2_cover
-    device_class: shade
-    features:
-      - program
-      - link: input_number.koridor2_cover_position
-
-  - platform: gungors
-    name: melike_cover
-    unique_id: melike_cover
-    device_class: shade
-    features:
-      - program
-      - link: input_number.melike_cover_position
-
-  - platform: gungors
-    name: garaj_door
-    unique_id: garaj_door
-    device_class: garage
-    features:
-      - link: input_number.garaj_door_position
-
-  - platform: gungors
-    name: melike_dolap_kapi
-    unique_id: melike_dolap_kapi
-    device_class: door
-    features:
-      - link: input_number.melike_dolap_kapi_position
-
-  - platform: gungors
-    name: misafir_dolap_kapi
-    unique_id: misafir_dolap_kapi
-    device_class: door
-    features:
-      - link: input_number.misafir_dolap_kapi_position
+  # calendar.program (gungors/packages/program.yaml) and opens at sunrise / closes at sunset. In yatak the group carries it (area-targeted rules see the group, not the three blinds).
 
   # --- IKEA blinds -------------------------------------------------------------------
   # direction: movement tracking (opening/closing, real position while moving).
