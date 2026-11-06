@@ -4,9 +4,8 @@
 # relays are HA switches. Door on the left at both: key 1 is near the door.
 #
 # The relays without a load (switch.banyo_left, switch.yemek_1, switch.yemek_3) drive their key
-# LEDs (the LEDs are wired to the relays). Until the gungors indicator feature replaces them, the
-# switchbutton blueprint automations below keep each of these relays in step with its light, so
-# the LED shows the light. switch.yemek_2 is the mutfak lamp, switch.banyo_right the banyo fan.
+# LEDs (the LEDs are wired to the relays); nothing drives them until the gungors indicator feature.
+# switch.yemek_2 is the mutfak lamp, switch.banyo_right the banyo fan.
 
 event:
   - platform: gungors
@@ -32,31 +31,3 @@ event:
           - light: {button: 2, target: {entity_id: light.mutfak_light}}  # 2: mutfak
           - light: {button: 3, target: {area_id: [veranda, avlu, bahce]}}  # 3: the whole garden
       - link: event.yemek_switchbutton_action
-
-automation:
-  - id: "banyo_switchbutton"
-    alias: banyo_switchbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/switchbutton.yaml
-      input:
-        switch: switch.banyo_left
-        light: light.banyo_light
-
-  - id: "bahce_switchbutton"
-    alias: bahce_switchbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/switchbutton.yaml
-      input:
-        switch: switch.yemek_3
-        light: light.bahce_light
-
-  - id: "yemek_switchbutton"
-    alias: yemek_switchbutton
-    description: ""
-    use_blueprint:
-      path: gungorser/switchbutton.yaml
-      input:
-        switch: switch.yemek_1
-        light: light.yemek_light

@@ -2,8 +2,7 @@
 
 Our own blueprints, used from packages as `path: gungorser/<name>.yaml`.
 
-- `automation/`: `switchbutton.yaml` (gungors/packages/switchbuttons.yaml), `light_with_sensor.yaml`
-  (gungors/packages/lightsensors.yaml).
+- `automation/`: `light_with_sensor.yaml` (gungors/packages/lightsensors.yaml).
 - `template/`: `roomstate.yaml` (gungors/packages/roomstate.yaml).
 
 ## Live target
