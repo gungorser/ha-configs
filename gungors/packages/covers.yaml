@@ -213,19 +213,20 @@ cover:
       - direction
       - link: cover.phys_koridor1_cover
 
-  # Yatak: the two blinds without a window contact, and the group of all three, which carries
-  # `program` for the room (the members have none, so commands are not sent twice).
+  # Yatak: the two blinds without a window contact (the middle glass and the balcony door), and
+  # the group of all three, which carries `program` for the room (the members have none, so
+  # commands are not sent twice).
   - platform: gungors
-    name: yatak_cover_1
-    unique_id: yatak_cover_1
+    name: yatak_cover_middle
+    unique_id: yatak_cover_1  # the middle (glass) blind, once yatak_cover_1: the old unique_id keeps its history
     device_class: blind
     features:
       - direction
       - link: cover.phys_yatak1_cover
 
   - platform: gungors
-    name: yatak_cover_3
-    unique_id: yatak_cover_3
+    name: yatak_cover_door
+    unique_id: yatak_cover_3  # the balcony door blind, once yatak_cover_3: the old unique_id keeps its history
     device_class: blind
     features:
       - direction
@@ -239,8 +240,8 @@ cover:
       - program
       - link:
           - cover.yatak_cover_window
-          - cover.yatak_cover_1
-          - cover.yatak_cover_3
+          - cover.yatak_cover_middle
+          - cover.yatak_cover_door
 
   # --- Tuya curtains -----------------------------------------------------------------
   # travel_time: the motors report no position while moving; the wrapper estimates it from
