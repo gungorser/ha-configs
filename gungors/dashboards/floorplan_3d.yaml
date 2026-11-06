@@ -270,7 +270,7 @@ views:
                 hold_action:
                   action: more-info
               yatak_blind_pencere:            # north window
-                entity: cover.yatak_cover_1
+                entity: cover.yatak_cover_middle
                 <<: &yatak_blind              # all three command the group cover.yatak_cover; position from its own cover
                   tap_action:
                     action: perform-action
@@ -281,7 +281,7 @@ views:
                     action: more-info
                     entity: cover.yatak_cover
               yatak_blind_kapi:               # balcony door
-                entity: cover.yatak_cover_3
+                entity: cover.yatak_cover_door
                 <<: *yatak_blind
               yatak_blind_dogu:               # east window (window contact: guarded)
                 entity: cover.yatak_cover_window
