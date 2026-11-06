@@ -46,6 +46,7 @@ light:
     unique_id: koridor0_light
     features:
       - program
+      - occupancy: binary_sensor.koridor0_sensor_occupancy  # after sunset, 50 %
       - link: light.phys_koridor0_light
 
   - platform: gungors
@@ -53,6 +54,7 @@ light:
     unique_id: koridor1_light
     features:
       - program
+      - occupancy: binary_sensor.koridor1_sensor_occupancy  # after sunset, 50 %
       - link: light.phys_koridor1_light
 
   - platform: gungors
@@ -88,6 +90,7 @@ light:
     unique_id: koridor2_light
     features:
       - program
+      - occupancy: binary_sensor.koridor2_sensor_occupancy  # after sunset, 50 %
       - link: light.phys_koridor2_light
 
   - platform: gungors

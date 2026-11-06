@@ -2,8 +2,9 @@
 
 Our own blueprints, used from packages as `path: gungorser/<name>.yaml`.
 
-- `automation/`: `light_with_sensor.yaml` (gungors/packages/automation.yaml).
 - `template/`: `roomstate.yaml` (gungors/packages/template.yaml).
+- `automation/`: none now (`.gitkeep` keeps the folder for the deploy; light_with_sensor was
+  replaced by the gungors `occupancy` feature).
 
 ## Live target
 `/config/blueprints/automation/gungorser` and `/config/blueprints/template/gungorser`. Other
