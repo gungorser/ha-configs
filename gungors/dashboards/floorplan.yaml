@@ -229,7 +229,7 @@ views:
             entity: light.mutfak_light
             image: local/images/floorplan/kat0/mutfak_light.png
           - <<: *overlay
-            entity: light.bahce_light_1
+            entity: light.avlu_light
             image: local/images/floorplan/kat0/bahce_light.png
           # lights
           - <<: *room_light
@@ -251,7 +251,7 @@ views:
             entity: light.salon_light
             style: {left: 42%, top: 34%}
           - <<: *room_light
-            entity: light.bahce_light_1
+            entity: light.avlu_light
             style: {left: 37%, top: 84%}
           - <<: *room_light
             entity: light.bahce_light

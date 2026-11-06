@@ -25,7 +25,7 @@ event:
     keys: 2
     features:
       - buttons:
-          - light: {button: 1}
+          - light: {button: 1, target: {area_id: [veranda, avlu, bahce]}}  # the whole garden
       - link: event.bahce_pushbutton_action
 
   - platform: gungors

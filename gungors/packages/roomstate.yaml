@@ -20,12 +20,9 @@ template:
       path: gungorser/roomstate.yaml
       input:
         entities:
-          - light.bahce_light_1
-          - light.bahce_light_2a
-          - light.bahce_light_2b
-          - light.bahce_light_2c
-          - light.bahce_light_2d
-          - light.bahce_light_3
+          - light.veranda_light
+          - light.avlu_light
+          - light.bahce_light
     name: bahce_roomstate
     unique_id: roomstate_bahce
 

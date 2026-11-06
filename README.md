@@ -43,7 +43,7 @@ Zigbee2MQTT devices that a gungors wrapper drives (the `link` targets in `gungor
   `phys_` plays the role of Python's private `_` prefix.
 - The suffix is the entity domain (`light`, `climate`, `cover`, ...), so two devices of different
   domains in the same room never collide.
-- A number belongs to the name, before the domain: `phys_tavan2_light`, `phys_bahce1_light`.
+- A number belongs to the name, before the domain: `phys_tavan2_light`, `phys_veranda1_light`.
 - Physical devices have no area, neither the device nor its entities. The wrapper carries the area.
 - Rename in Zigbee2MQTT (the device's friendly name), not in Home Assistant. Renaming in Home
   Assistant only changes the entity and is overwritten the next time Z2M re-publishes the device.
