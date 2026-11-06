@@ -7,7 +7,7 @@
 # Action standard:
 #   light chips: tap toggle, hold more-info
 #   toggleable icons (fan, switch, valve): tap toggle, hold more-info
-#   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
+#   covers: tap cover.toggle (gungors covers: moving -> stop, closed -> open, else close), hold more-info
 #   room climate chips: tap more-info, hold heat <-> off
 #   labels (boiler): tap more-info
 #   other icons (tv, vacuums, weather, people): default (tap more-info)
@@ -275,7 +275,7 @@ views:
             style: {top: 44%, left: 44%}
           - <<: *cover_icon
             entity: cover.salon_cover
-            tap_action: {action: perform-action, perform_action: script.cover_tap, data: {cover: cover.salon_cover}}
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.salon_cover}}
             style: {left: 30%, top: 18%}
           # cameras
           - type: conditional
@@ -414,18 +414,18 @@ views:
           # covers & others
           - <<: *cover_icon
             entity: cover.bebek_cover
-            tap_action: {action: perform-action, perform_action: script.cover_tap, data: {cover: cover.bebek_cover}}
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.bebek_cover}}
             style: {left: 30%, top: 21%}
           - <<: *cover_icon
             entity: cover.yatak_cover
-            tap_action: {action: perform-action, perform_action: script.cover_tap, data: {cover: cover.yatak_cover}}
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.yatak_cover}}
             style: {left: 66%, top: 21%}
           - <<: *toggle_icon
             entity: fan.banyo_fan
             style: {left: 80%, top: 74%}
           - <<: *cover_icon
             entity: cover.sercan_cover
-            tap_action: {action: perform-action, perform_action: script.cover_tap, data: {cover: cover.sercan_cover}}
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.sercan_cover}}
             style: {left: 32%, top: 90%}
           - <<: *toggle_icon
             entity: switch.sercan_plug
@@ -435,7 +435,7 @@ views:
             style: {left: 26%, top: 81%}
           - <<: *cover_icon
             entity: cover.koridor1_cover
-            tap_action: {action: perform-action, perform_action: script.cover_tap, data: {cover: cover.koridor1_cover}}
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.koridor1_cover}}
             style: {left: 81%, top: 62%}
           - *forecast
           - *sercan
@@ -497,7 +497,7 @@ views:
           # covers & others
           - <<: *cover_icon
             entity: cover.misafir_cover
-            tap_action: {action: perform-action, perform_action: script.cover_tap, data: {cover: cover.misafir_cover}}
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.misafir_cover}}
             style: {left: 35%, top: 18%}
           - *forecast
           - *sercan
