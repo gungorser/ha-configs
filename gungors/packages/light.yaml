@@ -21,7 +21,7 @@ light:
       - link: light.phys_bebek_light
 
   - platform: gungors
-    name: araba_light
+    name: araba
     unique_id: araba_light
     features:
       - program

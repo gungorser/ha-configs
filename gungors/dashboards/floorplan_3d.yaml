@@ -228,7 +228,7 @@ views:
                 entity: light.yemek_light
               car_light:
                 <<: *light
-                entity: light.araba_light
+                entity: light.araba
               bahce_light:            # the lawn's lamp (veranda and avlu have no page entity yet)
                 <<: *light
                 entity: light.bahce_light
