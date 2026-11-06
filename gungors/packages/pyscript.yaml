@@ -1,5 +1,8 @@
-# Pyscript (HACS custom-components/pyscript) settings. Scripts live in the repo's pyscript/,
-# deployed to /config/pyscript (pyscript/README.md).
+# pyscript: every `pyscript:` entry of the gungors packages, one section per topic.
+
 pyscript:
+  # --- pyscript ----------------------------------------------------------------------------------
+  # Pyscript (HACS custom-components/pyscript) settings. Scripts live in the repo's pyscript/,
+  # deployed to /config/pyscript (pyscript/README.md).
   allow_all_imports: true
   hass_is_global: true

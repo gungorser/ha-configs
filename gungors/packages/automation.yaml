@@ -1,0 +1,221 @@
+# automation: every `automation:` entry of the gungors packages, one section per topic.
+
+automation:
+  # --- banyo_humidity ----------------------------------------------------------------------------
+  - id: "banyo_humidity"
+    alias: banyo_humidity
+    mode: single
+    triggers:
+      - trigger: template
+        value_template: "{{ states('sensor.banyo_moisture_humidity') | float(0) > 45 }}"
+        id: "on"
+      - trigger: template
+        value_template: "{{ states('sensor.banyo_moisture_humidity') | float(0) <= 45 }}"
+        id: "off"
+    conditions: []
+    actions:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id:
+                  - "on"
+            sequence:
+              - action: fan.turn_on
+                metadata: {}
+                data: {}
+                target:
+                  entity_id: fan.banyo_fan
+          - conditions: []
+            sequence:
+              - action: fan.turn_off
+                metadata: {}
+                data: {}
+                target:
+                  entity_id: fan.banyo_fan
+
+  # --- certificate -------------------------------------------------------------------------------
+  # Certificate: renews the Let's Encrypt certificate of gungors.duckdns.org a week before it
+  # expires (checked daily at 11:59) and restarts Home Assistant to load it.
+  # Moved from the UI (automations.yaml); the id is kept so the entity keeps its history.
+  - id: "1726335987058"
+    alias: certificate_renew
+    description: ""
+    use_blueprint:
+      path: TJ-developer/renew_ssl_cert.yaml
+      input:
+        cert_expiry_sensor: sensor.gungors_duckdns_org_cert_expiry
+        renew_date: 7
+        restart_after_renewal: true
+        notification_device: da9404280c191461757a38244e80a39b
+        notification_title: Certificate renewed.
+        notification_message: Restarting homeassistant...
+        time_to_check_cert: "11:59:00"
+        send_notification: false
+
+  # --- heating -----------------------------------------------------------------------------------
+  # Mirrors binary_sensor.kombi_talebi onto the (hidden) boiler relay. Also resyncs
+  # at startup and whenever the relay reports on/off (manual change, or back from
+  # unavailable). While the relay is unavailable nothing is sent.
+  - alias: thermostat_switch
+    id: thermostat_switch
+    description: ""
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.kombi_talebi
+      - trigger: state
+        entity_id: switch.koridor2_switch
+        to: ["on", "off"]
+      - trigger: homeassistant
+        event: start
+    conditions: []
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.kombi_talebi
+                state: "on"
+              - condition: state
+                entity_id: switch.koridor2_switch
+                state: "off"
+            sequence:
+              - action: switch.turn_on
+                target:
+                  entity_id: switch.koridor2_switch
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.kombi_talebi
+                state: "off"
+              - condition: state
+                entity_id: switch.koridor2_switch
+                state: "on"
+            sequence:
+              - action: switch.turn_off
+                target:
+                  entity_id: switch.koridor2_switch
+
+  # --- lightsensors ------------------------------------------------------------------------------
+  - alias: koridor0_lightsensor
+    id: koridor0_lightsensor
+    description: ""
+    use_blueprint:
+      path: gungorser/light_with_sensor.yaml
+      input:
+        light: light.koridor0_light
+        sensor: binary_sensor.koridor0_sensor_occupancy
+
+  - alias: koridor1_lightsensor
+    id: koridor1_lightsensor
+    description: ""
+    use_blueprint:
+      path: gungorser/light_with_sensor.yaml
+      input:
+        light: light.koridor1_light
+        sensor: binary_sensor.koridor1_sensor_occupancy
+
+  - alias: koridor2_lightsensor
+    id: koridor2_lightsensor
+    description: ""
+    use_blueprint:
+      path: gungorser/light_with_sensor.yaml
+      input:
+        light: light.koridor2_light
+        sensor: binary_sensor.koridor2_sensor_occupancy
+
+  # --- nspanel -----------------------------------------------------------------------------------
+  # NSPanel in the salon (Blackymas NSPanel blueprint, /config/blueprints/automation/Blackymas/).
+  # Moved from the UI (automations.yaml); the id is kept so the entity keeps its history. Edit here
+  # and reload automations; the blueprint form in the UI is read-only for package automations.
+  - id: "1724707841190"
+    alias: NSPanelhome Configuration
+    description: ""
+    use_blueprint:
+      path: Blackymas/nspanel_blueprint.yaml
+      input:
+        nspanel_name: b9ff3a4002d4f3cb5bab1389328fb215
+        timezone: Europe/Amsterdam (CET-1CEST,M3.5.0,M10.5.0/3)
+        screensaver_display_time: true
+        media_player_update_interval: 4267
+        qrcode_enabled: true
+        qrcode_value: !secret nspanel_qrcode
+
+        # hardware buttons
+        hw_button_bar_left_always_show: true
+        hw_button_bar_right_always_show: true
+        left_button_entity: cover.salon_cover
+        left_button_name: Perde
+        right_button_entity: light.salon_light
+        right_button_name: Avize
+
+        # button page 1
+        button_page01_label: Giris
+        entity01: media_player.gungors_tv
+        entity01_name: TV
+        entity02: vacuum.robot_vacuum
+        entity02_name: supurge
+        entity03: light.koridor0_light
+        entity03_name: Koridor
+        entity04: switch.banyo_roomstate
+        entity04_name: Banyo
+        entity05: climate.thermostat_hc1
+        entity05_name: termostat
+        entity08: light.yemek_light
+        entity08_name: Yemek Masasi
+
+        # button page 2
+        button_page02_label: Odalar (Gereksizse sondur...)
+        entity09: switch.melike_roomstate
+        entity09_name: Melike Ofis
+        entity09_icon: ""
+        entity09_icon_color: [246, 0, 250]
+        entity10: switch.misafir_roomstate
+        entity10_name: Misafir Odasi
+        entity10_icon_color: [0, 187, 250]
+        entity11: switch.koridor_roomstate
+        entity11_name: Koridorlar
+        entity12: switch.banyo_roomstate
+        entity12_name: Banyo
+        entity12_icon_color: [250, 0, 0]
+        entity13: switch.sercan_roomstate
+        entity13_name: Sercan Ofis
+        entity14: switch.yatak_roomstate
+        entity14_name: Yatak Odasi
+        entity14_icon_color: [250, 242, 0]
+        entity15: switch.garaj_roomstate
+        entity15_name: Garaj
+        entity16: switch.bahce_roomstate
+        entity16_name: Bahçe
+
+        # button page 3 (entity17, the washing machine automation, was removed on 2026-09-28)
+        button_page03_label: 3. kat
+        entity18: cover.misafir_cover
+        entity18_name: Misafir odası perde
+        entity19: cover.yatak_cover
+        entity19_name: Yatak odası perde
+        entity20: cover.sercan_cover
+        entity20_name: Sercan perde
+        entity21: fan.banyo_fan
+        entity21_name: Banyo fan
+
+        entity_page01_label: isinma
+        entity_page02_label: elektrik
+
+        # climate
+        climate: climate.salon_climate
+        climate_chip_always_visible: true
+        climate_value01: climate.misafir_climate
+        climate_value01_icon: ""
+        climate_value01_icon_color: [0, 0, 255]
+        climate_value02: climate.melike_climate
+        climate_value02_icon_color: [255, 0, 255]
+        climate_value03: climate.yatak_climate_1
+        climate_value03_icon_color: [255, 255, 255]
+        climate_value04: climate.sercan_climate
+        climate_value04_icon: ""
+        climate_value04_icon_color: [0, 0, 255]
+
+        # utilities
+        utilities_enabled: true
+        utilities_page01_grid_value1: sensor.energy_consumed_tariff_1
+        utilities_page01_grid_value2: sensor.energy_consumed_tariff_2
+        utilities_page01_group01_value1: sensor.boiler_nrgww

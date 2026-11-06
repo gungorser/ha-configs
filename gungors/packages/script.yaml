@@ -1,0 +1,85 @@
+# script: every `script:` entry of the gungors packages, one section per topic.
+
+script:
+  # --- covers ------------------------------------------------------------------------------------
+  # Single-tap behaviour for covers on dashboards (used by floorplan.yaml).
+  # Unlike cover.toggle it does not depend on the last move's direction:
+  # moving -> stop, closed -> open, anything else (open or partly open) -> close.
+  cover_tap:
+    alias: cover_tap
+    description: Stop if moving, open if closed, otherwise close
+    mode: parallel
+    max: 20
+    fields:
+      cover:
+        description: Cover entity id
+    sequence:
+      - choose:
+          - conditions: "{{ states(cover) in ['opening', 'closing'] }}"
+            sequence:
+              - action: cover.stop_cover
+                target:
+                  entity_id: "{{ cover }}"
+          - conditions: "{{ is_state(cover, 'closed') }}"
+            sequence:
+              - action: cover.open_cover
+                target:
+                  entity_id: "{{ cover }}"
+        default:
+          - action: cover.close_cover
+            target:
+              entity_id: "{{ cover }}"
+
+  # --- phones ------------------------------------------------------------------------------------
+  # Ring a lost phone, like Find My: the companion app speaks on the alarm stream at full volume
+  # (media_stream alarm_stream_max), which also sounds on silent and do not disturb (Android).
+  # A notification with a "Buldum" button comes with it; tapping it (or 5 rounds) stops the ringing.
+  # Started from the Floorplan 3D card: a tap on a family portrait (floorplan_3d.yaml family tap_action).
+  telefon_caldir:
+    alias: Telefonu çaldır
+    description: Rings a phone through its companion app until "Buldum" is tapped (at most 5 rounds).
+    icon: mdi:cellphone-sound
+    mode: restart
+    fields:
+      notify:
+        name: Telefon
+        description: The phone's companion app notify action
+        example: notify.mobile_app_sm_s931b
+        required: true
+        selector:
+          text:
+    sequence:
+      - action: "{{ notify }}"
+        data:
+          title: Telefon burada
+          message: Home Assistant bu telefonu çaldırıyor.
+          data:
+            tag: telefon_caldir
+            priority: high
+            ttl: 0
+            sticky: true
+            actions:
+              - action: TELEFON_BULDUM
+                title: Buldum
+      - repeat:
+          sequence:
+            - action: "{{ notify }}"
+              data:
+                message: TTS
+                data:
+                  tts_text: Telefon burada
+                  media_stream: alarm_stream_max
+                  priority: high
+                  ttl: 0
+            - wait_for_trigger:
+                - trigger: event
+                  event_type: mobile_app_notification_action
+                  event_data:
+                    action: TELEFON_BULDUM
+              timeout: "00:00:06"
+          until: "{{ wait.trigger is not none or repeat.index >= 5 }}"
+      - action: "{{ notify }}"
+        data:
+          message: clear_notification
+          data:
+            tag: telefon_caldir

@@ -1,0 +1,35 @@
+# lovelace: every `lovelace:` entry of the gungors packages, one section per topic.
+
+lovelace:
+  # --- dashboards --------------------------------------------------------------------------------
+  mode: storage
+  resources:
+    - url: /local/community/scheduler-card/scheduler-card.js
+      type: module
+    - url: /local/community/ha-floorplan/floorplan.js
+      type: module
+  dashboards:
+    roomstate-dashboard:
+      mode: yaml
+      title: Gereksiz
+      icon: mdi:power
+      show_in_sidebar: true
+      filename: gungors/dashboards/unnecessary.yaml
+    floorplan-dashboard:
+      mode: yaml
+      title: Floorplan
+      icon: mdi:floor-plan
+      show_in_sidebar: true
+      filename: gungors/dashboards/floorplan.yaml
+    program-dashboard:
+      mode: yaml
+      title: Program
+      icon: mdi:calendar-clock
+      show_in_sidebar: true
+      filename: gungors/dashboards/program.yaml
+    floorplan3d-dashboard:
+      mode: yaml
+      title: Floorplan 3D
+      icon: mdi:home-lightbulb
+      show_in_sidebar: true
+      filename: gungors/dashboards/floorplan_3d.yaml
