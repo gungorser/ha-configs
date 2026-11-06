@@ -229,7 +229,7 @@ views:
               car_light:
                 <<: *light
                 entity: light.araba_light
-              bahce_light:            # the garden's only lamp, on the back wall
+              bahce_light:            # the lawn's lamp (veranda and avlu have no page entity yet)
                 <<: *light
                 entity: light.bahce_light
           - floor: kat1

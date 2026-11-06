@@ -30,7 +30,7 @@ event:
       - buttons:
           - light                                                        # 1: yemek
           - light: {button: 2, target: {entity_id: light.mutfak_light}}  # 2: mutfak
-          - light: {button: 3, target: {area_id: bahce}}                 # 3: bahce
+          - light: {button: 3, target: {area_id: [veranda, avlu, bahce]}}  # 3: the whole garden
       - link: event.yemek_switchbutton_action
 
 automation:

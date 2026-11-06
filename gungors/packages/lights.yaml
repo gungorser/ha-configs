@@ -117,20 +117,29 @@ light:
       - program
       - link: switch.yemek_2
 
-  # bahce: garden lamp 1 on its own, and the group of all garden lights (the lamp 1 wrapper,
-  # the UI group light.bahce_light_2 and the physical lamp 3).
+  # The garden has three areas: veranda (the seating group, four colour spots), avlu (the
+  # table next to the kitchen) and bahce (the lawn).
   - platform: gungors
-    name: bahce_light_1
-    unique_id: bahce_light_1
+    name: veranda_light
+    unique_id: veranda_light
     features:
       - program
-      - link: light.phys_bahce1_light
+      - link:
+          - light.phys_veranda1_light
+          - light.phys_veranda2_light
+          - light.phys_veranda3_light
+          - light.phys_veranda4_light
+
+  - platform: gungors
+    name: avlu_light
+    unique_id: bahce_light_1  # once bahce_light_1: the old unique_id keeps its history
+    features:
+      - program
+      - link: light.phys_avlu_light
 
   - platform: gungors
     name: bahce_light
     unique_id: bahce_light
     features:
-      - link:
-          - light.bahce_light_1
-          - light.bahce_light_2
-          - light.phys_bahce3_light
+      - program
+      - link: light.phys_bahce_light
