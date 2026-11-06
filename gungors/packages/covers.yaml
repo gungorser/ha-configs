@@ -201,7 +201,7 @@ cover:
     features:
       - window: binary_sensor.yatak_window_contact
       - direction
-      - link: cover.phys_yatak2_cover
+      - link: cover.phys_yatakwindow_cover
 
   # No window sensor: nothing to guard.
   - platform: gungors
@@ -222,7 +222,7 @@ cover:
     device_class: blind
     features:
       - direction
-      - link: cover.phys_yatak1_cover
+      - link: cover.phys_yatakmiddle_cover
 
   - platform: gungors
     name: yatak_cover_door
@@ -230,7 +230,7 @@ cover:
     device_class: blind
     features:
       - direction
-      - link: cover.phys_yatak3_cover
+      - link: cover.phys_yatakdoor_cover
 
   - platform: gungors
     name: yatak_cover
