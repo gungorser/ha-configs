@@ -11,34 +11,34 @@ views:
               columns: full
             # Default whitelist; each user can override it from the card's settings (gear icon).
             entities:
-              - light.salon_light
-              - light.mutfak_light
-              - light.yemek_light
+              - light.salon
+              - light.mutfak
+              - light.yemek
               - media_player.salon_tv
-              - climate.salon_thermostat
-              - light.veranda_light
-              - light.avlu_light
-              - light.bahce_light
+              - climate.salon
+              - light.veranda
+              - light.avlu
+              - light.bahce
               - fan.banyo_fan
-              - light.banyo_light
-              - climate.banyo_thermostat
-              - light.bebek_light
-              - climate.bebek_thermostat
-              - light.garaj_light
-              - light.melike_light
-              - climate.melike_thermostat
-              - light.misafir_light
-              - climate.misafir_thermostat
-              - light.sercan_light
-              - climate.sercan_thermostat
+              - light.banyo
+              - climate.banyo
+              - light.bebek
+              - climate.bebek
+              - light.garaj
+              - light.melike
+              - climate.melike
+              - light.misafir
+              - climate.misafir
+              - light.sercan
+              - climate.sercan
               - switch.sercan_plug
-              - light.yatak_light
-              - climate.yatak_thermostat
-              - light.koridor0_light
-              - light.koridor1_light
-              - light.koridor2_light
+              - light.yatak
+              - climate.yatak
+              - light.koridor0
+              - light.koridor1
+              - light.koridor2
               - light.araba
-              - light.tavan_light_2
+              - light.tavan
     badges: []
   - title: Kamera
     path: kamera

@@ -210,51 +210,51 @@ views:
         elements:
           # light overlays
           - <<: *overlay
-            entity: light.salon_light
+            entity: light.salon
             image: local/images/floorplan/kat0/salon_light.png
             state_filter: *filter_50
           - <<: *overlay
             entity: light.araba
             image: local/images/floorplan/kat0/car_light.png
           - <<: *overlay
-            entity: light.koridor0_light
+            entity: light.koridor0
             image: local/images/floorplan/kat0/koridor0_light.png
           - <<: *overlay
-            entity: light.yemek_light
+            entity: light.yemek
             image: local/images/floorplan/kat0/yemek_light.png
           - <<: *overlay
-            entity: light.garaj_light
+            entity: light.garaj
             image: local/images/floorplan/kat0/garaj_light.png
           - <<: *overlay
-            entity: light.mutfak_light
+            entity: light.mutfak
             image: local/images/floorplan/kat0/mutfak_light.png
           - <<: *overlay
-            entity: light.avlu_light
+            entity: light.avlu
             image: local/images/floorplan/kat0/bahce_light.png
           # lights
           - <<: *room_light
             entity: light.araba
             style: {left: 72%, top: 50%}
           - <<: *room_light
-            entity: light.koridor0_light
+            entity: light.koridor0
             style: {left: 46%, top: 52%}
           - <<: *room_light
-            entity: light.yemek_light
+            entity: light.yemek
             style: {left: 25%, top: 70%}
           - <<: *room_light
-            entity: light.garaj_light
+            entity: light.garaj
             style: {left: 73%, top: 76%}
           - <<: *room_light
-            entity: light.mutfak_light
+            entity: light.mutfak
             style: {left: 46%, top: 72%}
           - <<: *room_light
-            entity: light.salon_light
+            entity: light.salon
             style: {left: 42%, top: 34%}
           - <<: *room_light
-            entity: light.avlu_light
+            entity: light.avlu
             style: {left: 37%, top: 84%}
           - <<: *room_light
-            entity: light.bahce_light
+            entity: light.bahce
             style: {left: 10%, top: 95%}
           # icons
           - *forecast
@@ -271,11 +271,11 @@ views:
             style: {left: 21%, top: 44%}
           # climate
           - <<: *room_climate
-            entity: climate.salon_thermostat
+            entity: climate.salon
             style: {top: 44%, left: 44%}
           - <<: *cover_icon
-            entity: cover.salon_cover
-            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.salon_cover}}
+            entity: cover.salon
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.salon}}
             style: {left: 30%, top: 18%}
           # cameras
           - type: conditional
@@ -360,72 +360,72 @@ views:
         elements:
           # light overlays
           - <<: *overlay
-            entity: light.yatak_light
+            entity: light.yatak
             image: local/images/floorplan/kat1/yatak_light.png
           - <<: *overlay
-            entity: light.banyo_light
+            entity: light.banyo
             image: local/images/floorplan/kat1/banyo_light.png
             state_filter: *filter_15
           - <<: *overlay
-            entity: light.koridor1_light
+            entity: light.koridor1
             image: local/images/floorplan/kat1/koridor1_light.png
           - <<: *overlay
-            entity: light.bebek_light
+            entity: light.bebek
             image: local/images/floorplan/kat1/bebek_light.png
           - <<: *overlay
-            entity: light.sercan_light
+            entity: light.sercan
             image: local/images/floorplan/kat1/sercan_light.png
           # lights
           - <<: *room_light
-            entity: light.yatak_light
+            entity: light.yatak
             style: {left: 66%, top: 36%}
           - <<: *room_light
-            entity: light.balkon_light
+            entity: light.balkon
             style: {left: 50%, top: 15%}
           - <<: *room_light
-            entity: light.banyo_light
+            entity: light.banyo
             style: {left: 68%, top: 81%}
           - <<: *room_light
-            entity: light.sercan_light
+            entity: light.sercan
             style: {left: 33%, top: 76%}
           - <<: *room_light
-            entity: light.koridor1_light
+            entity: light.koridor1
             style: {left: 63%, top: 61%}
           - <<: *room_light
-            entity: light.bebek_light
+            entity: light.bebek
             style: {left: 33%, top: 40%}
           # climate
           - <<: *room_climate
-            entity: climate.yatak_thermostat
+            entity: climate.yatak
             variables: {humidity: sensor.yatak_sensor_humidity}
             style: {top: 28.5%, left: 70%}
           - <<: *room_climate
-            entity: climate.bebek_thermostat
+            entity: climate.bebek
             variables: {humidity: sensor.bebek_sensor_humidity}
             style: {top: 28.5%, left: 30%}
           - <<: *room_climate
-            entity: climate.banyo_thermostat
+            entity: climate.banyo
             variables: {humidity: sensor.banyo_moisture_humidity}
             style: {top: 89.5%, left: 76%}
           - <<: *room_climate
-            entity: climate.sercan_thermostat
+            entity: climate.sercan
             variables: {humidity: sensor.sercan_sensor_humidity}
             style: {top: 83.5%, left: 35%}
           # covers & others
           - <<: *cover_icon
-            entity: cover.bebek_cover
-            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.bebek_cover}}
+            entity: cover.bebek
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.bebek}}
             style: {left: 30%, top: 21%}
           - <<: *cover_icon
-            entity: cover.yatak_cover
-            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.yatak_cover}}
+            entity: cover.yatak
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.yatak}}
             style: {left: 66%, top: 21%}
           - <<: *toggle_icon
             entity: fan.banyo_fan
             style: {left: 80%, top: 74%}
           - <<: *cover_icon
-            entity: cover.sercan_cover
-            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.sercan_cover}}
+            entity: cover.sercan
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.sercan}}
             style: {left: 32%, top: 90%}
           - <<: *toggle_icon
             entity: switch.sercan_plug
@@ -434,8 +434,8 @@ views:
             entity: vacuum.roborock_s5_d456_robot_cleaner
             style: {left: 26%, top: 81%}
           - <<: *cover_icon
-            entity: cover.koridor1_cover
-            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.koridor1_cover}}
+            entity: cover.koridor1
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.koridor1}}
             style: {left: 81%, top: 62%}
           - *forecast
           - *sercan
@@ -450,38 +450,38 @@ views:
         elements:
           # light overlays
           - <<: *overlay
-            entity: light.koridor2_light
+            entity: light.koridor2
             image: local/images/floorplan/kat2/koridor2_light.png
             state_filter: *filter_15
           - <<: *overlay
-            entity: light.melike_light
+            entity: light.melike
             image: local/images/floorplan/kat2/melike_light.png
           - <<: *overlay
-            entity: light.misafir_light
+            entity: light.misafir
             image: local/images/floorplan/kat2/misafir_light.png
           - <<: *overlay
-            entity: light.tavan_light_2
+            entity: light.tavan
             image: local/images/floorplan/kat2/tavan_light.png
           # lights
           - <<: *room_light
-            entity: light.koridor2_light
+            entity: light.koridor2
             style: {left: 63%, top: 55%}
           - <<: *room_light
-            entity: light.melike_light
+            entity: light.melike
             style: {left: 27%, top: 61%}
           - <<: *room_light
-            entity: light.misafir_light
+            entity: light.misafir
             style: {left: 47%, top: 35%}
           - <<: *room_light
-            entity: light.tavan_light_2
+            entity: light.tavan
             style: {left: 32%, top: 47%}
           # climate
           - <<: *room_climate
-            entity: climate.misafir_thermostat
+            entity: climate.misafir
             variables: {humidity: sensor.misafir_sensor_humidity}
             style: {top: 26.5%, left: 35%}
           - <<: *room_climate
-            entity: climate.melike_thermostat
+            entity: climate.melike
             variables: {humidity: sensor.melike_sensor_humidity}
             style: {top: 75.5%, left: 31%}
           - type: state-label
@@ -496,8 +496,8 @@ views:
                 }
           # covers & others
           - <<: *cover_icon
-            entity: cover.misafir_cover
-            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.misafir_cover}}
+            entity: cover.misafir
+            tap_action: {action: perform-action, perform_action: cover.toggle, target: {entity_id: cover.misafir}}
             style: {left: 35%, top: 18%}
           - *forecast
           - *sercan

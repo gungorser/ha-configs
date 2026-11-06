@@ -12,7 +12,7 @@ climate:
   # force_off: false keeps SmartThermostat's old force_off_state: false.
 
   - platform: gungors
-    name: sercan_thermostat
+    name: sercan
     unique_id: sercan_thermostat
     max_temp: 35
     features:
@@ -33,7 +33,7 @@ climate:
       - link: climate.phys_sercan_climate
 
   - platform: gungors
-    name: misafir_thermostat
+    name: misafir
     unique_id: misafir_thermostat
     max_temp: 35
     features:
@@ -53,7 +53,7 @@ climate:
       - link: climate.phys_misafir_climate
 
   - platform: gungors
-    name: bebek_thermostat
+    name: bebek
     unique_id: bebek_thermostat
     max_temp: 35
     features:
@@ -73,7 +73,7 @@ climate:
       - link: climate.phys_bebek_climate
 
   - platform: gungors
-    name: melike_thermostat
+    name: melike
     unique_id: melike_thermostat
     max_temp: 35
     features:
@@ -93,7 +93,7 @@ climate:
       - link: climate.phys_melike_climate
 
   - platform: gungors
-    name: banyo_thermostat
+    name: banyo
     unique_id: banyo_thermostat
     max_temp: 35
     features:
@@ -113,7 +113,7 @@ climate:
       - link: climate.phys_banyo_climate
 
   - platform: gungors
-    name: yatak_thermostat
+    name: yatak
     unique_id: yatak_thermostat
     max_temp: 35
     features:
@@ -135,7 +135,7 @@ climate:
 
   # salon: the boiler circuit thermostat (EMS-ESP hc1) and a socket heater driven by PWM.
   - platform: gungors
-    name: salon_thermostat
+    name: salon
     unique_id: salon_thermostat
     max_temp: 35
     features:

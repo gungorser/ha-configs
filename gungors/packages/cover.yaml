@@ -13,7 +13,7 @@ cover:
   # from the gungors pushbuttons (event.yaml) as physical requests (allowed with the
   # window open).
   - platform: gungors
-    name: sercan_cover
+    name: sercan
     unique_id: sercan_cover
     device_class: blind
     features:
@@ -23,7 +23,7 @@ cover:
       - link: cover.phys_sercan_cover
 
   - platform: gungors
-    name: bebek_cover
+    name: bebek
     unique_id: bebek_cover
     device_class: blind
     features:
@@ -33,7 +33,7 @@ cover:
       - link: cover.phys_bebek_cover
 
   - platform: gungors
-    name: yatak_cover_window
+    name: yatak_window
     unique_id: yatak_cover_window
     device_class: blind
     features:
@@ -43,7 +43,7 @@ cover:
 
   # No window sensor: nothing to guard.
   - platform: gungors
-    name: koridor1_cover
+    name: koridor1
     unique_id: koridor1_cover
     device_class: blind
     features:
@@ -55,7 +55,7 @@ cover:
   # the group of all three, which carries `program` for the room (the members have none, so
   # commands are not sent twice).
   - platform: gungors
-    name: yatak_cover_middle
+    name: yatak_middle
     unique_id: yatak_cover_1  # the middle (glass) blind, once yatak_cover_1: the old unique_id keeps its history
     device_class: blind
     features:
@@ -63,7 +63,7 @@ cover:
       - link: cover.phys_yatakmiddle_cover
 
   - platform: gungors
-    name: yatak_cover_door
+    name: yatak_door
     unique_id: yatak_cover_3  # the balcony door blind, once yatak_cover_3: the old unique_id keeps its history
     device_class: blind
     features:
@@ -71,15 +71,15 @@ cover:
       - link: cover.phys_yatakdoor_cover
 
   - platform: gungors
-    name: yatak_cover
+    name: yatak
     unique_id: yatak_cover
     device_class: blind
     features:
       - program
       - link:
-          - cover.yatak_cover_window
-          - cover.yatak_cover_middle
-          - cover.yatak_cover_door
+          - cover.yatak_window
+          - cover.yatak_middle
+          - cover.yatak_door
 
   # --- Tuya curtains -----------------------------------------------------------------
   # travel_time: the motors report no position while moving; the wrapper estimates it from
@@ -87,7 +87,7 @@ cover:
   # end-of-move reports. invert: the motor's open is the room's close (Z2M's invert_cover
   # only flips positions for this device, so it is left as it was).
   - platform: gungors
-    name: salon_cover
+    name: salon
     unique_id: salon_cover
     device_class: curtain
     features:
@@ -97,7 +97,7 @@ cover:
       - link: cover.phys_salon_cover
 
   - platform: gungors
-    name: misafir_cover
+    name: misafir
     unique_id: misafir_cover
     device_class: curtain
     features:

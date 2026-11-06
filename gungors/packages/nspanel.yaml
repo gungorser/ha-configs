@@ -19,9 +19,9 @@ automation:
         # hardware buttons
         hw_button_bar_left_always_show: true
         hw_button_bar_right_always_show: true
-        left_button_entity: cover.salon_cover
+        left_button_entity: cover.salon
         left_button_name: Perde
-        right_button_entity: light.salon_light
+        right_button_entity: light.salon
         right_button_name: Avize
 
         # button page 1
@@ -30,13 +30,13 @@ automation:
         entity01_name: TV
         entity02: vacuum.robot_vacuum
         entity02_name: supurge
-        entity03: light.koridor0_light
+        entity03: light.koridor0
         entity03_name: Koridor
         entity04: switch.banyo_roomstate
         entity04_name: Banyo
         entity05: climate.thermostat_hc1
         entity05_name: termostat
-        entity08: light.yemek_light
+        entity08: light.yemek
         entity08_name: Yemek Masasi
 
         # button page 2
@@ -65,11 +65,11 @@ automation:
 
         # button page 3 (entity17, the washing machine automation, was removed on 2026-09-28)
         button_page03_label: 3. kat
-        entity18: cover.misafir_cover
+        entity18: cover.misafir
         entity18_name: Misafir odası perde
-        entity19: cover.yatak_cover
+        entity19: cover.yatak
         entity19_name: Yatak odası perde
-        entity20: cover.sercan_cover
+        entity20: cover.sercan
         entity20_name: Sercan perde
         entity21: fan.banyo_fan
         entity21_name: Banyo fan
