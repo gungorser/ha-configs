@@ -14,7 +14,7 @@
 #   garden irrigation (bahce_sulama, the back lawn): tap toggle, hold more-info; watering effect while open
 #   cameras (bahce_kamera, kapi_kamera; card 1.23): tap live view popup (action camera), hold more-info;
 #   the card's camera mode lists them one at a time
-#   covers: tap script.cover_tap (moving -> stop, closed -> open, else close), hold more-info
+#   covers: tap cover.toggle (gungors covers: moving -> stop, closed -> open, else close), hold more-info
 #   garaj_door (garage door), yemek_blind (garden door), mutfak_blind (kitchen window),
 #   salon_kucuk_cover (small curtain, salon's east window), kat1 banyo_cover (bathroom window
 #   blind), kat2 koridor2_cover (attic hall window blind) and melike_cover (blind of melike's
@@ -99,9 +99,9 @@ views:
                 entity: cover.salon_cover
                 tap_action:
                   action: perform-action
-                  perform_action: script.cover_tap
-                  data:
-                    cover: cover.salon_cover
+                  perform_action: cover.toggle
+                  target:
+                    entity_id: cover.salon_cover
                 hold_action:
                   action: more-info
               garaj_door:             # garage door (manual: follows its position number, not selectable)
@@ -246,27 +246,27 @@ views:
                 entity: cover.bebek_cover
                 tap_action:
                   action: perform-action
-                  perform_action: script.cover_tap
-                  data:
-                    cover: cover.bebek_cover
+                  perform_action: cover.toggle
+                  target:
+                    entity_id: cover.bebek_cover
                 hold_action:
                   action: more-info
               sercan_blind:
                 entity: cover.sercan_cover
                 tap_action:
                   action: perform-action
-                  perform_action: script.cover_tap
-                  data:
-                    cover: cover.sercan_cover
+                  perform_action: cover.toggle
+                  target:
+                    entity_id: cover.sercan_cover
                 hold_action:
                   action: more-info
               koridor1_blind:
                 entity: cover.koridor1_cover
                 tap_action:
                   action: perform-action
-                  perform_action: script.cover_tap
-                  data:
-                    cover: cover.koridor1_cover
+                  perform_action: cover.toggle
+                  target:
+                    entity_id: cover.koridor1_cover
                 hold_action:
                   action: more-info
               yatak_blind_pencere:            # north window
@@ -274,9 +274,9 @@ views:
                 <<: &yatak_blind              # all three command the group cover.yatak_cover; position from its own cover
                   tap_action:
                     action: perform-action
-                    perform_action: script.cover_tap
-                    data:
-                      cover: cover.yatak_cover
+                    perform_action: cover.toggle
+                    target:
+                      entity_id: cover.yatak_cover
                   hold_action:
                     action: more-info
                     entity: cover.yatak_cover
@@ -342,9 +342,9 @@ views:
                 entity: cover.misafir_cover
                 tap_action:
                   action: perform-action
-                  perform_action: script.cover_tap
-                  data:
-                    cover: cover.misafir_cover
+                  perform_action: cover.toggle
+                  target:
+                    entity_id: cover.misafir_cover
                 hold_action:
                   action: more-info
               koridor2_cover:                 # attic hall window blind (manual: follows its position number, not selectable)
