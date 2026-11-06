@@ -4,8 +4,9 @@
 # relays are HA switches. Door on the left at both: key 1 is near the door.
 #
 # The relays without a load (switch.banyo_left, switch.yemek_1, switch.yemek_3) drive their key
-# LEDs (the LEDs are wired to the relays); nothing drives them until the gungors indicator feature.
-# switch.yemek_2 is the mutfak lamp, switch.banyo_right the banyo fan.
+# LEDs (the LEDs are wired to the relays): the gungors `relay` feature switches each on while its
+# key's lights are on. switch.yemek_2 is the mutfak lamp, switch.banyo_right the banyo fan (their
+# LEDs follow the load).
 
 event:
   - platform: gungors
@@ -18,6 +19,8 @@ event:
           - light                                                    # 1: banyo
       - custom:                                                      # 2: the fan
           2_single: {action: fan.toggle, target: {entity_id: fan.banyo_fan}}
+      - relay:
+          1: switch.banyo_left                                       # key 1 LED
       - link: event.banyo_switchbutton_action
 
   - platform: gungors
@@ -30,4 +33,7 @@ event:
           - light                                                        # 1: yemek
           - light: {button: 2, target: {entity_id: light.mutfak_light}}  # 2: mutfak
           - light: {button: 3, target: {area_id: [veranda, avlu, bahce]}}  # 3: the whole garden
+      - relay:                                                           # key LEDs
+          1: switch.yemek_1
+          3: switch.yemek_3
       - link: event.yemek_switchbutton_action
