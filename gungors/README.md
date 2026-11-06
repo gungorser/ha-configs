@@ -5,6 +5,8 @@
 
 - `packages/<domain>.yaml`: one package per Home Assistant domain (file name = package name =
   the only top-level key: `light.yaml` holds `light:`), one commented section per topic inside.
+  Exception: a device's own configuration stays in one file named after the device
+  (`nspanel.yaml`, the NSPanel blueprint automation).
   `configuration.yaml` (not in this repository) loads them with
   `homeassistant: packages: !include_dir_named gungors/packages`. `packages/shell_command.yaml` holds the
   deploy shell_commands for all areas (root README).
