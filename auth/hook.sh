@@ -74,8 +74,12 @@ case "${1:-status}" in
     healthy auth-lldap-1 120
     docker exec -e LLDAP_ADMIN_PASSWORD="$(env_value LLDAP_LDAP_USER_PASS)" auth-lldap-1 /app/bootstrap.sh \
       | grep -vE '^\s*$' | grep -iE 'error|created|updated|added|successfully' || true
+    # On a first deploy Authelia starts before its LDAP service user exists and restarts in a loop
+    # until bootstrap.sh has created it; restart it once so only this start's log counts.
+    since=$(date +%s)
+    docker restart auth-authelia-1 >/dev/null
     healthy auth-authelia-1 120
-    docker logs --since 2m auth-authelia-1 2>&1 | grep -iE 'level=(error|fatal)' && exit 1
+    docker logs --since "$since" auth-authelia-1 2>&1 | grep -iE 'level=(error|fatal)' && exit 1
     echo "auth: LLDAP bootstrapped, Authelia running"
     ;;
   status)
