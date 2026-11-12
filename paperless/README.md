@@ -5,12 +5,12 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 
 | File | What |
 |---|---|
-| `compose.yaml` | `paperless` (pinned 2.20.15 = the add-on's version, upgraded after the import), `db` (Postgres), `broker` (Redis), `paperless-gpt` (profile `gpt`) |
+| `compose.yaml` | `paperless` (pinned 3.4.2; the add-on's 2.20.15 data was imported first, then upgraded), `db` (Postgres), `broker` (Redis), `paperless-gpt` (profile `gpt`) |
 | `hook.sh` | Secrets, folders, Paperless groups; `share-all` after an import |
 
 - Data: `/srv/data/paperless/{data,pgdata,redis,gpt}` (nas-data). Documents:
   `/srv/nas/dokuman/paperless/{media,consume,export}` (nas-dokuman). Consume folder recursive,
-  polled every 60 s, filename format `{{ created_year }}/{{ correspondent }}/{{ title }}`, OCR
+  polled every 60 s, duplicates rejected, an archive PDF always kept (as on the add-on), filename format `{{ created_year }}/{{ correspondent }}/{{ title }}`, OCR
   `nld+eng+tur` (as on the add-on). No Tika/Gotenberg (the add-on had none).
 - Web: `https://paperless.gungors.duckdns.org` through NPM (`paperless:8000` on the `proxy`
   network), no forward-auth: apps use API tokens.
