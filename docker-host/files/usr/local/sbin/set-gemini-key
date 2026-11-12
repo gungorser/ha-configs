@@ -5,7 +5,11 @@ set -euo pipefail
 [ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
 F=/opt/secrets/paperless-gpt.env
 read -rsp "Gemini API anahtarı: " K; echo
-[[ $K =~ ^[A-Za-z0-9_-]{20,}$ ]] || { echo "Bu bir Gemini API anahtarı gibi görünmüyor, kaydedilmedi."; exit 1; }
+K=$(printf '%s' "$K" | tr -d '[:space:]')   # pasted keys often carry spaces or a CR
+if [ ${#K} -lt 20 ] || [[ $K == *[!A-Za-z0-9._-]* ]]; then
+  echo "Bu bir Gemini API anahtarı gibi görünmüyor (${#K} karakter, en az 20; sadece harf, rakam, . _ -), kaydedilmedi."
+  exit 1
+fi
 umask 077
 { [ -f "$F" ] && grep -v '^GOOGLEAI_API_KEY=' "$F"; printf 'GOOGLEAI_API_KEY=%s\n' "$K"; } > "$F.new"
 chown root:root "$F.new" && mv "$F.new" "$F"
