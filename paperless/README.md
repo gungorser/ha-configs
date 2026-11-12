@@ -24,7 +24,7 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 - No Paperless passwords for people. The imported local admin `gungorspapers` stays as the
   break-glass login (regular login stays enabled for it; its password is Sercan's).
 - Ownership: imported objects belong to `gungorspapers`. After the import `hook.sh share-all`
-  makes documents, tags, correspondents, types, storage paths and custom fields unowned, so every
+  makes documents, tags, correspondents, types and storage paths unowned (custom fields have no owner), so every
   user with the group permissions sees them (simpler than per-object permissions; new documents
   from the consume folder are unowned anyway).
 - Phone apps: create an API token in the web UI (profile) and use it in the app.
