@@ -5,8 +5,8 @@
 #         OIDC provider line from /opt/secrets/oidc/paperless.secret (made by the auth area);
 #         prepares the folders.
 #   post: waits for Paperless, ensures the groups admin (all permissions) and aile (documents).
-#   share-all: after an import, makes every document, tag, correspondent, type, storage path
-#         and custom field unowned, so all users with the group permissions see them.
+#   share-all: after an import, makes every document, tag, correspondent, type and storage
+#         path unowned, so all users with the group permissions see them.
 set -euo pipefail
 cd "$(dirname "$0")"
 ENV=/opt/secrets/paperless.env
@@ -63,8 +63,8 @@ PY
     ;;
   share-all)
     manage shell <<'PY'
-from documents.models import Document, Tag, Correspondent, DocumentType, StoragePath, CustomField
-for m in (Document, Tag, Correspondent, DocumentType, StoragePath, CustomField):
+from documents.models import Document, Tag, Correspondent, DocumentType, StoragePath, 
+for m in (Document, Tag, Correspondent, DocumentType, StoragePath):   # custom fields have no owner
     n = m.objects.exclude(owner=None).update(owner=None)
     print(f"{m.__name__}: {n} made unowned")
 PY
