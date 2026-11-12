@@ -1,0 +1,84 @@
+# Paperless-ngx (documents), Postgres, Redis and paperless-gpt (AI tags/OCR, profile "gpt": started
+# only once its config and Gemini key are in place). On the shared `proxy` network: NPM forwards
+# paperless.gungors.duckdns.org to paperless:8000; no published ports. Data in /srv/data/paperless,
+# documents on the nas-dokuman disk (/srv/nas/dokuman/paperless). Secrets: /opt/secrets/paperless.env
+# (hook.sh). Pinned to 2.20.15 = the Pi add-on's version (document_importer needs the exporter's
+# version); upgraded after the import.
+name: paperless
+
+services:
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+    restart: unless-stopped
+    depends_on: [db, broker]
+    env_file: /opt/secrets/paperless.env   # secret key, DB password, admin, OIDC provider JSON
+    environment:
+      USERMAP_UID: "8003"
+      USERMAP_GID: "8003"
+      PAPERLESS_URL: https://paperless.gungors.duckdns.org
+      PAPERLESS_TIME_ZONE: Europe/Amsterdam
+      PAPERLESS_DBHOST: db
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_OCR_LANGUAGES: nld tur
+      PAPERLESS_OCR_LANGUAGE: nld+eng+tur
+      PAPERLESS_FILENAME_FORMAT: "{{ created_year }}/{{ correspondent }}/{{ title }}"
+      PAPERLESS_CONSUMER_RECURSIVE: "true"
+      PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "false"
+      PAPERLESS_CONSUMER_POLLING: "60"
+      # Login: Authelia (OIDC) for people, the local admin as break-glass, API tokens for apps.
+      PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
+      # People come from LLDAP through Authelia: username = preferred_username, LLDAP groups
+      # admin/aile join the Paperless groups of the same name (created by hook.sh).
+      PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"
+      PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
+      PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS: "true"
+      PAPERLESS_ACCOUNT_ALLOW_SIGNUPS: "false"
+      PAPERLESS_DISABLE_REGULAR_LOGIN: "false"   # break-glass: the imported local admin
+    extra_hosts:
+      # OIDC calls to Authelia go straight to NPM on this VM, not through the router.
+      - auth.gungors.duckdns.org:192.168.0.222
+    volumes:
+      - /srv/data/paperless/data:/usr/src/paperless/data
+      - /srv/nas/dokuman/paperless/media:/usr/src/paperless/media
+      - /srv/nas/dokuman/paperless/consume:/usr/src/paperless/consume
+      - /srv/nas/dokuman/paperless/export:/usr/src/paperless/export
+    networks: [proxy, default]
+
+  db:
+    image: postgres:17.11-alpine
+    restart: unless-stopped
+    env_file: /opt/secrets/paperless.env   # POSTGRES_PASSWORD
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+    volumes:
+      - /srv/data/paperless/pgdata:/var/lib/postgresql/data
+
+  broker:
+    image: redis:8.6.8-alpine
+    restart: unless-stopped
+    volumes:
+      - /srv/data/paperless/redis:/data
+
+  paperless-gpt:
+    image: icereed/paperless-gpt:v0.31.0
+    profiles: [gpt]
+    restart: unless-stopped
+    depends_on: [paperless]
+    env_file: /opt/secrets/paperless-gpt.env   # PAPERLESS_API_TOKEN, GOOGLEAI_API_KEY
+    environment:
+      PAPERLESS_BASE_URL: http://paperless:8000
+      PAPERLESS_PUBLIC_URL: https://paperless.gungors.duckdns.org
+      LLM_PROVIDER: googleai
+      LLM_MODEL: gemini-3.5-flash-lite
+      VISION_LLM_PROVIDER: googleai
+      VISION_LLM_MODEL: gemini-3.5-flash-lite
+      OCR_PROVIDER: llm
+    volumes:
+      - /srv/data/paperless/gpt/prompts:/app/prompts   # Sercan's prompts, copied from the Pi add-on
+      - /srv/data/paperless/gpt/db:/app/db              # workflows and history
+    networks: [proxy, default]
+
+networks:
+  proxy:
+    external: true

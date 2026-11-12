@@ -27,6 +27,27 @@ secret() {
 
 env_value() { sed -n "s/^$1=//p" "$ENV"; }
 
+# oidc_client <client_id>: a confidential OIDC client's secret, made once. The plain secret goes to
+# /opt/secrets/oidc/<client_id>.secret (root, read by that service's hook), its PBKDF2 digest to
+# the Authelia secrets folder (read by configuration.yml through the template filter).
+oidc_client() {
+  local c=$1 out
+  install -d -m 700 /opt/secrets/oidc
+  if [ ! -s "/opt/secrets/oidc/$c.secret" ] || [ ! -s "$SEC/authelia/oidc_$c.digest" ]; then
+    out=$(docker run --rm "$(sed -n 's/^ *image: *\(authelia\/authelia:.*\)$/\1/p' compose.yaml)" \
+      authelia crypto hash generate pbkdf2 --random --random.length 64 --random.charset alphanumeric)
+    (umask 077
+     printf '%s\n' "$out" | sed -n 's/^Random Password: //p' > "/opt/secrets/oidc/$c.secret"
+     printf '%s\n' "$out" | sed -n 's/^Digest: //p' > "$SEC/authelia/oidc_$c.digest")
+    if [ ! -s "/opt/secrets/oidc/$c.secret" ] || [ ! -s "$SEC/authelia/oidc_$c.digest" ]; then
+      echo "OIDC secret for $c failed"; exit 1
+    fi
+    echo "generated OIDC client secret for $c"
+  fi
+  chmod 600 "/opt/secrets/oidc/$c.secret"
+  chown "$AUTHELIA_UID:$AUTHELIA_UID" "$SEC/authelia/oidc_$c.digest" && chmod 600 "$SEC/authelia/oidc_$c.digest"
+}
+
 healthy() {  # healthy <container> <seconds>
   local i
   for ((i = 0; i < $2; i += 2)); do
@@ -58,6 +79,7 @@ case "${1:-status}" in
     secret "$SEC/authelia/ldap_password" "$AUTHELIA_UID" rand 24
     secret "$SEC/authelia/oidc_hmac_secret" "$AUTHELIA_UID" rand 32
     secret "$SEC/authelia/oidc_jwks_rs256.pem" "$AUTHELIA_UID" openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -quiet
+    oidc_client paperless
     # LLDAP bootstrap folder: the repo lists plus the Authelia service user (with its password).
     rm -rf "$SEC/bootstrap.new" && cp -a lldap-bootstrap "$SEC/bootstrap.new"
     printf '{"id": "authelia", "email": "authelia@gungors.duckdns.org", "displayName": "Authelia (service)", "groups": ["lldap_password_manager"], "password": "%s"}\n' \
