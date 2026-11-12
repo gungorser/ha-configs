@@ -2,8 +2,9 @@
 # ha.gungors.duckdns.org). HA accepts X-Forwarded-For only from these proxies; any other client
 # sending it gets 400. 172.30.33.0/24 is the HA add-on network (the old NPM add-on on the Pi),
 # kept until that add-on is removed.
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - 192.168.0.222
-    - 172.30.33.0/24
+# Included from configuration.yaml (`http: !include gungors/http.yaml`): HA does not read `http`
+# from packages.
+use_x_forwarded_for: true
+trusted_proxies:
+  - 192.168.0.222
+  - 172.30.33.0/24
