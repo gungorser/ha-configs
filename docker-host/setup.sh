@@ -53,8 +53,9 @@ fi
 CHANGED_FILES=()
 while IFS= read -r -d '' src; do
   dst=/${src#"$HERE/files/"}
-  if ! cmp -s "$src" "$dst" && change "write $dst"; then
-    install -D -m 644 "$src" "$dst"
+  mode=644; [ -x "$src" ] && mode=755   # executables (usr/local/sbin) keep their x bit
+  if { ! cmp -s "$src" "$dst" || [ "$(stat -c %a "$dst")" != "$mode" ]; } && change "write $dst"; then
+    install -D -m "$mode" "$src" "$dst"
     CHANGED_FILES+=("$dst")
   fi
 done < <(find "$HERE/files" -type f -print0 | sort -z)

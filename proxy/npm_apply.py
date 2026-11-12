@@ -10,7 +10,7 @@ Managed: the access lists in hosts.toml, the wildcard certificate (created if mi
 hosts with live = true. Only the fields below are compared and written; anything else set in the
 UI (e.g. HSTS) is left alone. Hosts not in hosts.toml are reported, never deleted.
 The state of the last apply is kept in /srv/data/proxy/ha-configs-applied.json.
-Credentials: /opt/secrets/proxy.env (NPM_API_EMAIL, NPM_API_PASSWORD, LE_EMAIL) and
+Credentials: /opt/secrets/proxy.env (NPM_API_EMAIL, NPM_API_PASSWORD) and
 /opt/secrets/duckdns.env (DUCKDNS_TOKEN); never printed.
 """
 import json
@@ -157,8 +157,7 @@ def main():
         body = {"provider": "letsencrypt", "nice_name": cert_name, "domain_names": [cert_name],
                 "meta": {"dns_challenge": True, "dns_provider": "duckdns",
                          "dns_provider_credentials": f"dns_duckdns_token={dd['DUCKDNS_TOKEN']}",
-                         "propagation_seconds": 120, "letsencrypt_agree": True,
-                         "letsencrypt_email": sec.get("LE_EMAIL", "")}}
+                         "propagation_seconds": 120}}
         print(f"requesting certificate {cert_name} (DNS challenge, ~2-3 min)")
         certs[cert_name] = npm.call("POST", "/nginx/certificates", body)["id"]
         print(f"created certificate {cert_name}")
