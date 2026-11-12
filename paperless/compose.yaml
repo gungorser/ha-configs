@@ -71,7 +71,7 @@ services:
     profiles: [gpt]
     restart: unless-stopped
     depends_on: [paperless]
-    env_file: /opt/secrets/paperless-gpt.env   # PAPERLESS_API_TOKEN, GOOGLEAI_API_KEY
+    env_file: /opt/secrets/paperless-gpt.env   # PAPERLESS_API_TOKEN (user paperless-gpt, group aile), GOOGLEAI_API_KEY
     environment:
       PAPERLESS_BASE_URL: http://paperless:8000
       PAPERLESS_PUBLIC_URL: https://paperless.gungors.duckdns.org
@@ -80,6 +80,14 @@ services:
       VISION_LLM_PROVIDER: googleai
       VISION_LLM_MODEL: gemini-3.5-flash-lite
       OCR_PROVIDER: llm
+      # As on the Pi add-on (Sercan's settings):
+      LLM_LANGUAGE: dutch, turkish or english
+      CREATE_NEW_TAGS: "false"
+      AUTO_GENERATE_DOCUMENT_TYPE: "false"
+      LOG_LEVEL: info
+      IMAGE_MAX_RENDER_DPI: "200"          # keeps vision OCR inside memory (OOM fix)
+      IMAGE_MAX_PIXEL_DIMENSION: "2400"
+      IMAGE_MAX_TOTAL_PIXELS: "4000000"
     volumes:
       - /srv/data/paperless/gpt/prompts:/app/prompts   # Sercan's prompts, copied from the Pi add-on
       - /srv/data/paperless/gpt/db:/app/db              # workflows and history
