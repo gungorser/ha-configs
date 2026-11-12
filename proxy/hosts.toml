@@ -92,7 +92,7 @@ live = true
 domain = "users.gungors.duckdns.org"
 forward = "http://lldap:17170"
 access = "lan"
-auth = "authelia"        # admin group, 2FA; then LLDAP's own login
+auth = "authelia"        # admin group (password; 2FA off for now), then LLDAP's own login
 live = true
 
 [[host]]

@@ -14,7 +14,7 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 
 | Group | Members | Access |
 |---|---|---|
-| `admin` | sercan | everything; NPM, LLDAP UI, paperless-gpt behind Authelia with 2FA |
+| `admin` | sercan | everything; NPM, LLDAP UI, paperless-gpt behind Authelia (password only while 2FA is off) |
 | `aile` | sercan, melike | HA, Immich, Paperless, NAS (shares `foto`, `dokuman`) |
 | `misafir` | misafir | only what HA gives the guest |
 | `lldap_admin` | sercan | manages users in the LLDAP UI |
@@ -27,7 +27,8 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 - The repo lists only add and update: users and memberships changed in the LLDAP UI stay; a user
   removed from `users.json` is removed in the UI by hand. E-mail addresses are placeholders until
   an SMTP notifier exists.
-- 2FA: TOTP. Without SMTP, Authelia writes the registration code and reset links to
+- 2FA: **off for now** (Sercan, 2026-11-12): every rule is `one_factor`; setting `two_factor`
+  on the admin rules re-enables it (TOTP stays configured, registrations kept). Without SMTP, Authelia writes the registration code and reset links to
   `/srv/data/auth/authelia/notification.txt` (read by Claude on request).
 - OIDC: its secrets exist already (`/opt/secrets/auth/authelia/oidc_*`); the `identity_providers`
   section is added with the first client.
