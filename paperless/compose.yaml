@@ -1,5 +1,5 @@
-# Paperless-ngx (documents), Postgres, Redis and paperless-gpt (AI tags/OCR, profile "gpt": started
-# only once its config and Gemini key are in place). On the shared `proxy` network: NPM forwards
+# Paperless-ngx (documents), Postgres, Redis and paperless-gpt (AI tags/OCR, profile "gpt", enabled
+# in .env once its config and Gemini key were in place). On the shared `proxy` network: NPM forwards
 # paperless.gungors.duckdns.org to paperless:8000; no published ports. Data in /srv/data/paperless,
 # documents on the nas-dokuman disk (/srv/nas/dokuman/paperless). Secrets: /opt/secrets/paperless.env
 # (hook.sh). The Pi add-on's 2.20.15 data was imported, then upgraded to 3.x (v3 migration guide:
@@ -91,6 +91,7 @@ services:
     volumes:
       - /srv/data/paperless/gpt/prompts:/app/prompts   # Sercan's prompts, copied from the Pi add-on
       - /srv/data/paperless/gpt/db:/app/db              # workflows and history
+      - /srv/data/paperless/gpt/config:/app/config      # settings made in its UI
     networks: [proxy, default]
 
 networks:

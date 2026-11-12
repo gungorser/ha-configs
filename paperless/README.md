@@ -44,8 +44,9 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 ## Deploy
 
 `paperless/deploy.sh <mode>` on the Proxmox host as `claude` (shared `docker-host/stack.sh`).
-Deploy `auth` first (it creates the OIDC client secret). paperless-gpt starts only with
-`docker compose --profile gpt up -d` once its env file, prompts and workflows are in place.
+Deploy `auth` first (it creates the OIDC client secret). paperless-gpt runs through the
+profile `gpt`, enabled in `.env` (`COMPOSE_PROFILES=gpt`); its prompts, workflows, db and UI settings
+live in `/srv/data/paperless/gpt/`.
 
 ### Migration from the Pi add-on (one time)
 

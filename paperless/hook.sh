@@ -42,7 +42,7 @@ print(json.dumps({"openid_connect": {"OAUTH_PKCE_ENABLED": True, "SCOPE": ["open
     [ -f "$GPT_ENV" ] || (umask 077; printf '# paperless-gpt (profile gpt): PAPERLESS_API_TOKEN, GOOGLEAI_API_KEY\n' > "$GPT_ENV")
     install -d -m 755 "$DATA" "$DOCS"
     install -d -m 750 -o "$UID_" -g "$UID_" "$DATA/data" "$DOCS/media" "$DOCS/consume" "$DOCS/export"
-    install -d -m 700 "$DATA/pgdata" "$DATA/redis" "$DATA/gpt" "$DATA/gpt/prompts" "$DATA/gpt/db"
+    install -d -m 700 "$DATA/pgdata" "$DATA/redis" "$DATA/gpt" "$DATA/gpt/prompts" "$DATA/gpt/db" "$DATA/gpt/config"
     ;;
   post)
     for _ in $(seq 90); do
