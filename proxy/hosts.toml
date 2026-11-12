@@ -66,12 +66,12 @@ live = false             # immich area
 
 [[host]]
 domain = "paperless.gungors.duckdns.org"
-forward = "http://192.168.0.221:8000"   # Paperless HA add-on on the Pi until the paperless area
-websockets = true                        # (then http://paperless:8000)
+forward = "http://paperless:8000"       # paperless area on this VM (moved from the Pi add-on 2026-11-12)
+websockets = true
 max_body = "200m"
 access = "public"
-auth = "none"            # Paperless login today; OIDC with the paperless area
-live = true              # served by the Pi's NPM today (cutover 2026-11)
+auth = "none"            # login: Authelia OIDC inside Paperless; apps use API tokens
+live = true
 
 [[host]]
 domain = "paperless-mcp.gungors.duckdns.org"

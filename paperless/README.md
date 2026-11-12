@@ -35,7 +35,7 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 |---|---|---|
 | `/opt/secrets/paperless.env` | `PAPERLESS_SECRET_KEY`, `POSTGRES_PASSWORD`/`PAPERLESS_DBPASS`, `PAPERLESS_SOCIALACCOUNT_PROVIDERS` (OIDC JSON with the client secret) | `hook.sh` |
 | `/opt/secrets/oidc/paperless.secret` (+ digest in Authelia's folder) | OIDC client secret | auth `hook.sh` |
-| `/opt/secrets/paperless-gpt.env` | `PAPERLESS_API_TOKEN`, `GOOGLEAI_API_KEY` | token: Claude; Gemini key: Sercan |
+| `/opt/secrets/paperless-gpt.env` | `PAPERLESS_API_TOKEN` (Paperless user `paperless-gpt`, group `aile`, no password), `GOOGLEAI_API_KEY` | token: Claude; Gemini key: Sercan (`set-gemini-key`) |
 
 ## Live target
 
