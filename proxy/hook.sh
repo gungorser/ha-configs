@@ -35,12 +35,14 @@ case "${1:-status}" in
     systemctl enable --now proxy-wan-refresh.timer >/dev/null 2>&1
     ;;
   post)
-    if [ "${2:-deploy}" = deploy ]; then python3 npm_apply.py deploy; else python3 npm_apply.py force; fi
+    # One apply at a time: the refresh timer and a deploy must not interleave.
+    if [ "${2:-deploy}" = deploy ]; then m=deploy; else m=force; fi
+    flock /run/lock/npm-apply.lock python3 npm_apply.py "$m"
     ;;
   refresh)
     # Timer: only when NPM runs and has been applied once; quiet unless the IP changed.
     if ! npm_running || [ ! -f /srv/data/proxy/ha-configs-applied.json ]; then exit 0; fi
-    python3 npm_apply.py refresh
+    flock -n /run/lock/npm-apply.lock python3 npm_apply.py refresh || true   # skip while a deploy runs
     ;;
   status)
     if ! secrets_ok; then exit 0; fi
