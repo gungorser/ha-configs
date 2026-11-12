@@ -11,7 +11,7 @@ the area you change).
 | `blueprints/` | `/config/blueprints/{automation,template}/gungorser` | swap, then reload | [blueprints/README.md](blueprints/README.md) |
 | `esphome/` | `/config/esphome` (ESPHome Device Builder) | writes our files only | [esphome/README.md](esphome/README.md) |
 | `proxmox/` | Proxmox host `pve` (`/etc/pve/storage.cfg`, systemd unit) + VM rebuild scripts | `sudo proxmox/deploy.sh` on the host (not `configs_deploy`) | [proxmox/README.md](proxmox/README.md) |
-| `docker-host/` | docker VM 110 (packages, Docker, `/opt/stacks`, `/opt/secrets`, `/srv/data` = nas-data) | `docker-host/deploy.sh` on the Proxmox host (SSH) | [docker-host/README.md](docker-host/README.md) |
+| `docker-host/` | docker VM 110 (packages, Docker, `/opt/stacks`, `/opt/secrets`, `/srv/data`, `/srv/nas/*` = NAS disks) | `docker-host/deploy.sh` on the Proxmox host (SSH) | [docker-host/README.md](docker-host/README.md) |
 
 ## How deploy works (all areas)
 

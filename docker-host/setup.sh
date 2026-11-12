@@ -1,19 +1,16 @@
 #!/bin/bash
 # Converges the docker VM (Debian 13) to this area: packages, Docker Engine from Docker's apt repo,
-# managed files under files/, the /opt/stacks, /opt/secrets and /srv/data layout, and the nas-data
-# disk mounted at /srv/data. Idempotent. Runs as root on the VM from an unpacked copy of the area
-# (deploy.sh ships it); never run from the repo checkout on the host.
+# managed files under files/, the /opt/stacks and /opt/secrets layout, and the four NAS disks
+# mounted at /srv/data and /srv/nas/{backup,dokuman,foto}. Idempotent. Runs as root on the VM
+# from an unpacked copy of the area (deploy.sh ships it); never from the repo checkout on the host.
 # Usage: setup.sh check | apply
 #   check: prints what apply would change; exit 0 when nothing.
-#   apply: makes the changes. A nas-data disk without a filesystem is only formatted when
-#          FORMAT_NAS_DATA=1 is set (first install, Sercan's approval); a disk that has any
+#   apply: makes the changes. A NAS disk without a filesystem is only formatted when its label is
+#          listed in FORMAT_NAS (first install, Sercan's approval); a disk that has any
 #          filesystem, partition table or signature is never formatted.
 set -euo pipefail
 MODE=${1:-check}
 HERE=$(cd "$(dirname "$0")" && pwd)
-NAS_DEV=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
-NAS_MNT=/srv/data
-NAS_LABEL=nas-data
 DOCKER_KEY_FPR=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 PACKAGES=(ca-certificates curl gnupg qemu-guest-agent unattended-upgrades)
 DOCKER_PACKAGES=(docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin)
@@ -78,33 +75,46 @@ dir() {
 }
 dir /opt/stacks 755
 dir /opt/secrets 700
-dir "$NAS_MNT" 755
+dir /srv/nas 755
 
-# --- nas-data disk -> /srv/data --------------------------------------------------------------
-[ -b "$NAS_DEV" ] || { echo "nas-data disk $NAS_DEV not attached (proxmox/docker-vm.sh scsi1)"; exit 1; }
-DEV=$(readlink -f "$NAS_DEV")
-if [ -z "$(wipefs --noheadings "$DEV")" ] && ! blkid -p "$DEV" >/dev/null 2>&1; then
-  if [ "${FORMAT_NAS_DATA:-0}" != 1 ]; then
-    echo "nas-data $DEV ($NAS_DEV) is empty; format it with FORMAT_NAS_DATA=1 (first install only)"
-    DRIFT=1
-    [ "$MODE" = check ] || exit 1
-  elif change "format $DEV as ext4 (label $NAS_LABEL)"; then
-    mkfs.ext4 -q -L "$NAS_LABEL" -m 1 -E lazy_itable_init=1,discard "$DEV"
+# --- NAS disks (scsiN -> label -> mount point) -----------------------------------------------
+# Same order as proxmox/nas-disks.sh and docker-vm.sh. A disk is found by its stable scsi id, must
+# carry its own label once formatted (a disk with another label or filesystem is left alone), and
+# is mounted by UUID.
+NAS_DISKS="1:nas-data:/srv/data 2:nas-backup:/srv/nas/backup 3:nas-dokuman:/srv/nas/dokuman 4:nas-foto:/srv/nas/foto"
+for d in $NAS_DISKS; do
+  IFS=: read -r n label mnt <<< "$d"
+  byid=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi$n
+  [ -b "$byid" ] || { echo "$label: $byid not attached (proxmox/docker-vm.sh scsi$n)"; exit 1; }
+  dev=$(readlink -f "$byid")
+  dir "$mnt" 755
+  if [ -z "$(wipefs --noheadings "$dev")" ] && ! blkid -p "$dev" >/dev/null 2>&1; then
+    if [[ " ${FORMAT_NAS:-} " != *" $label "* ]]; then
+      echo "$label: $dev ($byid) is empty; format it with FORMAT_NAS=\"$label\" (first install only)"
+      DRIFT=1
+      [ "$MODE" = check ] && continue
+      exit 1
+    elif change "format $dev as ext4 (label $label)"; then
+      mkfs.ext4 -q -L "$label" -m 1 -E lazy_itable_init=1,discard "$dev"
+    else
+      continue
+    fi
   fi
-fi
-UUID=$(blkid -s UUID -o value "$DEV" 2>/dev/null || true)
-if [ -n "$UUID" ]; then
-  [ "$(blkid -s TYPE -o value "$DEV")" = ext4 ] || { echo "$DEV is not ext4, left alone"; exit 1; }
-  LINE="UUID=$UUID $NAS_MNT ext4 defaults,discard 0 2"
-  if ! grep -qxF "$LINE" /etc/fstab && change "fstab: $LINE"; then
-    sed -i "\| $NAS_MNT |d" /etc/fstab
-    echo "$LINE" >> /etc/fstab
+  if [ "$(blkid -s TYPE -o value "$dev")" != ext4 ] || [ "$(blkid -s LABEL -o value "$dev")" != "$label" ]; then
+    echo "$label: $dev is not ext4 labelled $label, left alone"
+    exit 1
+  fi
+  uuid=$(blkid -s UUID -o value "$dev")
+  line="UUID=$uuid $mnt ext4 defaults,discard 0 2"
+  if ! grep -qxF "$line" /etc/fstab && change "fstab: $line"; then
+    sed -i "\| $mnt |d" /etc/fstab
+    echo "$line" >> /etc/fstab
     systemctl daemon-reload
   fi
-  if ! mountpoint -q "$NAS_MNT" && change "mount $NAS_MNT"; then
-    mount "$NAS_MNT"
+  if ! mountpoint -q "$mnt" && change "mount $mnt"; then
+    mount "$mnt"
   fi
-fi
+done
 
 # --- services --------------------------------------------------------------------------------
 for unit in qemu-guest-agent.service fstrim.timer docker.service unattended-upgrades.service; do
