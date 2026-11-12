@@ -1,0 +1,9 @@
+# http: HA behind the reverse proxy (Nginx Proxy Manager on the docker VM, 192.168.0.222,
+# ha.gungors.duckdns.org). HA accepts X-Forwarded-For only from these proxies; any other client
+# sending it gets 400. 172.30.33.0/24 is the HA add-on network (the old NPM add-on on the Pi),
+# kept until that add-on is removed.
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.0.222
+    - 172.30.33.0/24
