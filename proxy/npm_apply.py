@@ -69,6 +69,12 @@ class Npm:
             sys.exit(f"NPM API {method} {path}: {e.code} {e.read().decode(errors='replace')[:500]}")
 
 
+def snippet(name):
+    """A file of snippets/ without its comment lines."""
+    with open(os.path.join(HERE, "snippets", name)) as f:
+        return "\n".join(l.rstrip() for l in f if l.strip() and not l.lstrip().startswith("#"))
+
+
 def desired(cfg, lists, cert_id):
     """Payload per live domain, with ids resolved; None ids mean 'not created yet'."""
     d = cfg["defaults"]
@@ -83,10 +89,17 @@ def desired(cfg, lists, cert_id):
         if "max_body" in h:
             adv.append(f"client_max_body_size {h['max_body']};")
         if h.get("auth") == "authelia":
-            snippet = os.path.join(HERE, "snippets", "authelia.conf")
-            if not os.path.exists(snippet):
-                sys.exit(f"{h['domain']}: auth = authelia needs snippets/authelia.conf (auth area)")
-            adv.append(open(snippet).read().strip())
+            # NPM drops its own `location /` (and with it the access list) when the advanced
+            # config has one, so the lan-only and websocket lines are repeated here.
+            loc = []
+            if h.get("access") == "lan":
+                loc += [f"allow {a};" for a in cfg["access_lists"]["lan-only"]["allow"]] + ["deny all;"]
+            if h.get("websockets"):
+                loc += ["proxy_set_header Upgrade $http_upgrade;",
+                        "proxy_set_header Connection $http_connection;", "proxy_http_version 1.1;"]
+            loc += [snippet("authelia-location.conf"), "include conf.d/include/proxy.conf;"]
+            adv += [snippet("authelia-authz.conf"),
+                    "location / {\n" + "\n".join("    " + l for x in loc for l in x.split("\n")) + "\n}"]
         out[h["domain"]] = {
             "forward_scheme": scheme, "forward_host": host, "forward_port": int(port),
             "certificate_id": cert_id, "ssl_forced": d["ssl_forced"], "http2_support": d["http2"],

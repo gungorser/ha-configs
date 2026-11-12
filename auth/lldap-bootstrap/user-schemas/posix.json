@@ -1,0 +1,7 @@
+[
+  {"name": "uidnumber", "attributeType": "INTEGER", "isEditable": false, "isList": false, "isVisible": true},
+  {"name": "gidnumber", "attributeType": "INTEGER", "isEditable": false, "isList": false, "isVisible": true},
+  {"name": "homedirectory", "attributeType": "STRING", "isEditable": false, "isList": false, "isVisible": true},
+  {"name": "loginshell", "attributeType": "STRING", "isEditable": false, "isList": false, "isVisible": true},
+  {"name": "sshpublickey", "attributeType": "STRING", "isEditable": true, "isList": true, "isVisible": true}
+]

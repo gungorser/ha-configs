@@ -18,7 +18,8 @@ applied through NPM's REST API, so UI edits show up as drift instead of being lo
 - Certificate: one wildcard `*.gungors.duckdns.org`, Let's Encrypt with NPM's DNS challenge
   provider `duckdns`, created by `npm_apply.py` when missing and renewed by NPM itself.
 - Hosts with `live = false` are the plan (plan doc section 4); flip them when their area is live.
-  `auth = "authelia"` needs `snippets/authelia.conf`, added with the auth area.
+  `auth = "authelia"` adds `snippets/authelia-authz.conf` and a `location /` with
+  `snippets/authelia-location.conf` (plus the lan-only and websocket lines, since NPM then skips its own).
 
 ### No AdGuard, no local DNS
 

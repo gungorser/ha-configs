@@ -13,6 +13,7 @@ the area you change).
 | `proxmox/` | Proxmox host `pve` (`/etc/pve/storage.cfg`, systemd unit) + VM rebuild scripts | `sudo proxmox/deploy.sh` on the host (not `configs_deploy`) | [proxmox/README.md](proxmox/README.md) |
 | `docker-host/` | docker VM 110 (packages, Docker, `/opt/stacks`, `/opt/secrets`, `/srv/data`, `/srv/nas/*` = NAS disks) | `docker-host/deploy.sh` on the Proxmox host (SSH) | [docker-host/README.md](docker-host/README.md) |
 | `proxy/` | docker VM `/opt/stacks/proxy` (NPM + Duck DNS updater), NPM hosts via its API | `proxy/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [proxy/README.md](proxy/README.md) |
+| `auth/` | docker VM `/opt/stacks/auth` (LLDAP + Authelia), users and groups from the repo | `auth/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [auth/README.md](auth/README.md) |
 
 ## How deploy works (all areas)
 

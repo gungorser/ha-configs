@@ -1,0 +1,66 @@
+# Authelia: login portal at https://auth.gungors.duckdns.org, users from LLDAP, forward-auth for
+# the NPM hosts with auth = "authelia" (proxy/hosts.toml). Secrets come from files (*_FILE in
+# compose.yaml). Mounted read-only; the database and notifications live in /data.
+theme: auto
+
+server:
+  address: tcp://:9091/
+
+log:
+  level: info
+
+totp:
+  issuer: gungors.duckdns.org
+
+authentication_backend:
+  password_reset:
+    disable: false
+  ldap:
+    implementation: lldap
+    address: ldap://lldap:3890
+    base_dn: dc=gungors,dc=duckdns,dc=org
+    # Service user created by hook.sh (group lldap_password_manager, so password reset works).
+    user: uid=authelia,ou=people,dc=gungors,dc=duckdns,dc=org
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: auth.gungors.duckdns.org
+      policy: bypass
+    # Admin tools: admin group, always with the second factor.
+    - domain:
+        - npm.gungors.duckdns.org
+        - users.gungors.duckdns.org
+        - paperless-gpt.gungors.duckdns.org
+      subject: ["group:admin"]
+      policy: two_factor
+    - domain: home.gungors.duckdns.org
+      subject: ["group:admin"]
+      policy: two_factor
+    - domain: home.gungors.duckdns.org
+      subject: ["group:aile"]
+      policy: one_factor
+
+session:
+  cookies:
+    - domain: gungors.duckdns.org
+      authelia_url: https://auth.gungors.duckdns.org
+
+regulation:
+  max_retries: 5
+  find_time: 10m
+  ban_time: 15m
+
+storage:
+  local:
+    path: /data/db.sqlite3
+
+# No SMTP yet: reset links and 2FA registration codes are written to this file
+# (sudo tail /srv/data/auth/authelia/notification.txt on the docker VM).
+notifier:
+  filesystem:
+    filename: /data/notification.txt
+
+# OIDC provider: secrets are generated already (/opt/secrets/auth/authelia/oidc_*); the
+# identity_providers.oidc section is added with the first client (Proxmox, Immich or Paperless),
+# since Authelia refuses an OIDC section without clients.

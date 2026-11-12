@@ -1,7 +1,7 @@
 # Proxy hosts applied to Nginx Proxy Manager by npm_apply.py (via hook.sh). Only hosts with
 # live = true are applied; the others are the plan (plan doc section 4) and wait for their service.
 # access: "public" (internet + home) or "lan" (access list lan-only: 192.168.0.0/24, rest denied).
-# auth: "none" or "authelia" (forward-auth; needs the auth area and snippets/authelia.conf).
+# auth: "none" or "authelia" (forward-auth through Authelia, snippets/authelia-*.conf).
 # Hosts created in the NPM UI that are not listed here are reported, never deleted.
 
 [defaults]
@@ -65,15 +65,15 @@ live = false             # paperless area
 domain = "auth.gungors.duckdns.org"
 forward = "http://authelia:9091"
 access = "public"
-auth = "none"
-live = false             # auth area
+auth = "none"            # the login portal itself
+live = true
 
 [[host]]
 domain = "users.gungors.duckdns.org"
 forward = "http://lldap:17170"
 access = "lan"
-auth = "authelia"
-live = false             # auth area
+auth = "authelia"        # admin group, 2FA; then LLDAP's own login
+live = true
 
 [[host]]
 domain = "paperless-gpt.gungors.duckdns.org"
