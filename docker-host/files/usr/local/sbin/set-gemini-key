@@ -1,0 +1,12 @@
+#!/bin/bash
+# Asks for the Google Gemini API key without echoing it and stores it as GOOGLEAI_API_KEY in
+# /opt/secrets/paperless-gpt.env (600 root), keeping the file's other lines.
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+F=/opt/secrets/paperless-gpt.env
+read -rsp "Gemini API anahtarı: " K; echo
+[[ $K =~ ^[A-Za-z0-9_-]{20,}$ ]] || { echo "Bu bir Gemini API anahtarı gibi görünmüyor, kaydedilmedi."; exit 1; }
+umask 077
+{ [ -f "$F" ] && grep -v '^GOOGLEAI_API_KEY=' "$F"; printf 'GOOGLEAI_API_KEY=%s\n' "$K"; } > "$F.new"
+chown root:root "$F.new" && mv "$F.new" "$F"
+echo "Kaydedildi: $F (paperless-gpt yeniden başlatılınca kullanılır)"
