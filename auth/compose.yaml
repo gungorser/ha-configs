@@ -38,6 +38,8 @@ services:
       AUTHELIA_SESSION_SECRET_FILE: /secrets/session_secret
       AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: /secrets/storage_key
       AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE: /secrets/ldap_password
+      AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE: /secrets/oidc_hmac_secret
+      X_AUTHELIA_CONFIG_FILTERS: template
     volumes:
       - ./authelia/configuration.yml:/config/configuration.yml:ro
       - /srv/data/auth/authelia:/data
