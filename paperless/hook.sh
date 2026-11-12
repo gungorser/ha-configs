@@ -63,7 +63,7 @@ PY
     ;;
   share-all)
     manage shell <<'PY'
-from documents.models import Document, Tag, Correspondent, DocumentType, StoragePath, 
+from documents.models import Document, Tag, Correspondent, DocumentType, StoragePath
 for m in (Document, Tag, Correspondent, DocumentType, StoragePath):   # custom fields have no owner
     n = m.objects.exclude(owner=None).update(owner=None)
     print(f"{m.__name__}: {n} made unowned")
