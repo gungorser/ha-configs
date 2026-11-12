@@ -1,4 +1,5 @@
 #!/bin/sh
+# area-target: ha  (configs_status / configs_deploy on HA run only areas with this line)
 # Deploys our blueprints to the gungorser/ folders HA reads them from, with the shared swap
 # (swap.sh), one swap per blueprint domain. Run by shell_command.configs_deploy / configs_status;
 # see README.md here.

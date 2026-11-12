@@ -1,4 +1,5 @@
 #!/bin/sh
+# area-target: ha  (configs_status / configs_deploy on HA run only areas with this line)
 # Deploys esphome/*.yaml to /config/esphome (the ESPHome Device Builder folder). Not a swap: that
 # folder also holds secrets.yaml, archive/ and the add-on's own .git, which are never touched.
 # Only our device files are written; nothing is deleted. Installing on a device (compile + OTA) is

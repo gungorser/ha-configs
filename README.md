@@ -32,6 +32,8 @@ the area you change).
   repo disappear live.
 - A new area: a top folder with `deploy.sh` (modes `status`, `deploy`, `force`, `rollback`) and a
   README with the sections Live target, Deploy, Check, Rollback, Don't.
+  An HA area's `deploy.sh` carries the line `# area-target: ha`: `configs_status` and
+  `configs_deploy` on HA run only those. The Proxmox and docker VM areas run from the Proxmox host.
 - Change files only through a PR. Never write deployed files live (`ha_write_file`): the next
   deploy stops on them.
 
