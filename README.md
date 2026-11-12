@@ -15,6 +15,7 @@ the area you change).
 | `proxy/` | docker VM `/opt/stacks/proxy` (NPM + Duck DNS updater), NPM hosts via its API | `proxy/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [proxy/README.md](proxy/README.md) |
 | `auth/` | docker VM `/opt/stacks/auth` (LLDAP + Authelia), users and groups from the repo | `auth/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [auth/README.md](auth/README.md) |
 | `paperless/` | docker VM `/opt/stacks/paperless` (Paperless-ngx, Postgres, Redis, paperless-gpt) | `paperless/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [paperless/README.md](paperless/README.md) |
+| `nas/` | docker VM `/opt/stacks/nas` (Samba: backup, ha-backup, dokuman, tarama, foto) | `nas/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [nas/README.md](nas/README.md) |
 
 ## How deploy works (all areas)
 
