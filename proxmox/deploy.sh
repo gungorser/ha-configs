@@ -18,7 +18,9 @@ claude-remote-control.service:/etc/systemd/system/claude-remote-control.service"
 REFERENCE="interfaces:/etc/network/interfaces"
 
 [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
-$G fetch -q origin master || exit 1
+# Fetch as the clone's owner: the deploy key and its ssh host alias live in that user's ~/.ssh.
+OWNER=$(stat -c %U "$CONFIGS_GIT")
+sudo -u "$OWNER" git --git-dir="$CONFIGS_GIT" fetch -q origin master || exit 1
 NEW=$($G rev-parse --short origin/master) || exit 1
 
 # Prints the files whose live copy differs from the deployed commit; returns 0 when none do.
