@@ -1,0 +1,6 @@
+// Local overrides for unattended-upgrades (managed by ha-configs docker-host).
+// Origins stay Debian's defaults (security); Docker Engine is upgraded by hand, since an upgrade
+// restarts the daemon. No automatic reboot: Claude reports when /run/reboot-required appears.
+Unattended-Upgrade::Automatic-Reboot "false";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";

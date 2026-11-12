@@ -1,0 +1,7 @@
+# Docker Engine from Docker's own apt repo (managed by ha-configs docker-host).
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: trixie
+Components: stable
+Architectures: amd64
+Signed-By: /etc/apt/keyrings/docker.asc
