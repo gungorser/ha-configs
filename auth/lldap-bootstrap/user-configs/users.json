@@ -1,0 +1,3 @@
+{"id": "sercan", "email": "sercan@gungors.duckdns.org", "displayName": "Sercan", "groups": ["admin", "aile", "lldap_admin"], "uidnumber": 10001, "gidnumber": 20001, "homedirectory": "/home/sercan", "loginshell": "/bin/bash"}
+{"id": "melike", "email": "melike@gungors.duckdns.org", "displayName": "Melike", "groups": ["aile"], "uidnumber": 10002, "gidnumber": 20001, "homedirectory": "/home/melike", "loginshell": "/bin/bash"}
+{"id": "misafir", "email": "misafir@gungors.duckdns.org", "displayName": "Misafir", "groups": ["misafir"], "uidnumber": 10003, "gidnumber": 20002, "homedirectory": "/home/misafir", "loginshell": "/usr/sbin/nologin"}
