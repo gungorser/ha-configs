@@ -10,6 +10,7 @@ the area you change).
 | `pyscript/` | `/config/pyscript` | swap, then `pyscript.reload` | [pyscript/README.md](pyscript/README.md) |
 | `blueprints/` | `/config/blueprints/{automation,template}/gungorser` | swap, then reload | [blueprints/README.md](blueprints/README.md) |
 | `esphome/` | `/config/esphome` (ESPHome Device Builder) | writes our files only | [esphome/README.md](esphome/README.md) |
+| `proxmox/` | Proxmox host `pve` (`/etc/pve/storage.cfg`, systemd unit) + VM rebuild scripts | `sudo proxmox/deploy.sh` on the host (not `configs_deploy`) | [proxmox/README.md](proxmox/README.md) |
 
 ## How deploy works (all areas)
 
