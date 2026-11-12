@@ -1,0 +1,21 @@
+# Samba NAS (image built from Dockerfile here). Published only on the VM's LAN address, port 445.
+# Data: the NAS disks under /srv/nas; Samba's passdb and state in /srv/data/nas/samba.
+name: nas
+
+services:
+  samba:
+    build: .
+    image: ha-configs/nas-samba:local
+    restart: unless-stopped
+    ports:
+      - "192.168.0.222:445:445"
+    volumes:
+      - ./smb.conf:/etc/samba/smb.conf:ro
+      - /srv/data/nas/accounts:/etc/nas/accounts:ro
+      - /srv/data/nas/samba:/var/lib/samba
+      - /srv/nas:/srv/nas
+    healthcheck:
+      test: ["CMD", "smbcontrol", "smbd", "ping"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
