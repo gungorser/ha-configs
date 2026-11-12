@@ -12,7 +12,19 @@ set -euo pipefail
 MODE=${1:-check}
 HERE=$(cd "$(dirname "$0")" && pwd)
 DOCKER_KEY_FPR=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
-PACKAGES=(ca-certificates curl gnupg qemu-guest-agent unattended-upgrades)
+PACKAGES=(ca-certificates curl gnupg qemu-guest-agent unattended-upgrades nftables
+  # Blender under Xvfb (software OpenGL via Mesa)
+  xvfb xauth xz-utils libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libegl1 libgl1-mesa-dri
+  libxkbcommon0 libxkbcommon-x11-0 libsm6 libice6)
+# Blender (official tarball) and the "MCP for Blender" add-on 1.7 (ahujasid/blender-mcp addon.py),
+# both pinned with their sha256.
+BLENDER_VERSION=5.2.4
+BLENDER_SHA256=2fd14c50987426897ba60237ee996edf2b4151f4b1a72a460ca20be58c1d2d86
+BLENDER_URL=https://download.blender.org/release/Blender5.2/blender-$BLENDER_VERSION-linux-x64.tar.xz
+ADDON_COMMIT=41a184322db3ccdcb2fdbc1f6994afe71bf9163c
+ADDON_SHA256=d224965b72ecc2dc646156b85060bfc7befd08a959ff638e149e81e59c8cd701
+ADDON_URL=https://raw.githubusercontent.com/ahujasid/blender-mcp/$ADDON_COMMIT/addon.py
+ADDON_DIR=/var/lib/blender/.config/blender/${BLENDER_VERSION%.*}/scripts/addons
 DOCKER_PACKAGES=(docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin)
 DRIFT=0
 
@@ -57,6 +69,7 @@ while IFS= read -r -d '' src; do
   if { ! cmp -s "$src" "$dst" || [ "$(stat -c %a "$dst")" != "$mode" ]; } && change "write $dst"; then
     install -D -m "$mode" "$src" "$dst"
     CHANGED_FILES+=("$dst")
+    case "$dst" in /etc/systemd/*) systemctl daemon-reload ;; esac   # new units visible below
   fi
 done < <(find "$HERE/files" -type f -print0 | sort -z)
 
@@ -117,20 +130,44 @@ for d in $NAS_DISKS; do
   fi
 done
 
+# --- Blender + MCP add-on (started on demand by blender-mcp-start, never at boot) -------------
+if ! id blender >/dev/null 2>&1 && change "create system user blender (/var/lib/blender)"; then
+  useradd --system --home-dir /var/lib/blender --create-home --shell /usr/sbin/nologin blender
+fi
+if [ ! -x "/opt/blender-$BLENDER_VERSION/blender" ] && change "install Blender $BLENDER_VERSION into /opt/blender-$BLENDER_VERSION"; then
+  tmp=$(mktemp -d)
+  curl -fsSL "$BLENDER_URL" -o "$tmp/blender.tar.xz"
+  echo "$BLENDER_SHA256  $tmp/blender.tar.xz" | sha256sum -c --status || { rm -rf "$tmp"; echo "Blender checksum mismatch"; exit 1; }
+  mkdir -p "$tmp/x" && tar -xJf "$tmp/blender.tar.xz" -C "$tmp/x" --strip-components=1
+  mv "$tmp/x" "/opt/blender-$BLENDER_VERSION" && rm -rf "$tmp"
+fi
+if [ "$(readlink /opt/blender 2>/dev/null)" != "/opt/blender-$BLENDER_VERSION" ] && change "link /opt/blender -> /opt/blender-$BLENDER_VERSION"; then
+  ln -sfn "/opt/blender-$BLENDER_VERSION" /opt/blender
+fi
+if ! echo "$ADDON_SHA256  $ADDON_DIR/blender_mcp.py" | sha256sum -c --status 2>/dev/null \
+   && change "install the MCP add-on ${ADDON_COMMIT:0:12} into $ADDON_DIR"; then
+  install -d -o blender -g blender "$ADDON_DIR"
+  curl -fsSL "$ADDON_URL" -o "$ADDON_DIR/blender_mcp.py.new"
+  echo "$ADDON_SHA256  $ADDON_DIR/blender_mcp.py.new" | sha256sum -c --status || { rm -f "$ADDON_DIR/blender_mcp.py.new"; echo "add-on checksum mismatch"; exit 1; }
+  chown blender:blender "$ADDON_DIR/blender_mcp.py.new" && mv "$ADDON_DIR/blender_mcp.py.new" "$ADDON_DIR/blender_mcp.py"
+  chown -R blender:blender /var/lib/blender/.config
+fi
+
 # --- services --------------------------------------------------------------------------------
-for unit in qemu-guest-agent.service fstrim.timer docker.service unattended-upgrades.service; do
+for unit in qemu-guest-agent.service fstrim.timer docker.service unattended-upgrades.service blender-mcp-firewall.service; do
   systemctl cat "$unit" >/dev/null 2>&1 || continue
   if { ! systemctl is-enabled -q "$unit" || ! systemctl is-active -q "$unit"; } \
      && change "enable and start $unit"; then
     systemctl enable --now "$unit"
   fi
 done
-# Changed files take effect: systemd units first, then the Docker daemon.
+# Changed files take effect (systemd was reloaded when units were written).
 RESTART_DOCKER=0
 for f in "${CHANGED_FILES[@]}"; do
   case "$f" in
-    /etc/systemd/*) systemctl daemon-reload; RESTART_DOCKER=1 ;;
-    /etc/docker/*) RESTART_DOCKER=1 ;;
+    /etc/systemd/system/docker.service.d/*|/etc/docker/*) RESTART_DOCKER=1 ;;
+    /etc/nftables-blender-mcp.nft)
+      echo "doing: reload blender-mcp-firewall ($f changed)"; systemctl restart blender-mcp-firewall ;;
   esac
 done
 if [ $RESTART_DOCKER = 1 ] && systemctl is-active -q docker; then

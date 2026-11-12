@@ -1,0 +1,22 @@
+#!/bin/bash
+# Starts Blender 5.2 with the MCP add-on under Xvfb, as user blender, in the transient systemd
+# unit blender-mcp (no autostart; Claude starts it on demand and stops it with blender-mcp-stop).
+# The add-on listens on 9876; only the Proxmox host may connect (blender-mcp-firewall).
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+if systemctl is-active -q blender-mcp; then
+  echo "Blender MCP is already running"; exit 0
+fi
+systemctl reset-failed blender-mcp >/dev/null 2>&1 || true
+systemd-run --quiet --unit=blender-mcp --uid=blender --gid=blender \
+  --setenv=HOME=/var/lib/blender --working-directory=/var/lib/blender \
+  -p MemoryMax=4G -p CPUWeight=50 --collect \
+  /usr/bin/xvfb-run -a -s "-screen 0 1920x1080x24" \
+  /opt/blender/blender --python /usr/local/lib/blender-mcp/start_mcp.py
+for _ in $(seq 90); do
+  if ss -ltnH 'sport = :9876' | grep -q .; then echo "Blender MCP listening on 9876"; exit 0; fi
+  systemctl is-active -q blender-mcp || break
+  sleep 1
+done
+echo "Blender MCP did not start:"; journalctl -u blender-mcp -n 40 --no-pager
+exit 1

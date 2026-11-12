@@ -8,6 +8,8 @@ this repo, NAS and service data live on four thin LVs that belong to no VM.
 |---|---|
 | `host/storage.cfg` | `/etc/pve/storage.cfg`: `local` (ISOs, images, snippets) and `local-lvm` (thin pool `pve/data`) |
 | `host/claude-remote-control.service` | Claude Code Remote Control as a systemd unit (user `claude`) |
+| `host/claude-work-mcp.json` | `/home/claude/work/.mcp.json`: MCP server `blender` (`uvx blender-mcp==2.0.0`, `BLENDER_HOST=192.168.0.222`, port 9876) for Claude Code |
+| `host/claude-work-settings.json` | `/home/claude/work/.claude/settings.json`: enables that server without a prompt |
 | `host/interfaces` | `/etc/network/interfaces`, **reference only**, never deployed |
 | `nas-disks.sh` | Creates the NAS thin LVs (table below) if missing; never formats or resizes an existing one |
 | `docker-vm.sh` | VM 110 `docker`: Debian 13 cloud image, cloud-init, NAS disks attached as scsi1-4 |
@@ -42,7 +44,7 @@ state in `/var/lib/ha-configs/proxmox` (`.deployed` = commit, `prev/` = files be
 
 Host files: `sudo proxmox/deploy.sh <mode>` (fetches `origin/master` itself; modes `status`,
 `deploy`, `force`, `rollback`). `deploy` writes the files of `host/` (except `interfaces`) when they
-changed, then reloads systemd. It never restarts `claude-remote-control` (that is the session
+changed, installs the pinned `uv`/`uvx` into `~claude/.local/bin` when missing, then reloads systemd. It never restarts `claude-remote-control` (that is the session
 running it): a unit change applies at the next reboot or by hand.
 
 VMs, in this order (HA backups live on the NAS, i.e. the docker VM):

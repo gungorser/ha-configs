@@ -11,6 +11,10 @@ service stacks (`proxy`, `dns`, `auth`, ...) are their own areas on top of this 
 | Docker daemon: `local` log driver (10 MB x 3), `live-restore` | `files/etc/docker/daemon.json` |
 | Docker starts only with `/srv/data` mounted (the NAS shares are not required) | `files/etc/systemd/system/docker.service.d/10-srv-data.conf` |
 | `set-duckdns-token`: asks for the Duck DNS token without echoing it and writes `/opt/secrets/duckdns.env` (600) | `files/usr/local/sbin/` |
+| Blender 5.2.4 (blender.org tarball, sha256 pinned) in `/opt/blender-<version>`, `/opt/blender` links to it; user `blender` (home `/var/lib/blender`) | `setup.sh` |
+| "MCP for Blender" add-on 1.7 (ahujasid/blender-mcp `addon.py` at commit `41a1843`, sha256 pinned) in the `blender` user's profile | `setup.sh` |
+| `blender-mcp-start` / `blender-mcp-stop`: Blender under Xvfb in the transient unit `blender-mcp` (4 GB max, low CPU weight), add-on server on port 9876; never at boot | `files/usr/local/sbin/`, `files/usr/local/lib/blender-mcp/start_mcp.py` |
+| Firewall: port 9876 only from the Proxmox host (own nftables table, Docker untouched) | `files/etc/nftables-blender-mcp.nft`, `blender-mcp-firewall.service` |
 | Unattended Debian security upgrades, no automatic reboot; Docker upgraded by hand | `files/etc/apt/apt.conf.d/` |
 | Compose stacks, repo files only | `/opt/stacks` (755 root) |
 | Secrets, never in git: `/opt/secrets/<area>.env` (600) | `/opt/secrets` (700 root) |
@@ -57,4 +61,6 @@ newer version installed stay installed. Run it again to undo the rollback.
 - Put secrets in the repo or service data on the system disk (`/srv/data` only).
 - Add users to the `docker` group (it is root); admins use `sudo`. Other users come from LLDAP
   (SSSD) once the auth area exists.
-- Install Blender or Claude Code here: Claude runs on the Proxmox host and manages the VM over SSH.
+- Install Claude Code here: Claude runs on the Proxmox host and manages the VM over SSH.
+- Start Blender at boot or leave it running: Claude starts it for a task (`sudo blender-mcp-start`)
+  and stops it afterwards (`sudo blender-mcp-stop`); renders on the N100 CPU are slow.

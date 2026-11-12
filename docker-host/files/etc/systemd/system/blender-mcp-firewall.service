@@ -1,0 +1,14 @@
+# Loads the nftables table that limits the Blender MCP port to the Proxmox host (docker-host).
+[Unit]
+Description=Firewall for the Blender MCP port (9876: Proxmox host only)
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables-blender-mcp.nft
+ExecStop=/usr/sbin/nft delete table inet blender_mcp
+
+[Install]
+WantedBy=multi-user.target
