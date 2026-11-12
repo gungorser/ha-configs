@@ -1,0 +1,88 @@
+# proxy
+
+Nginx Proxy Manager (NPM) and the Duck DNS IP updater on the docker VM (192.168.0.222). NPM keeps
+its own web UI (Sercan's choice); the repo holds the proxy hosts as a list (`hosts.toml`) that is
+applied through NPM's REST API, so UI edits show up as drift instead of being lost.
+
+| File | What |
+|---|---|
+| `compose.yaml` | `npm` (`jc21/nginx-proxy-manager`, pinned; ports 80, 443, 81) and `duckdns` (IP updater every 5 min) |
+| `hosts.toml` | Proxy hosts (domain, forward target, websockets, upload size, `public`/`lan`, auth, `live`), access lists, the certificate |
+| `npm_apply.py` | Applies `hosts.toml` through the API: status, check, deploy, force |
+| `hook.sh` | Stack hook (`docker-host/stack.sh`): secrets check, data folders, runs `npm_apply.py` |
+
+- Data: `/srv/data/proxy/data` (NPM database), `/srv/data/proxy/letsencrypt` (certificates), on
+  nas-data. Not in git.
+- Network `proxy`: created here; other stacks join it (`networks: proxy: external: true`) so NPM
+  reaches them by container name (`paperless:8000`).
+- Certificate: one wildcard `*.gungors.duckdns.org`, Let's Encrypt with NPM's DNS challenge
+  provider `duckdns`, created by `npm_apply.py` when missing and renewed by NPM itself.
+- Hosts with `live = false` are the plan (plan doc section 4); flip them when their area is live.
+  `auth = "authelia"` needs `snippets/authelia.conf`, added with the auth area.
+
+### No AdGuard, no local DNS
+
+AdGuard is skipped (Sercan, 2026-11-12). Inside the house `*.gungors.duckdns.org` resolves to the
+public IP and reaches NPM through the router's NAT loopback (as with the Pi's NPM today). "LAN
+only" is therefore enforced in NPM, not in DNS: hosts with `access = "lan"` get the access list
+`lan-only` (allow `192.168.0.0/24`, deny all). The NPM UI (port 81) is only reachable inside the
+house because the router forwards 80 and 443 alone.
+
+### Secrets (Sercan enters them; never in git or chat)
+
+On the docker VM, root-owned, mode 600 (`sudo install -m 600 /dev/null <file>`, then edit):
+
+| File | Keys |
+|---|---|
+| `/opt/secrets/proxy.env` | `NPM_API_EMAIL`, `NPM_API_PASSWORD` (the limited API user below), `LE_EMAIL` (Let's Encrypt notices) |
+| `/opt/secrets/duckdns.env` | `DUCKDNS_DOMAIN=gungors`, `DUCKDNS_TOKEN` (Duck DNS account page) |
+
+NPM users, created by Sercan in the NPM UI at `http://192.168.0.222:81` after the first deploy:
+his own admin account (change any default login at once), and a user for the API (role user, not
+admin; permissions: Proxy Hosts, Access Lists and Certificates manage, everything else hidden;
+item visibility all). The first deploy stops after compose up until `proxy.env` holds that user;
+run `deploy` again afterwards.
+
+## Live target
+
+`/opt/stacks/proxy` on the docker VM (repo files only; `.deployed` = commit), the NPM database
+through its API, `/srv/data/proxy`. State of the last apply: `/srv/data/proxy/ha-configs-applied.json`.
+
+## Deploy
+
+On the Proxmox host as `claude`: `proxy/deploy.sh <mode>` (shared `docker-host/stack.sh`):
+ships `master:proxy` to `/opt/stacks/proxy`, `docker compose up -d`, then applies `hosts.toml`.
+`deploy` stops when a file in `/opt/stacks/proxy` or a managed host in NPM was changed outside
+the repo, and shows what; `force` overwrites (Sercan only). Hosts made in the UI that are not in
+`hosts.toml` are reported and left alone, never deleted.
+
+### Cutover from the Pi's NPM add-on
+
+The add-on's hosts and certificates are not copied. Before the cutover, its proxy host list is
+compared with `hosts.toml` (screenshot or its API) and anything missing is added here. On the day:
+deploy here (the wildcard certificate is issued through the DNS challenge, so it does not need
+80/443 yet), then point the router's 80/443 forward to 192.168.0.222, check every host, and stop
+the add-on and the HA Duck DNS add-on (two updaters writing the same IP are harmless meanwhile).
+HA needs `http.use_x_forwarded_for: true` and `trusted_proxies: 192.168.0.222` (Sercan).
+
+## Check
+
+- `proxy/deploy.sh status`: deployed = master, no live edits, both containers running,
+  "proxy hosts: in sync", the planned hosts listed.
+- `curl -sI https://ha.gungors.duckdns.org` from the house answers through NPM with the wildcard
+  certificate; a `lan` host answers 403 from outside the house.
+- `sudo docker logs proxy-duckdns-1 | tail -1` ends in `OK`.
+
+## Rollback
+
+`proxy/deploy.sh rollback` restores the previous `/opt/stacks/proxy` and re-applies its
+`hosts.toml` (force). NPM's database is not rolled back; hosts created by the newer list stay
+until removed in the UI. Router: point 80/443 back at the Pi.
+
+## Don't
+
+- Put tokens or passwords in `hosts.toml`, the compose file or chat.
+- Edit managed hosts in the UI without bringing the change into `hosts.toml` (the next deploy
+  stops on it).
+- Use forward-auth (Authelia) in front of Home Assistant: it breaks the app and webhooks.
+- Publish port 81 through the router.

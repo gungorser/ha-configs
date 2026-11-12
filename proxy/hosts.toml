@@ -1,0 +1,83 @@
+# Proxy hosts applied to Nginx Proxy Manager by npm_apply.py (via hook.sh). Only hosts with
+# live = true are applied; the others are the plan (plan doc section 4) and wait for their service.
+# access: "public" (internet + home) or "lan" (access list lan-only: 192.168.0.0/24, rest denied).
+# auth: "none" or "authelia" (forward-auth; needs the auth area and snippets/authelia.conf).
+# Hosts created in the NPM UI that are not listed here are reported, never deleted.
+
+[defaults]
+certificate = "*.gungors.duckdns.org"   # one wildcard, Let's Encrypt, Duck DNS DNS challenge
+ssl_forced = true
+http2 = true
+block_exploits = true
+
+[access_lists.lan-only]
+allow = ["192.168.0.0/24"]
+
+[[host]]
+domain = "ha.gungors.duckdns.org"
+forward = "http://192.168.0.221:8123"
+websockets = true
+access = "public"
+auth = "none"            # HA login / OIDC; never forward-auth (breaks the app and webhooks)
+live = true              # HA keeps 192.168.0.221 (Pi today, haos VM later)
+
+[[host]]
+domain = "npm.gungors.duckdns.org"
+forward = "http://npm:81"
+access = "lan"
+auth = "none"            # Authelia gate once the auth area exists
+live = true
+
+[[host]]
+domain = "proxmox.gungors.duckdns.org"
+forward = "https://192.168.0.220:8006"
+websockets = true        # noVNC console
+access = "lan"
+auth = "none"            # Proxmox OIDC later; root@pam stays
+live = true
+
+[[host]]
+domain = "home.gungors.duckdns.org"
+forward = "http://homepage:3000"
+access = "public"
+auth = "authelia"
+live = false             # homepage area
+
+[[host]]
+domain = "foto.gungors.duckdns.org"
+forward = "http://immich-server:2283"
+websockets = true
+max_body = "0"           # unlimited uploads
+access = "public"
+auth = "none"            # Immich OIDC
+live = false             # immich area
+
+[[host]]
+domain = "paperless.gungors.duckdns.org"
+forward = "http://paperless:8000"
+websockets = true
+max_body = "200m"
+access = "public"
+auth = "none"            # Paperless OIDC
+live = false             # paperless area
+
+[[host]]
+domain = "auth.gungors.duckdns.org"
+forward = "http://authelia:9091"
+access = "public"
+auth = "none"
+live = false             # auth area
+
+[[host]]
+domain = "users.gungors.duckdns.org"
+forward = "http://lldap:17170"
+access = "lan"
+auth = "authelia"
+live = false             # auth area
+
+[[host]]
+domain = "paperless-gpt.gungors.duckdns.org"
+forward = "http://paperless-gpt:8080"
+access = "lan"
+auth = "authelia"
+live = false             # paperless area
