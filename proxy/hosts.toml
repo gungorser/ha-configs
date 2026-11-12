@@ -9,9 +9,13 @@ certificate = "*.gungors.duckdns.org"   # one wildcard, Let's Encrypt, Duck DNS 
 ssl_forced = true
 http2 = true
 block_exploits = true
+home_wan_name = "gungors.duckdns.org"   # resolves to the home's public IP (Duck DNS)
 
 [access_lists.lan-only]
 allow = ["192.168.0.0/24"]
+# Inside the house the names resolve to the public IP and the router's NAT loopback hands NPM the
+# home's public IP as source, so that IP counts as "home" too (refreshed by proxy-wan-refresh.timer).
+allow_home_wan = true
 
 [[host]]
 domain = "ha.gungors.duckdns.org"

@@ -26,7 +26,11 @@ applied through NPM's REST API, so UI edits show up as drift instead of being lo
 AdGuard is skipped (Sercan, 2026-11-12). Inside the house `*.gungors.duckdns.org` resolves to the
 public IP and reaches NPM through the router's NAT loopback (as with the Pi's NPM today). "LAN
 only" is therefore enforced in NPM, not in DNS: hosts with `access = "lan"` get the access list
-`lan-only` (allow `192.168.0.0/24`, deny all). The NPM UI (port 81) is only reachable inside the
+`lan-only` (allow `192.168.0.0/24` and the home's own public IP, deny all). The public IP is
+needed because the router's NAT loopback hands NPM requests from inside the house with the home's
+public IP as source; only traffic from inside the house carries it. `npm_apply.py` resolves it
+from `gungors.duckdns.org`, and `proxy-wan-refresh.timer` (installed by `hook.sh`, every 5 min)
+updates the list when it changes. The NPM UI (port 81) is only reachable inside the
 house because the router forwards 80 and 443 alone.
 
 ### Secrets (Sercan enters them; never in git or chat)

@@ -1,0 +1,9 @@
+# Re-applies the NPM access lists when the home's public IP changed (proxy area, hook.sh refresh).
+[Unit]
+Description=NPM lan-only list: follow the home public IP
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/stacks/proxy/hook.sh refresh

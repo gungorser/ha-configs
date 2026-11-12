@@ -5,6 +5,7 @@
   npm_apply.py check    exit 1 when NPM was changed in the UI since the last apply
   npm_apply.py deploy   apply; stops (exit 1) on UI edits
   npm_apply.py force    apply even over UI edits (Sercan's approval only)
+  npm_apply.py refresh  re-apply only when the home's public IP changed (timer on the VM)
 
 Managed: the access lists in hosts.toml, the wildcard certificate (created if missing) and the
 hosts with live = true. Only the fields below are compared and written; anything else set in the
@@ -15,6 +16,7 @@ Credentials: /opt/secrets/proxy.env (NPM_API_EMAIL, NPM_API_PASSWORD) and
 """
 import json
 import os
+import socket
 import sys
 import time
 import tomllib
@@ -75,7 +77,26 @@ def snippet(name):
         return "\n".join(l.rstrip() for l in f if l.strip() and not l.lstrip().startswith("#"))
 
 
-def desired(cfg, lists, cert_id):
+def acl_allow(cfg, name, wan_ip):
+    """An access list's allowed addresses; allow_home_wan adds the home's own public IP, which only
+    traffic from inside the house reaches NPM with (the router's NAT loopback rewrites the source)."""
+    acl = cfg["access_lists"][name]
+    allow = list(acl["allow"])
+    if acl.get("allow_home_wan") and wan_ip:
+        allow.append(wan_ip)
+    return allow
+
+
+def home_wan(cfg, previous):
+    """The home's public IP from DNS (Duck DNS); the last known one when DNS fails."""
+    try:
+        return socket.gethostbyname(cfg["defaults"]["home_wan_name"])
+    except (OSError, KeyError):
+        print(f"warning: home public IP not resolved, keeping {previous}")
+        return previous
+
+
+def desired(cfg, lists, cert_id, wan_ip=None):
     """Payload per live domain, with ids resolved; None ids mean 'not created yet'."""
     d = cfg["defaults"]
     out, planned = {}, []
@@ -93,7 +114,7 @@ def desired(cfg, lists, cert_id):
             # config has one, so the lan-only and websocket lines are repeated here.
             loc = []
             if h.get("access") == "lan":
-                loc += [f"allow {a};" for a in cfg["access_lists"]["lan-only"]["allow"]] + ["deny all;"]
+                loc += [f"allow {a};" for a in acl_allow(cfg, "lan-only", wan_ip)] + ["deny all;"]
             if h.get("websockets"):
                 loc += ["proxy_set_header Upgrade $http_upgrade;",
                         "proxy_set_header Connection $http_connection;", "proxy_http_version 1.1;"]
@@ -117,17 +138,29 @@ def pick(host):
 
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "status"
-    if mode not in ("status", "check", "deploy", "force"):
-        sys.exit("usage: npm_apply.py status|check|deploy|force")
+    if mode not in ("status", "check", "deploy", "force", "refresh"):
+        sys.exit("usage: npm_apply.py status|check|deploy|force|refresh")
     cfg = tomllib.load(open(os.path.join(HERE, "hosts.toml"), "rb"))
     sec = env_file("proxy.env")
     npm = Npm(sec["NPM_API_EMAIL"], sec["NPM_API_PASSWORD"])
     applied = json.load(open(STATE)) if os.path.exists(STATE) else {}
+    wan_ip = home_wan(cfg, applied.get("wan_ip"))
+    if mode == "refresh" and wan_ip == applied.get("wan_ip"):
+        return
     hosts = {dn: h for h in npm.call("GET", "/nginx/proxy-hosts") for dn in h["domain_names"]}
-    lists = {a["name"]: a["id"] for a in npm.call("GET", "/nginx/access-lists")}
+    acls = {a["name"]: a for a in npm.call("GET", "/nginx/access-lists?expand=clients")}
+    lists = {n: a["id"] for n, a in acls.items()}
+
+    def acl_clients(name):
+        return [{"address": a, "directive": "allow"} for a in acl_allow(cfg, name, wan_ip)] \
+            + [{"address": "all", "directive": "deny"}]
+
+    def acl_differs(name):
+        have = [(c["address"], c["directive"]) for c in acls[name].get("clients", [])]
+        return sorted(have) != sorted((c["address"], c["directive"]) for c in acl_clients(name))
     certs = {",".join(c["domain_names"]): c["id"] for c in npm.call("GET", "/nginx/certificates")}
     cert_name = cfg["defaults"]["certificate"]
-    want, planned = desired(cfg, lists, certs.get(cert_name))
+    want, planned = desired(cfg, lists, certs.get(cert_name), wan_ip)
 
     # UI edits: a managed host whose fields changed since the last apply.
     ui_edits = [dn for dn, fields in applied.get("hosts", {}).items()
@@ -145,6 +178,8 @@ def main():
         for name in cfg.get("access_lists", {}):
             if name not in lists:
                 print(f"missing access list {name}")
+            elif acl_differs(name):
+                print(f"access list {name} differs (home public IP now {wan_ip})")
         for dn in todo:
             print(("missing host " if dn not in hosts else "differs from repo: ") + dn)
         if unmanaged:
@@ -155,16 +190,20 @@ def main():
             print("proxy hosts: in sync")
         sys.exit(1 if mode == "check" and ui_edits else 0)
 
-    if ui_edits and mode == "deploy":
+    if ui_edits and mode in ("deploy", "refresh"):
         sys.exit("Stopped: UI edits above. Merge them into hosts.toml or use force (Sercan only).")
+    if mode == "refresh":
+        print(f"home public IP changed: {applied.get('wan_ip')} -> {wan_ip}")
 
-    for name, acl in cfg.get("access_lists", {}).items():
+    for name in cfg.get("access_lists", {}):
+        body = {"name": name, "satisfy_any": True, "pass_auth": False, "items": [],
+                "clients": acl_clients(name)}
         if name not in lists:
-            body = {"name": name, "satisfy_any": True, "pass_auth": False, "items": [],
-                    "clients": [{"address": a, "directive": "allow"} for a in acl["allow"]]
-                    + [{"address": "all", "directive": "deny"}]}
             lists[name] = npm.call("POST", "/nginx/access-lists", body)["id"]
             print(f"created access list {name}")
+        elif acl_differs(name):
+            npm.call("PUT", f"/nginx/access-lists/{lists[name]}", body)
+            print(f"updated access list {name}")
     if cert_name not in certs:
         dd = env_file("duckdns.env")
         body = {"provider": "letsencrypt", "nice_name": cert_name, "domain_names": [cert_name],
@@ -174,7 +213,7 @@ def main():
         print(f"requesting certificate {cert_name} (DNS challenge, ~2-3 min)")
         certs[cert_name] = npm.call("POST", "/nginx/certificates", body)["id"]
         print(f"created certificate {cert_name}")
-    want, _ = desired(cfg, lists, certs[cert_name])
+    want, _ = desired(cfg, lists, certs[cert_name], wan_ip)
     for dn, fields in want.items():
         if dn in hosts and pick(hosts[dn]) == fields:
             continue
@@ -185,7 +224,7 @@ def main():
             npm.call("POST", "/nginx/proxy-hosts", dict(fields, domain_names=[dn], meta={}, locations=[]))
             print(f"created {dn}")
     hosts = {dn: h for h in npm.call("GET", "/nginx/proxy-hosts") for dn in h["domain_names"]}
-    state = {"hosts": {dn: pick(hosts[dn]) for dn in want if dn in hosts}}
+    state = {"hosts": {dn: pick(hosts[dn]) for dn in want if dn in hosts}, "wan_ip": wan_ip}
     tmp = STATE + ".new"
     with open(tmp, "w") as f:
         json.dump(state, f, indent=1, sort_keys=True)

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Stack hook for the proxy area (see docker-host/stack.sh), run on the docker VM as root from the
-# area's folder: check | pre | post <mode> | status.
+# area's folder: check | pre | post <mode> | status | refresh (proxy-wan-refresh.timer).
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -27,15 +27,26 @@ case "${1:-status}" in
   pre)
     secrets_ok
     install -d -m 755 /srv/data/proxy /srv/data/proxy/data /srv/data/proxy/letsencrypt
+    changed=0
+    for u in systemd/proxy-wan-refresh.service systemd/proxy-wan-refresh.timer; do
+      cmp -s "$u" "/etc/systemd/system/${u#systemd/}" || { install -m 644 "$u" /etc/systemd/system/; changed=1; }
+    done
+    if [ $changed = 1 ]; then systemctl daemon-reload; fi
+    systemctl enable --now proxy-wan-refresh.timer >/dev/null 2>&1
     ;;
   post)
     if [ "${2:-deploy}" = deploy ]; then python3 npm_apply.py deploy; else python3 npm_apply.py force; fi
+    ;;
+  refresh)
+    # Timer: only when NPM runs and has been applied once; quiet unless the IP changed.
+    if ! npm_running || [ ! -f /srv/data/proxy/ha-configs-applied.json ]; then exit 0; fi
+    python3 npm_apply.py refresh
     ;;
   status)
     if ! secrets_ok; then exit 0; fi
     if npm_running; then python3 npm_apply.py status; else echo "npm not running"; fi
     ;;
   *)
-    echo "usage: hook.sh check | pre | post <mode> | status"; exit 1
+    echo "usage: hook.sh check | pre | post <mode> | status | refresh"; exit 1
     ;;
 esac

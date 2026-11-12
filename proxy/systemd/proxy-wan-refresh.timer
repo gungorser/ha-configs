@@ -1,0 +1,10 @@
+# Every 5 minutes, like the Duck DNS updater (proxy area).
+[Unit]
+Description=NPM lan-only list: follow the home public IP
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
