@@ -10,6 +10,7 @@ service stacks (`proxy`, `dns`, `auth`, ...) are their own areas on top of this 
 | Docker Engine + buildx + compose plugin, from Docker's apt repo (key fingerprint checked) | `files/etc/apt/sources.list.d/docker.sources`, `/etc/apt/keyrings/docker.asc` |
 | Docker daemon: `local` log driver (10 MB x 3), `live-restore` | `files/etc/docker/daemon.json` |
 | Docker starts only with `/srv/data` mounted (the NAS shares are not required) | `files/etc/systemd/system/docker.service.d/10-srv-data.conf` |
+| `set-duckdns-token`: asks for the Duck DNS token without echoing it and writes `/opt/secrets/duckdns.env` (600) | `files/usr/local/sbin/` |
 | Unattended Debian security upgrades, no automatic reboot; Docker upgraded by hand | `files/etc/apt/apt.conf.d/` |
 | Compose stacks, repo files only | `/opt/stacks` (755 root) |
 | Secrets, never in git: `/opt/secrets/<area>.env` (600) | `/opt/secrets` (700 root) |

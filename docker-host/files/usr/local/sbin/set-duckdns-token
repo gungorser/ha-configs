@@ -1,0 +1,11 @@
+#!/bin/bash
+# Prompts silently for the Duck DNS token and writes /opt/secrets/duckdns.env (600 root).
+# The token is never echoed, logged or passed on a command line.
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0"
+read -rsp "Duck DNS token: " T; echo
+[[ $T =~ ^[0-9a-f-]{36}$ ]] || { echo "Bu bir Duck DNS token gibi görünmüyor (36 karakter), kaydedilmedi."; exit 1; }
+umask 077
+printf "DUCKDNS_DOMAIN=gungors\nDUCKDNS_TOKEN=%s\n" "$T" > /opt/secrets/duckdns.env.new
+chown root:root /opt/secrets/duckdns.env.new && mv /opt/secrets/duckdns.env.new /opt/secrets/duckdns.env
+echo "Kaydedildi: /opt/secrets/duckdns.env"
