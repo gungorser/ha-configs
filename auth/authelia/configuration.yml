@@ -27,16 +27,17 @@ access_control:
   rules:
     - domain: auth.gungors.duckdns.org
       policy: bypass
-    # Admin tools: admin group, always with the second factor.
+    # Admin tools: admin group. Password only: 2FA is off by Sercan's decision (2026-11-12);
+    # set these two rules back to two_factor to turn it on (the TOTP section stays configured).
     - domain:
         - npm.gungors.duckdns.org
         - users.gungors.duckdns.org
         - paperless-gpt.gungors.duckdns.org
       subject: ["group:admin"]
-      policy: two_factor
+      policy: one_factor
     - domain: home.gungors.duckdns.org
       subject: ["group:admin"]
-      policy: two_factor
+      policy: one_factor
     - domain: home.gungors.duckdns.org
       subject: ["group:aile"]
       policy: one_factor
