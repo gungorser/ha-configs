@@ -5,7 +5,7 @@
 # State on the VM in /var/lib/ha-configs/docker-host: current/ (deployed tree), prev/ (the one
 # before), stage/ (being deployed), .deployed (commit).
 # mode: status | deploy (stops on live edits) | force (Sercan only) | rollback
-# FORMAT_NAS_DATA=1 lets setup.sh format an empty nas-data disk (first install only).
+# FORMAT_NAS="<labels>" lets setup.sh format those NAS disks when empty (first install only).
 set -euo pipefail
 MODE=${1:-status}
 CONFIGS_GIT=${CONFIGS_GIT:-/home/claude/work/ha-configs/.git}
@@ -42,7 +42,7 @@ EOF
 }
 
 run_setup() {  # run_setup <tree> <check|apply>
-  vm "sudo env FORMAT_NAS_DATA=${FORMAT_NAS_DATA:-0} $S/$1/docker-host/setup.sh $2"
+  vm "sudo env FORMAT_NAS='${FORMAT_NAS:-}' $S/$1/docker-host/setup.sh $2"
 }
 
 case "$MODE" in

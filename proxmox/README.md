@@ -2,23 +2,35 @@
 
 The Proxmox VE host `pve` (192.168.0.220, Beelink S12 Pro, N100, 16 GB, 512 GB SATA SSD) and the
 scripts that rebuild its two VMs from scratch. The VMs hold no data of their own: config comes from
-this repo, NAS and service data live on the `nas-data` LV, which belongs to no VM.
+this repo, NAS and service data live on four thin LVs that belong to no VM.
 
 | File | What |
 |---|---|
 | `host/storage.cfg` | `/etc/pve/storage.cfg`: `local` (ISOs, images, snippets) and `local-lvm` (thin pool `pve/data`) |
 | `host/claude-remote-control.service` | Claude Code Remote Control as a systemd unit (user `claude`) |
 | `host/interfaces` | `/etc/network/interfaces`, **reference only**, never deployed |
-| `nas-data.sh` | Creates the `pve/nas-data` thin LV (150G) if missing; never formats or resizes an existing one |
-| `docker-vm.sh` | VM 110 `docker`: Debian 13 cloud image, cloud-init, nas-data attached |
+| `nas-disks.sh` | Creates the NAS thin LVs (table below) if missing; never formats or resizes an existing one |
+| `docker-vm.sh` | VM 110 `docker`: Debian 13 cloud image, cloud-init, NAS disks attached as scsi1-4 |
 | `haos-vm.sh` | VM 100 `haos`: official HAOS qcow2, UEFI, Zigbee dongle by vid:pid |
 | `cloud-init/docker-vm-vendor.yaml` | Vendor data for VM 110 (installs the guest agent) |
 | `lib.sh` | Shared helpers (asks before destroying an existing VM) |
 
 | VM | vCPU (cpuunits) | RAM min-max (shares) | Disk | MAC | IP | Boot |
 |---|---|---|---|---|---|---|
-| 110 docker | 4 (1024) | 6-12 GB (1000) | 32G + nas-data (`scsi1`) [+ SSD2 `scsi2`] | `02:00:C0:A8:00:DE` | 192.168.0.222 static (cloud-init) | order 1 |
+| 110 docker | 4 (1024) | 6-12 GB (1000) | 32G + NAS disks `scsi1-4` [+ SSD2 `scsi5`] | `02:00:C0:A8:00:DE` | 192.168.0.222 static (cloud-init) | order 1 |
 | 100 haos | 4 (2048) | 4-8 GB (2000) | 32G | `02:00:C0:A8:00:DD` | 192.168.0.221 (router DHCP reservation on the MAC) | order 2, up 30 |
+
+NAS disks (thin LVs in `pve/data`, grown with `lvextend` + `resize2fs` at 80 %):
+
+| LV | Size | VM 110 | Mount | Holds | Samba share (later), access |
+|---|---|---|---|---|---|
+| `nas-data` | 30G | `scsi1` | `/srv/data` | service data (databases, app state) | none |
+| `nas-backup` | 100G | `scsi2` | `/srv/nas/backup` | HA backups, restic service backups | `backup`: admins + services |
+| `nas-dokuman` | 50G | `scsi3` | `/srv/nas/dokuman` | Paperless, general documents | `dokuman`: family |
+| `nas-foto` | 150G | `scsi4` | `/srv/nas/foto` | Immich library | `foto`: family |
+
+`nas-backup` on the same SSD guards against mistakes, not a disk failure: it moves to SSD2 once
+that disk is fitted.
 
 ## Live target
 
@@ -35,33 +47,33 @@ running it): a unit change applies at the next reboot or by hand.
 
 VMs, in this order (HA backups live on the NAS, i.e. the docker VM):
 
-1. `sudo proxmox/nas-data.sh` once (no-op when the LV exists).
+1. `sudo proxmox/nas-disks.sh` (no-op for the LVs that exist).
 2. `sudo SSH_KEYS=<public keys file> proxmox/docker-vm.sh`, then the `docker-host` area on the VM
-   (Docker, mounting nas-data at `/srv/data`, services). Optional `SSD2=/dev/disk/by-id/...`
+   (Docker, mounting the NAS disks, services). Optional `SSD2=/dev/disk/by-id/...`
    attaches the backup disk whole, unformatted.
 3. `sudo ZIGBEE_USB=<vid:pid> proxmox/haos-vm.sh` (ZBDongle-P `10c4:ea60`, ZBDongle-E `1a86:55d4`;
    `HAOS_VERSION=` pins a release), then restore the latest HA backup in onboarding.
 
 Both VM scripts download and verify their image into `/var/lib/vz/import` and ask
-(`destroy <name>`) before deleting an existing VM; disks attached by a `/dev` path (nas-data, SSD2)
+(`destroy <name>`) before deleting an existing VM; disks attached by a `/dev` path (NAS disks, SSD2)
 are detached first and never deleted. `VMID=`, `NAME=`, `IP=`, `MAC=` and `NO_START=1` override
 the defaults for a test build (monthly test: `docker-vm.sh` with a spare id and IP, then delete it;
-give the test VM its own MAC and no nas-data copy).
+give the test VM its own MAC and none of the NAS disks).
 
 ## Check
 
 - `sudo proxmox/deploy.sh status`: deployed commit = master, no live edits, no `interfaces` diff.
 - `qm config 110` / `qm config 100` match the table above; `qm agent <id> ping` answers.
-- `lvs pve` shows `nas-data`; `systemctl is-active claude-remote-control` is `active`.
+- `lvs pve` shows the four `nas-*` LVs; `systemctl is-active claude-remote-control` is `active`.
 
 ## Rollback
 
 `sudo proxmox/deploy.sh rollback` restores the host files from before the last deploy. A VM is
-rolled back by rebuilding it with its script (its data is on nas-data or in backups).
+rolled back by rebuilding it with its script (its data is on the NAS disks or in backups).
 
 ## Don't
 
-- Format, resize down or `lvremove` `nas-data`, or attach it to two running VMs at once.
-- Rename `nas-data` to a `vm-<id>-*` name: Proxmox would then delete it with that VM.
+- Format, resize down or `lvremove` a `nas-*` LV, or attach one to two running VMs at once.
+- Rename a `nas-*` LV to a `vm-<id>-*` name: Proxmox would then delete it with that VM.
 - Edit `storage.cfg` or the unit by hand on the host: the next deploy stops on it.
 - Change `/etc/network/interfaces` remotely without a console at hand.
