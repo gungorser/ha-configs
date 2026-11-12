@@ -21,6 +21,10 @@ filesystem stops the deploy. A disk is formatted only when it carries no filesys
 table or other signature **and** its label is listed in `FORMAT_NAS` (first install, Sercan's
 approval). After a VM rebuild the disks keep their filesystems and are only mounted again.
 
+`stack.sh` here is the shared deploy of the stack areas (`proxy/`, later `auth/`, ...): it ships
+`master:<area>` to `/opt/stacks/<area>`, runs `docker compose up -d` and the area's `hook.sh`
+(see the header of `stack.sh`). Each stack area's `deploy.sh` calls it.
+
 ## Live target
 
 The docker VM, as root via `sudo` over SSH (`sercan@192.168.0.222`, the local break-glass admin).

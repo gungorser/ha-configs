@@ -1,0 +1,43 @@
+# Nginx Proxy Manager (web UI on :81, LAN only: the router forwards 80/443 alone) and the Duck DNS
+# IP updater. Proxy hosts, access lists and the certificate are applied from hosts.toml by hook.sh
+# through NPM's API. Data and certificates in /srv/data/proxy (nas-data); secrets in /opt/secrets.
+name: proxy
+
+services:
+  npm:
+    image: jc21/nginx-proxy-manager:2.16.0
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    environment:
+      TZ: Europe/Amsterdam
+      DISABLE_IPV6: "true"
+    volumes:
+      - /srv/data/proxy/data:/data
+      - /srv/data/proxy/letsencrypt:/etc/letsencrypt
+    networks: [proxy]
+    healthcheck:
+      test: ["CMD", "/usr/bin/check-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Points gungors.duckdns.org (and so every *.gungors.duckdns.org) at the home's public IP.
+  duckdns:
+    image: curlimages/curl:8.22.0
+    restart: unless-stopped
+    env_file: /opt/secrets/duckdns.env
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        while :; do
+        echo "$$(date -Iseconds) $$(curl -fsS "https://www.duckdns.org/update?domains=$$DUCKDNS_DOMAIN&token=$$DUCKDNS_TOKEN&ip=" || echo FAILED)";
+        sleep 300;
+        done
+
+# Shared with the other stacks: services that NPM forwards to join this network by name.
+networks:
+  proxy:
+    name: proxy
