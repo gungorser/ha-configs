@@ -2,13 +2,13 @@
 # only once its config and Gemini key are in place). On the shared `proxy` network: NPM forwards
 # paperless.gungors.duckdns.org to paperless:8000; no published ports. Data in /srv/data/paperless,
 # documents on the nas-dokuman disk (/srv/nas/dokuman/paperless). Secrets: /opt/secrets/paperless.env
-# (hook.sh). Pinned to 2.20.15 = the Pi add-on's version (document_importer needs the exporter's
-# version); upgraded after the import.
+# (hook.sh). The Pi add-on's 2.20.15 data was imported, then upgraded to 3.x (v3 migration guide:
+# explicit DB engine, consumer/OCR settings renamed, duplicates and archive behaviour kept as in 2.x).
 name: paperless
 
 services:
   paperless:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.4.2
     restart: unless-stopped
     depends_on: [db, broker]
     env_file: /opt/secrets/paperless.env   # secret key, DB password, admin, OIDC provider JSON
@@ -17,6 +17,7 @@ services:
       USERMAP_GID: "8003"
       PAPERLESS_URL: https://paperless.gungors.duckdns.org
       PAPERLESS_TIME_ZONE: Europe/Amsterdam
+      PAPERLESS_DBENGINE: postgresql
       PAPERLESS_DBHOST: db
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_OCR_LANGUAGES: nld tur
@@ -24,7 +25,12 @@ services:
       PAPERLESS_FILENAME_FORMAT: "{{ created_year }}/{{ correspondent }}/{{ title }}"
       PAPERLESS_CONSUMER_RECURSIVE: "true"
       PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "false"
-      PAPERLESS_CONSUMER_POLLING: "60"
+      PAPERLESS_CONSUMER_POLLING_INTERVAL: "60"
+      PAPERLESS_CONSUMER_DELETE_DUPLICATES: "true"   # v2 behaviour: reject duplicates
+      PAPERLESS_ARCHIVE_FILE_GENERATION: always       # v2 default: always keep an archive PDF
+      # NPM on the proxy network is the only proxy in front: real client IPs for login rate limits.
+      PAPERLESS_TRUSTED_PROXIES: 172.19.0.0/16
+      PAPERLESS_ALLAUTH_TRUSTED_PROXY_COUNT: "1"
       # Login: Authelia (OIDC) for people, the local admin as break-glass, API tokens for apps.
       PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
       # People come from LLDAP through Authelia: username = preferred_username, LLDAP groups
