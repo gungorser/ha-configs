@@ -7,7 +7,7 @@ F=/opt/secrets/paperless-gpt.env
 read -rsp "Gemini API anahtarı: " K; echo
 # Pasting on a phone often adds spaces, a newline or a carriage return: drop all whitespace.
 K=$(printf '%s' "$K" | tr -d '[:space:]')
-[[ $K =~ ^[A-Za-z0-9_-]{20,}$ ]] || { echo "Bu bir Gemini API anahtarı gibi görünmüyor (${#K} karakter; AIza ile başlayan ~39 karakter beklenir), kaydedilmedi."; exit 1; }
+[[ $K =~ ^[A-Za-z0-9._-]{20,}$ ]] || { echo "Bu bir Gemini API anahtarı gibi görünmüyor (${#K} karakter; harf, rakam, nokta, alt çizgi ve tire), kaydedilmedi."; exit 1; }
 umask 077
 { [ -f "$F" ] && grep -v '^GOOGLEAI_API_KEY=' "$F"; printf 'GOOGLEAI_API_KEY=%s\n' "$K"; } > "$F.new"
 chown root:root "$F.new" && mv "$F.new" "$F"
