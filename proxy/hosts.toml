@@ -54,12 +54,20 @@ live = false             # immich area
 
 [[host]]
 domain = "paperless.gungors.duckdns.org"
-forward = "http://paperless:8000"
-websockets = true
+forward = "http://192.168.0.221:8000"   # Paperless HA add-on on the Pi until the paperless area
+websockets = true                        # (then http://paperless:8000)
 max_body = "200m"
 access = "public"
-auth = "none"            # Paperless OIDC
-live = false             # paperless area
+auth = "none"            # Paperless login today; OIDC with the paperless area
+live = true              # served by the Pi's NPM today (cutover 2026-11)
+
+[[host]]
+domain = "paperless-mcp.gungors.duckdns.org"
+forward = "http://192.168.0.221:8100"   # Paperless MCP HA add-on on the Pi (its own OAuth bearer)
+websockets = true
+access = "public"        # Claude connects from the internet
+auth = "none"            # never forward-auth: the MCP client authenticates with its token
+live = true              # served by the Pi's NPM today (cutover 2026-11)
 
 [[host]]
 domain = "auth.gungors.duckdns.org"
