@@ -74,14 +74,6 @@ auth = "none"            # login: Authelia OIDC inside Paperless; apps use API t
 live = true
 
 [[host]]
-domain = "paperless-mcp.gungors.duckdns.org"
-forward = "http://192.168.0.221:8100"   # Paperless MCP HA add-on on the Pi (its own OAuth bearer)
-websockets = true
-access = "public"        # Claude connects from the internet
-auth = "none"            # never forward-auth: the MCP client authenticates with its token
-live = true              # served by the Pi's NPM today (cutover 2026-11)
-
-[[host]]
 domain = "auth.gungors.duckdns.org"
 forward = "http://authelia:9091"
 access = "public"
