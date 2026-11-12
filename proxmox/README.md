@@ -53,8 +53,11 @@ VMs, in this order (HA backups live on the NAS, i.e. the docker VM):
 2. `sudo SSH_KEYS=<public keys file> proxmox/docker-vm.sh`, then the `docker-host` area on the VM
    (Docker, mounting the NAS disks, services). Optional `SSD2=/dev/disk/by-id/...`
    attaches the backup disk whole, unformatted.
-3. `sudo ZIGBEE_USB=<vid:pid> proxmox/haos-vm.sh` (ZBDongle-P `10c4:ea60`, ZBDongle-E `1a86:55d4`;
-   `HAOS_VERSION=` pins a release), then restore the latest HA backup in onboarding.
+3. `sudo proxmox/haos-vm.sh`: HAOS 18.4 pinned (sha256 checked), Zigbee dongle
+   `1a86:55d4` (SONOFF Dongle Plus V2 / ZBDongle-E) passed through, optional `BT_USB=8087:0026`.
+   Created stopped with `onboot 0`: it takes over the Pi's 192.168.0.221, so it is started only at
+   the cutover after the Pi is off (`START=1 ONBOOT=1`, or `qm set 100 --onboot 1; qm start 100`),
+   then the latest HA backup is restored in onboarding.
 
 Both VM scripts download and verify their image into `/var/lib/vz/import` and ask
 (`destroy <name>`) before deleting an existing VM; disks attached by a `/dev` path (NAS disks, SSD2)
