@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "blender": {
+      "command": "/home/claude/.local/bin/uvx",
+      "args": ["blender-mcp==2.0.0"],
+      "env": {
+        "BLENDER_HOST": "192.168.0.222",
+        "BLENDER_PORT": "9876"
+      }
+    }
+  }
+}

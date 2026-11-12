@@ -1,0 +1,13 @@
+# Blender MCP socket (port 9876 on the docker VM): only the Proxmox host may connect.
+# Own table, so Docker's rules and anything else stay untouched (no flush ruleset).
+# Loaded by blender-mcp-firewall.service. Managed by ha-configs docker-host.
+table inet blender_mcp
+delete table inet blender_mcp
+table inet blender_mcp {
+	chain input {
+		type filter hook input priority filter - 10; policy accept;
+		tcp dport 9876 iif "lo" accept
+		tcp dport 9876 ip saddr 192.168.0.220 accept
+		tcp dport 9876 drop
+	}
+}

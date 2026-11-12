@@ -14,7 +14,12 @@ PREV=$STATE/prev
 
 # repo file (under proxmox/host/) -> live path
 FILES="storage.cfg:/etc/pve/storage.cfg
-claude-remote-control.service:/etc/systemd/system/claude-remote-control.service"
+claude-remote-control.service:/etc/systemd/system/claude-remote-control.service
+claude-work-mcp.json:/home/claude/work/.mcp.json
+claude-work-settings.json:/home/claude/work/.claude/settings.json"
+# uv/uvx for the claude user (runs the blender MCP server of .mcp.json), pinned with its sha256.
+UV_VERSION=0.13.4
+UV_SHA256=2b428396f12572d4429cf210ca234dd599a33b3af0958a4d5ed569d63e3f344f
 REFERENCE="interfaces:/etc/network/interfaces"
 
 [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
@@ -29,12 +34,28 @@ live_edits() {
   local old rc=0 src dst
   old=$(cat "$MARK")
   while IFS=: read -r src dst; do
+    $G cat-file -e "$old:proxmox/host/$src" 2>/dev/null || continue   # new in a later commit
     $G show "$old:proxmox/host/$src" | diff - "$dst" >/dev/null 2>&1 || { echo "live edit: $dst"; rc=1; }
   done <<< "$FILES"
   return $rc
 }
 
+# Installs uv/uvx into ~claude/.local/bin when the pinned version is missing.
+install_uv() {
+  local bin=/home/claude/.local/bin tmp
+  [ "$("$bin/uv" --version 2>/dev/null)" = "uv $UV_VERSION" ] && return 0
+  tmp=$(mktemp -d)
+  curl -fsSL "https://github.com/astral-sh/uv/releases/download/$UV_VERSION/uv-x86_64-unknown-linux-gnu.tar.gz" -o "$tmp/uv.tgz" &&
+    echo "$UV_SHA256  $tmp/uv.tgz" | sha256sum -c --status &&
+    tar -xzf "$tmp/uv.tgz" -C "$tmp" --strip-components=1 &&
+    install -d -o claude -g claude "$bin" &&
+    install -m 755 -o claude -g claude "$tmp/uv" "$tmp/uvx" "$bin/" &&
+    echo "installed uv $UV_VERSION into $bin" || echo "uv install FAILED (checksum or download)"
+  rm -rf "$tmp"
+}
+
 after() {
+  install_uv
   systemctl daemon-reload
   # The unit is not restarted here: it runs the Claude session doing this deploy.
   systemctl enable claude-remote-control.service >/dev/null 2>&1
@@ -58,6 +79,10 @@ case "$MODE" in
     rm -rf "$PREV" && mkdir -p "$PREV" || exit 1
     while IFS=: read -r src dst; do
       [ -f "$dst" ] && cp -p "$dst" "$PREV/$src"
+      # A new folder under /home/claude belongs to claude (Claude Code writes next to its files).
+      if [ ! -d "$(dirname "$dst")" ]; then
+        case "$dst" in /home/claude/*) install -d -o claude -g claude "$(dirname "$dst")" ;; *) mkdir -p "$(dirname "$dst")" ;; esac
+      fi
       if $G show "origin/master:proxmox/host/$src" | diff -q - "$dst" >/dev/null 2>&1; then
         echo "unchanged $dst"
       else

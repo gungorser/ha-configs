@@ -1,0 +1,6 @@
+#!/bin/bash
+# Stops the Blender started by blender-mcp-start (unsaved work in that Blender is lost).
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+if systemctl is-active -q blender-mcp; then systemctl stop blender-mcp; echo "Blender MCP stopped"
+else echo "Blender MCP is not running"; fi
