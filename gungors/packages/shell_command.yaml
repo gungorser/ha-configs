@@ -18,13 +18,13 @@ shell_command:
     G="git -c safe.directory=/config/.ha-configs.git --git-dir=/config/.ha-configs.git";
     $G fetch --quiet origin +refs/heads/master:refs/heads/master || exit 1;
     for a in $($G ls-tree --name-only master); do
-    $G cat-file -e "master:$a/deploy.sh" 2>/dev/null || continue;
+    $G show "master:$a/deploy.sh" 2>/dev/null | grep -q '^# area-target: ha' || continue;
     $G show "master:$a/deploy.sh" | sh -s -- status; done
-  # Deploy one area: area = gungors | pyscript | blueprints | esphome,
+  # Deploy one HA area (deploy.sh carries '# area-target: ha'): gungors | pyscript | blueprints | esphome,
   # mode = deploy (default, stops on live edits) | force (Sercan only) | rollback.
   configs_deploy: >-
     sh -c 'G="git -c safe.directory=/config/.ha-configs.git --git-dir=/config/.ha-configs.git";
     $G fetch --quiet origin +refs/heads/master:refs/heads/master || exit 1;
-    $G cat-file -e "master:$1/deploy.sh" || exit 1;
+    $G show "master:$1/deploy.sh" 2>/dev/null | grep -q "^# area-target: ha" || { echo "$1: not an HA area"; exit 1; };
     $G show "master:$1/deploy.sh" | sh -s -- "$2"'
     configs-deploy {{ area }} {{ mode | default("deploy") }}
