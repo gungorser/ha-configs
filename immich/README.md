@@ -16,7 +16,7 @@ and outside the house with the same address.
 - Database, Valkey, model cache: `/srv/data/immich/{postgres,model-cache}` (nas-data; the
   database must be on a local disk).
 - Priority (plan doc: HA > services > Immich): all four containers on cores 2-3, `cpu_shares`
-  256, `oom_score_adj` 500, memory limits server 2 GB, ML 2 GB, Postgres 1 GB (512 MB is OOM-killed on the first start), Valkey 128 MB;
+  256, `oom_score_adj` 500, memory limits server 2 GB, ML 3 GB (2 GB was OOM-killed during the first bulk upload), Postgres 1 GB (512 MB is OOM-killed on the first start), Valkey 128 MB;
   job concurrency 1-2. Models unload after 5 idle minutes. The first scan of a full phone can take
   days; photos show at once, faces and smart search follow.
 - Web: NPM `foto` host -> `immich-server:2283` (proxy area), public, unlimited body size, no

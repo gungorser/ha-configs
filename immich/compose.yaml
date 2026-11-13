@@ -43,7 +43,7 @@ services:
   immich-machine-learning:
     <<: *low-priority
     image: ghcr.io/immich-app/immich-machine-learning:v3.3.5@sha256:5b28c9352c8374b8a1ed96fbdd8d6755fea6e43510ec43fdf6538aa02ea40f56
-    mem_limit: 2g
+    mem_limit: 3g   # search, face and OCR models together hit 2g during the first bulk upload (OOM)
     environment:
       TZ: Europe/Amsterdam
       MACHINE_LEARNING_WORKERS: "1"
