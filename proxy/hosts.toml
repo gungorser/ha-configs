@@ -26,14 +26,6 @@ auth = "none"            # HA login / OIDC; never forward-auth (breaks the app a
 live = true              # HA keeps 192.168.0.221 (Pi today, haos VM later)
 
 [[host]]
-domain = "homeassistant.gungors.duckdns.org"
-forward = "http://192.168.0.221:8123"
-websockets = true
-access = "public"
-auth = "none"            # the address the claude.ai HA connectors (MCP) use; never forward-auth
-live = true              # served by the Pi's NPM until the router switch (2026-11-12)
-
-[[host]]
 domain = "npm.gungors.duckdns.org"
 forward = "http://npm:81"
 access = "lan"
