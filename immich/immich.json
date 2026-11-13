@@ -1,0 +1,38 @@
+{
+  "server": {
+    "externalDomain": "https://foto.gungors.duckdns.org"
+  },
+  "oauth": {
+    "enabled": true,
+    "issuerUrl": "https://auth.gungors.duckdns.org",
+    "clientId": "immich",
+    "clientSecret": "",
+    "tokenEndpointAuthMethod": "client_secret_basic",
+    "scope": "openid email profile immich",
+    "roleClaim": "immich_role",
+    "storageLabelClaim": "preferred_username",
+    "buttonText": "Authelia ile giriş",
+    "autoRegister": true,
+    "autoLaunch": false,
+    "mobileOverrideEnabled": false
+  },
+  "passwordLogin": {
+    "enabled": true
+  },
+  "storageTemplate": {
+    "enabled": true,
+    "hashVerificationEnabled": true,
+    "template": "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}"
+  },
+  "job": {
+    "thumbnailGeneration": { "concurrency": 2 },
+    "smartSearch": { "concurrency": 1 },
+    "faceDetection": { "concurrency": 1 },
+    "videoConversion": { "concurrency": 1 },
+    "metadataExtraction": { "concurrency": 2 }
+  },
+  "ffmpeg": {
+    "preset": "faster",
+    "threads": 2
+  }
+}

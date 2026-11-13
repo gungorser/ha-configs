@@ -9,7 +9,7 @@ in the house at `\\192.168.0.222` (port 445 on the VM's LAN address only; the ro
 | `ha-backup` | `/srv/nas/backup/ha` | `ha-backup` (+ `admin`) | HA's network storage for its backups; sees only this folder |
 | `dokuman` | `/srv/nas/dokuman/genel` | group `aile` | general documents; Paperless's own files on this disk are not shared |
 | `tarama` | `/srv/nas/dokuman/paperless/consume` | group `aile` | scan inbox: Paperless consumes what lands here (files owned by `paperless`, uid 8003) |
-| `foto` | `/srv/nas/foto` | group `aile` | photos; Immich gets a folder here later |
+| `foto` | `/srv/nas/foto` | group `aile` | photos; Immich's library `immich/` is root-only, not visible here |
 
 `melike` is in `aile` only, so she has no backup access. Guests and wrong passwords are refused;
 SMB3 only, encryption when the client supports it.

@@ -80,6 +80,7 @@ case "${1:-status}" in
     secret "$SEC/authelia/oidc_hmac_secret" "$AUTHELIA_UID" rand 32
     secret "$SEC/authelia/oidc_jwks_rs256.pem" "$AUTHELIA_UID" openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -quiet
     oidc_client paperless
+    oidc_client immich
     # LLDAP bootstrap folder: the repo lists plus the Authelia service user (with its password).
     rm -rf "$SEC/bootstrap.new" && cp -a lldap-bootstrap "$SEC/bootstrap.new"
     printf '{"id": "authelia", "email": "authelia@gungors.duckdns.org", "displayName": "Authelia (service)", "groups": ["lldap_password_manager"], "password": "%s"}\n' \
