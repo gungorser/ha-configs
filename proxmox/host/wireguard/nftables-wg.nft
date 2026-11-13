@@ -1,0 +1,18 @@
+# NAT and forwarding for the WireGuard VPN on the Proxmox host (own table; nothing else touched).
+# VPN clients (10.8.0.0/24) reach only the home LAN, masqueraded as 192.168.0.220, so devices and
+# the LAN-only rules (NPM lan-only, Proxmox) see a LAN address.
+table inet pve_wg
+delete table inet pve_wg
+table inet pve_wg {
+	chain forward {
+		type filter hook forward priority filter; policy accept;
+		iifname "wg0" oifname "vmbr0" ip daddr 192.168.0.0/24 accept
+		iifname "vmbr0" oifname "wg0" ct state established,related accept
+		iifname "wg0" drop
+		oifname "wg0" drop
+	}
+	chain postrouting {
+		type nat hook postrouting priority srcnat; policy accept;
+		iifname "wg0" oifname "vmbr0" ip saddr 10.8.0.0/24 masquerade
+	}
+}

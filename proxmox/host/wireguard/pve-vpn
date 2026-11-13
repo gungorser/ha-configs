@@ -1,0 +1,47 @@
+#!/bin/bash
+# WireGuard VPN on the Proxmox host (proxmox area; installed to /usr/local/sbin by deploy.sh).
+#   pve-vpn render        write /etc/wireguard/wg0.conf from peers.conf, making missing keys
+#   pve-vpn qr <name>     show a peer's client config as a QR code (for the WireGuard app)
+#   pve-vpn status        wg show
+# Keys live in /etc/wireguard (700 root): server.key, peers/<name>.key|.pub. Never in git or chat.
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+D=/etc/wireguard
+ENDPOINT=gungors.duckdns.org:51820
+SERVER_ADDR=10.8.0.1/24
+ALLOWED="192.168.0.0/24, 10.8.0.0/24"   # split tunnel: only the house goes through the VPN
+
+key() {  # key <base>: makes <base>.key/.pub once
+  [ -s "$1.key" ] || (umask 077; wg genkey > "$1.key")
+  wg pubkey < "$1.key" > "$1.pub"
+}
+peers() { grep -vE '^\s*(#|$)' "$D/peers.conf"; }
+
+case "${1:-status}" in
+  render)
+    install -d -m 700 "$D" "$D/peers"
+    key "$D/server"
+    { printf '# Written by pve-vpn render from peers.conf; edit the repo, not this file.\n'
+      printf '[Interface]\nAddress = %s\nListenPort = 51820\nPrivateKey = %s\n' "$SERVER_ADDR" "$(cat "$D/server.key")"
+      while read -r name addr; do
+        key "$D/peers/$name"
+        printf '\n# %s\n[Peer]\nPublicKey = %s\nAllowedIPs = %s/32\n' "$name" "$(cat "$D/peers/$name.pub")" "$addr"
+      done < <(peers)
+    } > "$D/wg0.conf.new"
+    chmod 600 "$D/wg0.conf.new" && mv "$D/wg0.conf.new" "$D/wg0.conf"
+    if ip link show wg0 >/dev/null 2>&1; then wg syncconf wg0 <(wg-quick strip wg0); fi
+    echo "wg0.conf: $(peers | wc -l) peer(s)"
+    ;;
+  qr)
+    name=${2:?usage: pve-vpn qr <name>}
+    addr=$(peers | awk -v n="$name" '$1 == n {print $2}')
+    [ -n "$addr" ] && [ -s "$D/peers/$name.key" ] || { echo "unknown peer $name (peers.conf + render)"; exit 1; }
+    printf '[Interface]\nPrivateKey = %s\nAddress = %s/32\nDNS = 10.8.0.1\n\n[Peer]\nPublicKey = %s\nEndpoint = %s\nAllowedIPs = %s\nPersistentKeepalive = 25\n' \
+      "$(cat "$D/peers/$name.key")" "$addr" "$(cat "$D/server.pub")" "$ENDPOINT" "$ALLOWED" | qrencode -t ansiutf8
+    echo "WireGuard app: + → Scan from QR code, name it $name."
+    ;;
+  status)
+    wg show
+    ;;
+  *) echo "usage: pve-vpn render | qr <name> | status"; exit 1 ;;
+esac
