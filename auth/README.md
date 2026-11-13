@@ -10,7 +10,7 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `authelia/configuration.yml` | Authelia config, mounted read-only: LLDAP backend, access rules, session, TOTP |
 | `lldap-bootstrap/` | Users, groups and the POSIX attribute schema, applied by LLDAP's `bootstrap.sh` |
 | `hook.sh` | Generates secrets once, assembles the bootstrap folder, runs it after compose up |
-| `set-ldap-password` | Silent password prompt, installed to `/usr/local/sbin` on the VM |
+| `set-ldap-password` | Wrapper for `set-password` (nas area), installed to `/usr/local/sbin` on the VM |
 
 | Group | Members | Access |
 |---|---|---|
@@ -18,7 +18,7 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `aile` | sercan, melike | HA, Immich, Paperless, NAS (shares `foto`, `dokuman`) |
 | `misafir` | misafir | only what HA gives the guest |
 | `lldap_admin` | sercan | manages users in the LLDAP UI |
-| `lldap_password_manager` | authelia (service user) | lets Authelia reset passwords |
+| `lldap_password_manager` | authelia (service user) | password reset (disabled in Authelia) |
 
 - Base DN `dc=gungors,dc=duckdns,dc=org`; LDAP at `ldap://lldap:3890` inside Docker (not published
   yet: Samba/SSSD and the Proxmox realm publish it when they come).
@@ -47,10 +47,12 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `/opt/secrets/auth/authelia/` (700, uid 8002) | `jwt_secret`, `session_secret`, `storage_key`, `ldap_password` (service user `authelia`), `oidc_hmac_secret`, `oidc_jwks_rs256.pem` |
 | `/opt/secrets/auth/bootstrap/` (700, uid 8001) | repo lists + the service user with its password, mounted into LLDAP |
 
-People's passwords: nobody else sets or sees them. Each person runs, from a PC that has SSH to the
-VM (today Sercan's): `ssh -t sercan@192.168.0.222 sudo set-ldap-password <user>` (silent prompt,
-12+ characters), or Sercan sets a first one for melike/misafir the same way and they change it in
-the portal. Then the first login at https://auth.gungors.duckdns.org registers the TOTP app.
+People's passwords: change them only with `sudo set-password <user>` (nas area): one silent
+prompt (twice, 12+ characters) sets LLDAP and, for NAS accounts, Samba together. Authelia's
+password reset is off and the LLDAP UI should not be used for passwords, since Samba only gets the
+password from that command. Nobody else sets or sees them. From a PC or phone with SSH to the VM:
+`ssh -t sercan@192.168.0.222 sudo set-password <user>`; Sercan sets melike's/misafir's the same
+way. `set-ldap-password` is kept as a wrapper for it.
 
 ## Live target
 

@@ -2,7 +2,7 @@
 # Stack hook for the nas area (see docker-host/stack.sh), run on the docker VM as root from the
 # area's folder: check | pre | post <mode> | status.
 #   pre:  writes /srv/data/nas/accounts from the deployed LLDAP lists (auth area) plus the service
-#         accounts, sets owners/modes of the shared folders, installs set-smb-password and builds
+#         accounts, sets owners/modes of the shared folders, installs set-smb-password and set-password, builds
 #         the image.
 #   post: waits for smbd and lists the accounts that have an SMB password.
 set -euo pipefail
@@ -45,6 +45,7 @@ PY
     install -d -m 2770 -o root -g "$AILE_GID" /srv/nas/dokuman/genel /srv/nas/foto
     install -d -m 750 -o "$PL_UID" -g "$PL_UID" /srv/nas/dokuman/paperless/consume
     install -m 755 set-smb-password /usr/local/sbin/set-smb-password
+    install -m 755 set-password /usr/local/sbin/set-password
     docker compose --project-directory . -f compose.yaml build -q
     ;;
   post)
