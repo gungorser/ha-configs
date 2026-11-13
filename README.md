@@ -16,6 +16,7 @@ the area you change).
 | `auth/` | docker VM `/opt/stacks/auth` (LLDAP + Authelia), users and groups from the repo | `auth/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [auth/README.md](auth/README.md) |
 | `paperless/` | docker VM `/opt/stacks/paperless` (Paperless-ngx, Postgres, Redis, paperless-gpt) | `paperless/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [paperless/README.md](paperless/README.md) |
 | `nas/` | docker VM `/opt/stacks/nas` (Samba: backup, ha-backup, dokuman, tarama, foto) | `nas/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [nas/README.md](nas/README.md) |
+| `immich/` | docker VM `/opt/stacks/immich` (Immich: photos from the phones), photos on `/srv/nas/foto/immich` | `immich/deploy.sh` on the Proxmox host (`docker-host/stack.sh`) | [immich/README.md](immich/README.md) |
 
 ## How deploy works (all areas)
 

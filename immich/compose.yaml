@@ -1,0 +1,81 @@
+# Immich (photo library) at https://foto.gungors.duckdns.org: server, machine learning, Postgres
+# with VectorChord and Valkey, as in Immich's release compose file (v3.3.5) with these changes:
+# service names prefixed (only immich-server joins the shared `proxy` network, NPM forwards to
+# immich-server:2283), no published ports, data paths fixed, settings from immich.json (hook.sh
+# adds the OIDC secret and writes it to /opt/secrets/immich/immich.json), and the lowest priority
+# on the VM: all four on cores 2-3, cpu_shares 256, memory limits, oom_score_adj 500 (HA and the
+# other services win). Photos on the nas-foto disk, database and caches on nas-data.
+name: immich
+
+x-low-priority: &low-priority
+  restart: unless-stopped
+  cpuset: "2,3"
+  cpu_shares: 256
+  oom_score_adj: 500
+
+services:
+  immich-server:
+    <<: *low-priority
+    image: ghcr.io/immich-app/immich-server:v3.3.5@sha256:485d546a2e31d6a8b4db8423fcba5c109de8c218d93410af115fd1ccfc4352a6
+    mem_limit: 2g
+    depends_on: [immich-redis, immich-database]
+    env_file: /opt/secrets/immich.env   # DB_PASSWORD
+    environment:
+      TZ: Europe/Amsterdam
+      DB_HOSTNAME: immich-database
+      DB_USERNAME: postgres
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: immich-redis
+      IMMICH_CONFIG_FILE: /config/immich.json
+      # NPM on the proxy network is the only proxy in front: real client IPs in logs.
+      IMMICH_TRUSTED_PROXIES: 172.16.0.0/12
+    extra_hosts:
+      # OIDC calls to Authelia go straight to NPM on this VM, not through the router.
+      - auth.gungors.duckdns.org:192.168.0.222
+    volumes:
+      - /srv/nas/foto/immich:/data
+      - /opt/secrets/immich/immich.json:/config/immich.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks: [proxy, default]
+    healthcheck:
+      disable: false
+
+  immich-machine-learning:
+    <<: *low-priority
+    image: ghcr.io/immich-app/immich-machine-learning:v3.3.5@sha256:5b28c9352c8374b8a1ed96fbdd8d6755fea6e43510ec43fdf6538aa02ea40f56
+    mem_limit: 2g
+    environment:
+      TZ: Europe/Amsterdam
+      MACHINE_LEARNING_WORKERS: "1"
+      MACHINE_LEARNING_REQUEST_THREADS: "2"
+      MACHINE_LEARNING_MODEL_TTL: "300"   # unload models after 5 idle minutes (frees RAM)
+    volumes:
+      - /srv/data/immich/model-cache:/cache
+    healthcheck:
+      disable: false
+
+  immich-redis:
+    <<: *low-priority
+    image: docker.io/valkey/valkey:9@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d
+    mem_limit: 128m
+    healthcheck:
+      test: redis-cli ping | grep -q PONG || exit 1
+
+  immich-database:
+    <<: *low-priority
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    mem_limit: 512m
+    env_file: /opt/secrets/immich.env   # POSTGRES_PASSWORD
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: immich
+      POSTGRES_INITDB_ARGS: --data-checksums
+    volumes:
+      - /srv/data/immich/postgres:/var/lib/postgresql/data
+    shm_size: 128mb
+    healthcheck:
+      disable: false
+
+networks:
+  proxy:
+    external: true

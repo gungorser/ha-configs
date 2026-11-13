@@ -61,8 +61,8 @@ forward = "http://immich-server:2283"
 websockets = true
 max_body = "0"           # unlimited uploads
 access = "public"
-auth = "none"            # Immich OIDC
-live = false             # immich area
+auth = "none"            # login: Authelia OIDC inside Immich; the phone app needs the bare API
+live = true              # immich area
 
 [[host]]
 domain = "paperless.gungors.duckdns.org"
