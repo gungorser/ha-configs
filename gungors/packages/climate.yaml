@@ -140,7 +140,7 @@ climate:
     max_temp: 35
     features:
       - program:
-          preheat: {rate: 1.0}  # °C/h: reach a program's set temperature by its start
+          preheat: {rate: 0.3}  # °C/h measured (2026-11-10/12/13 heat-ups: 0.2-0.3); reach a set temperature by its start
       - pid:
           kp: 150
           ki: 0
