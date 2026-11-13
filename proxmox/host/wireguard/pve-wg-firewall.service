@@ -1,0 +1,13 @@
+# Loads the nftables table for the WireGuard VPN (proxmox area).
+[Unit]
+Description=WireGuard VPN forwarding and NAT (nftables table pve_wg)
+Before=wg-quick@wg0.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/wireguard/nftables-wg.nft
+ExecStop=/usr/sbin/nft delete table inet pve_wg
+
+[Install]
+WantedBy=multi-user.target

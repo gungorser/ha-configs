@@ -10,6 +10,7 @@ this repo, NAS and service data live on four thin LVs that belong to no VM.
 | `host/claude-remote-control.service` | Claude Code Remote Control as a systemd unit (user `claude`) |
 | `host/claude-work-mcp.json` | `/home/claude/work/.mcp.json`: MCP server `blender` (`uvx blender-mcp==2.0.0`, `BLENDER_HOST=192.168.0.222`, port 9876) for Claude Code |
 | `host/claude-work-settings.json` | `/home/claude/work/.claude/settings.json`: enables that server without a prompt |
+| `host/wireguard/` | WireGuard VPN (section below) |
 | `host/interfaces` | `/etc/network/interfaces`, **reference only**, never deployed |
 | `nas-disks.sh` | Creates the NAS thin LVs (table below) if missing; never formats or resizes an existing one |
 | `docker-vm.sh` | VM 110 `docker`: Debian 13 cloud image, cloud-init, NAS disks attached as scsi1-4 |
@@ -45,6 +46,25 @@ both on: same address). Lessons from the cutover, for a rebuild:
   `qm guest exec 100 -- ha network update enp6s18 --ipv4-method static --ipv4-address 192.168.0.221/24 --ipv4-gateway 192.168.0.1 --ipv4-nameserver 192.168.0.1`.
 - After the restore, restart Mosquitto before Zigbee2MQTT (Z2M got "Not authorized" first) and
   reload the MQTT config entry.
+
+### WireGuard VPN (on this host)
+
+`wg0` on UDP 51820 (router: UDP 51820 → 192.168.0.220), network 10.8.0.0/24, server 10.8.0.1.
+Clients get only the house (split tunnel: AllowedIPs 192.168.0.0/24, 10.8.0.0/24), are
+masqueraded as 192.168.0.220 (so NPM's lan-only and Proxmox see a LAN address), and use DNS
+10.8.0.1 (dnsmasq: `*.gungors.duckdns.org` → 192.168.0.222, the rest → the router). No web UI.
+
+| File (`host/wireguard/`) | Live path |
+|---|---|
+| `peers.conf` | `/etc/wireguard/peers.conf`: one line per device, `<name> <10.8.0.x>` |
+| `pve-vpn`, `vpn-qr` | `/usr/local/sbin/`: `pve-vpn render` writes `wg0.conf` (keys made on the host, 600, never in git); `vpn-qr <name>` prints a device's QR code |
+| `nftables-wg.nft`, `pve-wg-firewall.service` | own nftables table `pve_wg`: forward wg0 → LAN only, masquerade |
+| `dnsmasq-vpn.conf`, `vpn-dns.service` | DNS for VPN clients on 10.8.0.1 |
+| `99-wireguard.conf` | `net.ipv4.ip_forward = 1` |
+
+Packages added to the host for it: `wireguard-tools qrencode dnsmasq-base` (installed by deploy.sh).
+A new device: add a line to `peers.conf`, PR, deploy, then on the phone/PC Termux:
+`ssh -t claude@192.168.0.220 sudo vpn-qr <name>` and scan it in the WireGuard app.
 
 ## Live target
 

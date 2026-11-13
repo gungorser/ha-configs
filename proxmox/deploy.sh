@@ -16,7 +16,17 @@ PREV=$STATE/prev
 FILES="storage.cfg:/etc/pve/storage.cfg
 claude-remote-control.service:/etc/systemd/system/claude-remote-control.service
 claude-work-mcp.json:/home/claude/work/.mcp.json
-claude-work-settings.json:/home/claude/work/.claude/settings.json"
+claude-work-settings.json:/home/claude/work/.claude/settings.json
+wireguard/peers.conf:/etc/wireguard/peers.conf
+wireguard/nftables-wg.nft:/etc/wireguard/nftables-wg.nft
+wireguard/dnsmasq-vpn.conf:/etc/wireguard/dnsmasq-vpn.conf
+wireguard/pve-wg-firewall.service:/etc/systemd/system/pve-wg-firewall.service
+wireguard/vpn-dns.service:/etc/systemd/system/vpn-dns.service
+wireguard/99-wireguard.conf:/etc/sysctl.d/99-wireguard.conf
+wireguard/pve-vpn:/usr/local/sbin/pve-vpn
+wireguard/vpn-qr:/usr/local/sbin/vpn-qr"
+# Host packages the VPN needs (the host stays minimal otherwise).
+VPN_PACKAGES="wireguard-tools qrencode dnsmasq-base"
 # uv/uvx for the claude user (runs the blender MCP server of .mcp.json), pinned with its sha256.
 UV_VERSION=0.13.4
 UV_SHA256=2b428396f12572d4429cf210ca234dd599a33b3af0958a4d5ed569d63e3f344f
@@ -54,8 +64,26 @@ install_uv() {
   rm -rf "$tmp"
 }
 
+# WireGuard VPN (wg0, UDP 51820): packages, routing, keys/config, units.
+vpn() {
+  local missing p
+  missing=$(for p in $VPN_PACKAGES; do dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'ok installed' || echo "$p"; done)
+  if [ -n "$missing" ]; then
+    # shellcheck disable=SC2086  # word splitting of the package list is intended
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -q $missing >/dev/null && echo "installed $missing"
+  fi
+  chmod 755 /usr/local/sbin/pve-vpn /usr/local/sbin/vpn-qr
+  chmod 700 /etc/wireguard
+  sysctl -q -p /etc/sysctl.d/99-wireguard.conf
+  /usr/local/sbin/pve-vpn render
+  systemctl daemon-reload
+  systemctl enable -q --now pve-wg-firewall.service wg-quick@wg0.service vpn-dns.service
+  systemctl restart pve-wg-firewall.service vpn-dns.service
+}
+
 after() {
   install_uv
+  [ -f /etc/wireguard/peers.conf ] && vpn
   systemctl daemon-reload
   # The unit is not restarted here: it runs the Claude session doing this deploy.
   systemctl enable claude-remote-control.service >/dev/null 2>&1
