@@ -20,7 +20,7 @@ this repo, NAS and service data live on four thin LVs that belong to no VM.
 | VM | vCPU (cpuunits) | RAM min-max (shares) | Disk | MAC | IP | Boot |
 |---|---|---|---|---|---|---|
 | 110 docker | 4 (1024) | 6-12 GB (1000) | 32G + NAS disks `scsi1-4` [+ SSD2 `scsi5`] | `02:00:C0:A8:00:DE` | 192.168.0.222 static (cloud-init) | order 1 |
-| 100 haos | 4 (2048) | 4-8 GB (2000) | 32G | `02:00:C0:A8:00:DD` | 192.168.0.221 (router DHCP reservation on the MAC) | order 2, up 30 |
+| 100 haos | 4 (2048) | 4-8 GB (2000) | 32G + Zigbee dongle `usb0` | `02:00:C0:A8:00:DD` | 192.168.0.221 static (set in HAOS) | onboot 1, order 2, up 30 |
 
 NAS disks (thin LVs in `pve/data`, grown with `lvextend` + `resize2fs` at 80 %):
 
@@ -33,6 +33,18 @@ NAS disks (thin LVs in `pve/data`, grown with `lvextend` + `resize2fs` at 80 %):
 
 `nas-backup` on the same SSD guards against mistakes, not a disk failure: it moves to SSD2 once
 that disk is fitted.
+
+HA runs on VM 100 since 2026-11-13 (cutover from the Pi; the Pi stays off as the fallback, never
+both on: same address). Lessons from the cutover, for a rebuild:
+- HAOS 18.x onboarding listens on port 80 (8123 redirects there); `/api/onboarding/backup/upload`
+  takes a backup from the NAS without auth, but the onboarding page only offers a file upload,
+  not the backups already present. Restore an uploaded one with
+  `POST /api/onboarding/backup/restore` (backup_id, agent_id `hassio.local`, the encryption key
+  typed by Sercan, the add-ons to keep, folders `ssl`).
+- A fresh VM gets a DHCP address first; set the static .221 afterwards with
+  `qm guest exec 100 -- ha network update enp6s18 --ipv4-method static --ipv4-address 192.168.0.221/24 --ipv4-gateway 192.168.0.1 --ipv4-nameserver 192.168.0.1`.
+- After the restore, restart Mosquitto before Zigbee2MQTT (Z2M got "Not authorized" first) and
+  reload the MQTT config entry.
 
 ## Live target
 
