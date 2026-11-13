@@ -21,10 +21,10 @@ SMB3 only, encryption when the client supports it.
   creates matching local accounts (no login). Service accounts: `ha-backup` (uid 10100, SMB only)
   and `paperless` (uid 8003, the scan inbox owner).
 - SMB cannot check LLDAP passwords (LLDAP keeps no NT hashes; its Samba integration is still open
-  upstream), so each person has a separate NAS password in Samba's passdb
-  (`/srv/data/nas/samba`). Set it with `ssh -t sercan@192.168.0.222 sudo set-smb-password <user>`
-  (silent prompt, 12+ characters). A user without one cannot log in to the shares.
-- Change passwords only with `sudo set-password <user>`: one prompt sets the LLDAP and the NAS
+  upstream), so Samba keeps its own copy in its passdb (`/srv/data/nas/samba`). A user without one
+  cannot log in to the shares.
+- Change passwords only with `ssh -t sercan@192.168.0.222 sudo set-password <user>`
+  (silent prompt, twice, 12+ characters): one prompt sets the LLDAP and the NAS
   password together, so a person has one password (a change in the LLDAP web UI would not reach
   Samba). `set-ldap-password` and `set-smb-password` hand people over to it; `set-smb-password`
   alone is only for service accounts without LLDAP login (`ha-backup`).
@@ -38,7 +38,7 @@ by digest + Debian's samba), `/srv/data/nas` (accounts, passdb), the folders abo
 
 `nas/deploy.sh <mode>` on the Proxmox host as `claude` (shared `docker-host/stack.sh`). Deploy
 `auth` first (the account lists come from it). A new person: add them in
-`auth/lldap-bootstrap`, deploy auth and nas, then `set-smb-password`.
+`auth/lldap-bootstrap`, deploy auth and nas, then `set-password <user>`.
 
 ## Check
 
