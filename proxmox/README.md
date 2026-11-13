@@ -109,7 +109,8 @@ created on the first login; LLDAP groups become `<group>-authelia` on each login
 `admin-authelia` has Administrator on `/`. `root@pam` (password) stays the break-glass login and
 `claude` stays local. The client secret comes from the docker VM (`/opt/secrets/oidc/proxmox.secret`,
 auth area) over the claude user's SSH; Proxmox stores it in `/etc/pve/domains.cfg`, which is
-therefore not a repo file. Deploy `auth` before this area.
+therefore not a repo file. Deploy `auth` before this area. `rollback` does not remove the realm,
+group or ACL (they live in `/etc/pve`); `pveum realm delete authelia` removes the realm by hand.
 
 ## Check
 

@@ -145,8 +145,8 @@ identity_providers:
           - https://foto.gungors.duckdns.org/user-settings
           - app.immich:///oauth-callback
       # Proxmox VE (OpenID realm `authelia`, proxmox area: pve-realm). Admins only (policy admin).
-      # Proxmox sends its page origin as redirect URI, without a path. PKCE is not required: the
-      # Proxmox client may not send it; the confidential secret protects the code exchange.
+      # Proxmox sends its page origin as redirect URI, without a path. PKCE is not enforced (the
+      # confidential secret protects the code exchange); Proxmox sends it anyway.
       - client_id: proxmox
         client_name: Proxmox
         client_secret: {{ secret "/secrets/oidc_proxmox.digest" | msquote }}
