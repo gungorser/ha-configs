@@ -2,6 +2,7 @@
 # WireGuard VPN on the Proxmox host (proxmox area; installed to /usr/local/sbin by deploy.sh).
 #   pve-vpn render        write /etc/wireguard/wg0.conf from peers.conf, making missing keys
 #   pve-vpn qr <name>     show a peer's client config as a QR code (for the WireGuard app)
+#   pve-vpn conf <name>   print the same client config as text (import as a file on the phone itself)
 #   pve-vpn status        wg show
 # Keys live in /etc/wireguard (700 root): server.key, peers/<name>.key|.pub. Never in git or chat.
 set -euo pipefail
@@ -32,18 +33,20 @@ case "${1:-status}" in
     if ip link show wg0 >/dev/null 2>&1; then wg syncconf wg0 <(wg-quick strip wg0); fi
     echo "wg0.conf: $(peers | wc -l) peer(s)"
     ;;
-  qr)
-    name=${2:?usage: pve-vpn qr <name>}
+  qr|conf)
+    name=${2:?usage: pve-vpn qr|conf <name>}
     addr=$(peers | awk -v n="$name" '$1 == n {print $2}')
     if [ -z "$addr" ] || [ ! -s "$D/peers/$name.key" ]; then
       echo "unknown peer $name (peers.conf + render)"; exit 1
     fi
     printf '[Interface]\nPrivateKey = %s\nAddress = %s/32\nDNS = 10.8.0.1\n\n[Peer]\nPublicKey = %s\nEndpoint = %s\nAllowedIPs = %s\nPersistentKeepalive = 25\n' \
-      "$(cat "$D/peers/$name.key")" "$addr" "$(cat "$D/server.pub")" "$ENDPOINT" "$ALLOWED" | qrencode -t ansiutf8
+      "$(cat "$D/peers/$name.key")" "$addr" "$(cat "$D/server.pub")" "$ENDPOINT" "$ALLOWED" > "$D/.client.$$"
+    if [ "$1" = conf ]; then cat "$D/.client.$$"; rm -f "$D/.client.$$"; exit 0; fi
+    qrencode -t ansiutf8 < "$D/.client.$$"; rm -f "$D/.client.$$"
     echo "WireGuard app: + → Scan from QR code, name it $name."
     ;;
   status)
     wg show
     ;;
-  *) echo "usage: pve-vpn render | qr <name> | status"; exit 1 ;;
+  *) echo "usage: pve-vpn render | qr <name> | conf <name> | status"; exit 1 ;;
 esac

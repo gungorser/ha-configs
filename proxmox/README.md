@@ -65,6 +65,9 @@ masqueraded as 192.168.0.220 (so NPM's lan-only and Proxmox see a LAN address), 
 Packages added to the host for it: `wireguard-tools qrencode dnsmasq-base` (installed by deploy.sh).
 A new device: add a line to `peers.conf`, PR, deploy, then on the phone/PC Termux:
 `ssh -t claude@192.168.0.220 sudo vpn-qr <name>` and scan it in the WireGuard app.
+On the phone itself (Termux, after `termux-setup-storage`):
+`ssh claude@192.168.0.220 sudo pve-vpn conf <name> > ~/storage/downloads/<name>.conf`, then WireGuard app
+**+ → Import from file or archive**, and delete the file afterwards (it holds the private key).
 
 ## Live target
 
