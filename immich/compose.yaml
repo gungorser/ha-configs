@@ -64,7 +64,7 @@ services:
   immich-database:
     <<: *low-priority
     image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
-    mem_limit: 512m
+    mem_limit: 1g   # 512m is OOM-killed while the first start loads the geodata (tested)
     env_file: /opt/secrets/immich.env   # POSTGRES_PASSWORD
     environment:
       POSTGRES_USER: postgres
