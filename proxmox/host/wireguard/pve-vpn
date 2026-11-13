@@ -35,7 +35,9 @@ case "${1:-status}" in
   qr)
     name=${2:?usage: pve-vpn qr <name>}
     addr=$(peers | awk -v n="$name" '$1 == n {print $2}')
-    [ -n "$addr" ] && [ -s "$D/peers/$name.key" ] || { echo "unknown peer $name (peers.conf + render)"; exit 1; }
+    if [ -z "$addr" ] || [ ! -s "$D/peers/$name.key" ]; then
+      echo "unknown peer $name (peers.conf + render)"; exit 1
+    fi
     printf '[Interface]\nPrivateKey = %s\nAddress = %s/32\nDNS = 10.8.0.1\n\n[Peer]\nPublicKey = %s\nEndpoint = %s\nAllowedIPs = %s\nPersistentKeepalive = 25\n' \
       "$(cat "$D/peers/$name.key")" "$addr" "$(cat "$D/server.pub")" "$ENDPOINT" "$ALLOWED" | qrencode -t ansiutf8
     echo "WireGuard app: + → Scan from QR code, name it $name."
