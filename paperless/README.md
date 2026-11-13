@@ -7,13 +7,14 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 |---|---|
 | `compose.yaml` | `paperless` (pinned 3.4.2; the add-on's 2.20.15 data was imported first, then upgraded), `db` (Postgres), `broker` (Redis), `paperless-gpt` (profile `gpt`) |
 | `hook.sh` | Secrets, folders, Paperless groups; `share-all` after an import |
+| `authelia_auth/` | Django auth backend (mounted, `PAPERLESS_APPS`): password logins checked against Authelia |
 
 - Data: `/srv/data/paperless/{data,pgdata,redis,gpt}` (nas-data). Documents:
   `/srv/nas/dokuman/paperless/{media,consume,export}` (nas-dokuman). Consume folder recursive,
   polled every 60 s, duplicates rejected, an archive PDF always kept (as on the add-on), filename format `{{ created_year }}/{{ correspondent }}/{{ title }}`, OCR
   `nld+eng+tur` (as on the add-on). No Tika/Gotenberg (the add-on had none).
 - Web: `https://paperless.gungors.duckdns.org` through NPM (`paperless:8000` on the `proxy`
-  network), no forward-auth: apps use API tokens.
+  network), no forward-auth: phone apps talk to the bare API.
 
 ### Users: LLDAP through Authelia
 
@@ -21,6 +22,13 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
   created on the first login with the LLDAP username; LLDAP groups `admin` and `aile` are synced
   into the Paperless groups of the same name, which `hook.sh` keeps: `admin` has every permission,
   `aile` every document permission (no users/groups admin).
+- Password logins use the LLDAP password: `authelia_auth` (after Paperless' own backends) sends
+  username and password to Authelia's `/api/firstfactor` (through NPM, `extra_hosts`), so
+  Authelia's regulation (ban after 5 failures in 10 min) applies. It accepts only users that
+  already exist and are linked to the `authelia` OIDC provider: an account is still made by its first
+  web login. Covers `/api/token/` and HTTP Basic on the API (phone apps' password login) and the
+  local form. Mounted at `/usr/src/paperless/ext` with `PYTHONPATH`, outside `src/` (the image
+  compiles `src/` at start and fails on a read-only mount). Nothing logs or stores a password.
 - No Paperless passwords for people. The imported local admin `gungorspapers` stays as the
   break-glass login (regular login stays enabled for it at
   `/accounts/login/?loggedout=1`; its password is Sercan's).
@@ -28,7 +36,9 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
   makes documents, tags, correspondents, types and storage paths unowned (custom fields have no owner), so every
   user with the group permissions sees them (simpler than per-object permissions; new documents
   from the consume folder are unowned anyway).
-- Phone apps: create an API token in the web UI (profile) and use it in the app.
+- Phone apps (e.g. PaperNext): server `https://paperless.gungors.duckdns.org`, password login
+  with the LLDAP username and password (or the app's web/OIDC login, or an API token from the
+  profile page).
 
 ### Secrets (never in git or chat)
 
