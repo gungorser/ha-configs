@@ -32,8 +32,6 @@ access_control:
     # Admin tools: admin group. Password only: 2FA is off by Sercan's decision (2026-11-12);
     # set these two rules back to two_factor to turn it on (the TOTP section stays configured).
     - domain:
-        - npm.gungors.duckdns.org
-        - users.gungors.duckdns.org
         - paperless-gpt.gungors.duckdns.org
       subject: ["group:admin"]
       policy: one_factor
