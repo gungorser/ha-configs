@@ -40,7 +40,7 @@ ship() {
 # Prints files in $LIVE that differ from the deployed tree ($S/current); returns 0 when none do.
 live_edits() {
   vm "sudo sh -c '[ -d $S/current ] || { echo \"not deployed by deploy.sh yet\"; exit 0; }
-    diff -r -x .deployed $S/current $LIVE'"
+    diff -r -x .deployed -x __pycache__ $S/current $LIVE'"
 }
 
 hook() {  # hook <tree dir on the VM> <args...>
