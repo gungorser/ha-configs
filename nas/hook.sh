@@ -45,6 +45,7 @@ PY
     install -d -m 2770 -o root -g "$AILE_GID" /srv/nas/dokuman/genel /srv/nas/foto
     install -d -m 750 -o "$PL_UID" -g "$PL_UID" /srv/nas/dokuman/paperless/consume
     install -m 755 set-smb-password /usr/local/sbin/set-smb-password
+    install -m 755 set-password /usr/local/sbin/set-password
     docker compose --project-directory . -f compose.yaml build -q
     ;;
   post)

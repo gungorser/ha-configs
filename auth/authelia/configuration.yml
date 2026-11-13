@@ -13,8 +13,10 @@ totp:
   issuer: gungors.duckdns.org
 
 authentication_backend:
+  # Off: a password changed through Authelia would reach LLDAP but not the NAS (Samba).
+  # Passwords are changed with set-password on the docker VM (nas area).
   password_reset:
-    disable: false
+    disable: true
   ldap:
     implementation: lldap
     address: ldap://lldap:3890
