@@ -41,7 +41,7 @@ services:
       PAPERLESS_ACCOUNT_ALLOW_SIGNUPS: "false"
       PAPERLESS_DISABLE_REGULAR_LOGIN: "false"   # break-glass: the imported local admin
       # The login page goes straight to Authelia; the local form stays reachable for the break-glass
-      # admin at /accounts/login/?loginRedirectChain=false.
+      # admin at /accounts/login/?loggedout=1.
       PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
     extra_hosts:
       # OIDC calls to Authelia go straight to NPM on this VM, not through the router.
