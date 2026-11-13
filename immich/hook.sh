@@ -4,7 +4,7 @@
 #   pre:  generates /opt/secrets/immich.env once (DB password), writes the settings file
 #         /opt/secrets/immich/immich.json = repo immich.json + the OIDC client secret from
 #         /opt/secrets/oidc/immich.secret (made by the auth area), prepares the folders.
-#   post: waits for Immich; on a fresh install creates the local break-glass admin
+#   post: restarts the server when the settings file changed, waits for Immich; on a fresh install creates the local break-glass admin
 #         (password in /opt/secrets/immich/admin.password, never shown).
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -44,6 +44,8 @@ cfg["oauth"]["clientSecret"] = open(sys.argv[1]).read().strip()
 print(json.dumps(cfg, indent=2, ensure_ascii=False))
 PY
     )
+    # Immich reads the settings file only at start: a changed file restarts the server in post.
+    if ! cmp -s "$SEC/immich.json.new" "$SEC/immich.json"; then touch "$SEC/.restart"; fi
     mv "$SEC/immich.json.new" "$SEC/immich.json"
     install -d -m 755 "$DATA"
     install -d -m 700 "$DATA/postgres" "$DATA/model-cache"
@@ -51,6 +53,10 @@ PY
     install -d -m 700 "$PHOTOS"
     ;;
   post)
+    if [ -e "$SEC/.restart" ]; then
+      docker restart "$SERVER" > /dev/null && echo "immich: settings changed, server restarted"
+      rm -f "$SEC/.restart"
+    fi
     for _ in $(seq 120); do
       [ "$(docker inspect -f '{{.State.Health.Status}}' "$SERVER" 2>/dev/null)" = healthy ] && break
       sleep 2
