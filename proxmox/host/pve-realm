@@ -1,0 +1,30 @@
+#!/bin/bash
+# Keeps the Proxmox login realm "authelia" (OpenID Connect, LLDAP users through Authelia) as the
+# repo describes it; run as root by deploy.sh. Users are created on their first login as
+# <username>@authelia; their LLDAP groups become PVE groups <group>-authelia on every login.
+# Group admin-authelia gets the Administrator role on /. root@pam stays the break-glass login.
+# The client secret is made by the auth area on the docker VM (/opt/secrets/oidc/proxmox.secret);
+# Proxmox keeps it in /etc/pve/domains.cfg (its own place for an OpenID client key).
+set -euo pipefail
+REALM=authelia
+ADMINS=admin-$REALM
+
+secret=$(sudo -u claude ssh -o BatchMode=yes sercan@192.168.0.222 sudo cat /opt/secrets/oidc/proxmox.secret 2>/dev/null) \
+  || { echo "pve-realm: no OIDC secret on the docker VM yet (deploy the auth area first); realm skipped"; exit 0; }
+
+opts=(--issuer-url https://auth.gungors.duckdns.org --client-id proxmox --client-key "$secret"
+      --scopes "openid email profile groups" --groups-claim groups --groups-autocreate 1
+      --groups-overwrite 1 --autocreate 1 --query-userinfo 1 --default 1
+      --comment "LLDAP users through Authelia")
+if pveum realm list --output-format json | grep -q "\"realm\":\"$REALM\""; then
+  pveum realm modify "$REALM" "${opts[@]}"
+  echo "pve-realm: realm $REALM updated"
+else
+  # username-claim is fixed once the realm exists: readable names (sercan@authelia), not UUIDs.
+  pveum realm add "$REALM" --type openid --username-claim preferred_username "${opts[@]}"
+  echo "pve-realm: realm $REALM added"
+fi
+pveum group list --output-format json | grep -q "\"groupid\":\"$ADMINS\"" \
+  || pveum group add "$ADMINS" --comment "LLDAP group admin (via Authelia)"
+pveum acl modify / --groups "$ADMINS" --roles Administrator
+echo "pve-realm: $ADMINS has Administrator on /"

@@ -24,7 +24,8 @@ wireguard/pve-wg-firewall.service:/etc/systemd/system/pve-wg-firewall.service
 wireguard/vpn-dns.service:/etc/systemd/system/vpn-dns.service
 wireguard/99-wireguard.conf:/etc/sysctl.d/99-wireguard.conf
 wireguard/pve-vpn:/usr/local/sbin/pve-vpn
-wireguard/vpn-qr:/usr/local/sbin/vpn-qr"
+wireguard/vpn-qr:/usr/local/sbin/vpn-qr
+pve-realm:/usr/local/sbin/pve-realm"
 # Host packages the VPN needs (the host stays minimal otherwise).
 VPN_PACKAGES="wireguard-tools qrencode dnsmasq-base"
 # uv/uvx for the claude user (runs the blender MCP server of .mcp.json), pinned with its sha256.
@@ -85,6 +86,7 @@ vpn() {
 after() {
   install_uv
   [ -f /etc/wireguard/peers.conf ] && vpn
+  chmod 755 /usr/local/sbin/pve-realm && /usr/local/sbin/pve-realm
   systemctl daemon-reload
   # The unit is not restarted here: it runs the Claude session doing this deploy.
   systemctl enable claude-remote-control.service >/dev/null 2>&1

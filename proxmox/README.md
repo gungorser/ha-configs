@@ -11,6 +11,7 @@ this repo, NAS and service data live on four thin LVs that belong to no VM.
 | `host/claude-work-mcp.json` | `/home/claude/work/.mcp.json`: MCP server `blender` (`uvx blender-mcp==2.0.0`, `BLENDER_HOST=192.168.0.222`, port 9876) for Claude Code |
 | `host/claude-work-settings.json` | `/home/claude/work/.claude/settings.json`: enables that server without a prompt |
 | `host/wireguard/` | WireGuard VPN (section below) |
+| `host/pve-realm` | `/usr/local/sbin/pve-realm`, run by `deploy.sh`: login realm `authelia` (OpenID, LLDAP users through Authelia, default realm), group `admin-authelia` = Administrator on `/` |
 | `host/interfaces` | `/etc/network/interfaces`, **reference only**, never deployed |
 | `nas-disks.sh` | Creates the NAS thin LVs (table below) if missing; never formats or resizes an existing one |
 | `docker-vm.sh` | VM 110 `docker`: Debian 13 cloud image, cloud-init, NAS disks attached as scsi1-4 |
@@ -99,6 +100,17 @@ Both VM scripts download and verify their image into `/var/lib/vz/import` and as
 are detached first and never deleted. `VMID=`, `NAME=`, `IP=`, `MAC=` and `NO_START=1` override
 the defaults for a test build (monthly test: `docker-vm.sh` with a spare id and IP, then delete it;
 give the test VM its own MAC and none of the NAS disks).
+
+### Login: realm `authelia`
+
+People log in with realm "authelia" (default), button "Login (OpenID redirect)": Authelia, then
+back. Only LLDAP group `admin` passes (Authelia policy `admin`). The user `<name>@authelia` is
+created on the first login; LLDAP groups become `<group>-authelia` on each login, and
+`admin-authelia` has Administrator on `/`. `root@pam` (password) stays the break-glass login and
+`claude` stays local. The client secret comes from the docker VM (`/opt/secrets/oidc/proxmox.secret`,
+auth area) over the claude user's SSH; Proxmox stores it in `/etc/pve/domains.cfg`, which is
+therefore not a repo file. Deploy `auth` before this area. `rollback` does not remove the realm,
+group or ACL (they live in `/etc/pve`); `pveum realm delete authelia` removes the realm by hand.
 
 ## Check
 
