@@ -30,8 +30,11 @@ and outside the house with the same address.
 - Phone app: server `https://foto.gungors.duckdns.org`, then "Authelia ile giriş" (redirect
   `app.immich:///oauth-callback`).
 - Break-glass: local admin `admin@gungors.duckdns.org` made by `hook.sh` on a fresh install;
-  password only in `/opt/secrets/immich/admin.password` (root). Password login stays enabled for it:
-  `https://foto.gungors.duckdns.org/auth/login?autoLaunch=0` shows the form.
+  password only in `/opt/secrets/immich/admin.password` (root). Password login is off (the phone
+  app would otherwise show an e-mail/password form above the Authelia button). Break-glass: set
+  `passwordLogin.enabled` true here and deploy (does not need Authelia), then log in at
+  `https://foto.gungors.duckdns.org/auth/login?autoLaunch=0`. `immich-admin enable-password-login`
+  does not work: settings are locked to the file.
 
 ### Secrets (never in git or chat)
 
