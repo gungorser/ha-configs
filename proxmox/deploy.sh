@@ -53,7 +53,8 @@ live_edits() {
 # Installs uv/uvx into ~claude/.local/bin when the pinned version is missing.
 install_uv() {
   local bin=/home/claude/.local/bin tmp
-  [ "$("$bin/uv" --version 2>/dev/null)" = "uv $UV_VERSION" ] && return 0
+  # `uv --version` prints "uv 0.13.4 (x86_64-unknown-linux-gnu)": compare the second word only.
+  [ "$("$bin/uv" --version 2>/dev/null | cut -d' ' -f2)" = "$UV_VERSION" ] && return 0
   tmp=$(mktemp -d)
   curl -fsSL "https://github.com/astral-sh/uv/releases/download/$UV_VERSION/uv-x86_64-unknown-linux-gnu.tar.gz" -o "$tmp/uv.tgz" &&
     echo "$UV_SHA256  $tmp/uv.tgz" | sha256sum -c --status &&
@@ -106,7 +107,8 @@ case "$MODE" in
     fi
     rm -rf "$PREV" && mkdir -p "$PREV" || exit 1
     while IFS=: read -r src dst; do
-      [ -f "$dst" ] && cp -p "$dst" "$PREV/$src"
+      # Sources may sit in subfolders (wireguard/...): create the matching folder under prev/.
+      [ -f "$dst" ] && mkdir -p "$(dirname "$PREV/$src")" && cp -p "$dst" "$PREV/$src"
       # A new folder under /home/claude belongs to claude (Claude Code writes next to its files).
       if [ ! -d "$(dirname "$dst")" ]; then
         case "$dst" in /home/claude/*) install -d -o claude -g claude "$(dirname "$dst")" ;; *) mkdir -p "$(dirname "$dst")" ;; esac
