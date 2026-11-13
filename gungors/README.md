@@ -29,3 +29,17 @@ without a reload. Run HA's config check before a restart. Dashboards only need a
 - Put anything but packages under `packages/`: `!include_dir_named` loads every `*.yaml` there, in
   subfolders too, as a package.
 - Edit files in `/config/gungors` live.
+
+## Login (HA side)
+
+- Authelia login is hass-openid (HACS `cavefire/hass-openid`, domain `openid`), configured in the UI
+  (Settings > Devices & services > OpenID, discovery `https://auth.gungors.duckdns.org/.well-known/openid-configuration`,
+  client `homeassistant-openid`, username field `preferred_username`, create users off, block other
+  login methods off). It links `sercan`/`melike` by username. The Android app opens the external
+  browser for Authelia, then returns to the app; HA's own username/password login stays as break-glass.
+- It replaced hass-oidc-auth (`packages/auth_oidc.yaml`, removed): both patch HA's `/auth/authorize` and
+  `/auth/login_flow`, so only one may be active. Rollback: restore `packages/auth_oidc.yaml` from git
+  (`git show <commit>^:gungors/packages/auth_oidc.yaml`), delete the OpenID config entry, remove
+  hass-openid in HACS, deploy gungors, restart HA.
+- hass-openid 1.4.0 breaks on HA 2026.11 (issue #97, PKCE code challenge not passed on); do not update
+  HA past 2026.10 until a fixed release (PR #91/#98) is out.
