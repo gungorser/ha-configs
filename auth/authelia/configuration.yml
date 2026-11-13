@@ -112,6 +112,22 @@ identity_providers:
         scopes: [openid, profile, groups]
         redirect_uris:
           - https://ha.gungors.duckdns.org/auth/oidc/callback
+      # Home Assistant via hass-openid (HACS cavefire/hass-openid, domain openid; UI config flow).
+      # Confidential: secret made by hook.sh, entered into HA's config flow (never in git). Family only
+      # (policy aile); HA roles stay on the HA users it links by username (sercan, melike).
+      # Redirect: the web login and the Android app's external-browser login both use it.
+      - client_id: homeassistant-openid
+        client_name: Home Assistant
+        client_secret: {{ secret "/secrets/oidc_homeassistant-openid.digest" | msquote }}
+        public: false
+        require_pkce: true
+        pkce_challenge_method: S256
+        token_endpoint_auth_method: client_secret_basic
+        authorization_policy: aile
+        consent_mode: implicit
+        scopes: [openid, profile, email]
+        redirect_uris:
+          - https://ha.gungors.duckdns.org/auth/openid/callback
       # Paperless-ngx (django-allauth openid_connect, provider id authelia). Confidential: the
       # secret's digest comes from the file hook.sh writes; the plain secret only reaches Paperless.
       - client_id: paperless

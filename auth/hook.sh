@@ -82,6 +82,7 @@ case "${1:-status}" in
     oidc_client paperless
     oidc_client immich
     oidc_client proxmox
+    oidc_client homeassistant-openid
     # LLDAP bootstrap folder: the repo lists plus the Authelia service user (with its password).
     rm -rf "$SEC/bootstrap.new" && cp -a lldap-bootstrap "$SEC/bootstrap.new"
     printf '{"id": "authelia", "email": "authelia@gungors.duckdns.org", "displayName": "Authelia (service)", "groups": ["lldap_password_manager"], "password": "%s"}\n' \
