@@ -43,7 +43,12 @@ views:
   - title: Kamera
     path: kamera
     cards:
-      - type: custom:webrtc-camera
+      # Native live view (go2rtc / HA WebRTC); the WebRTC Camera custom integration was removed.
+      - type: picture-entity
         entity: camera.backyard
-      - type: custom:webrtc-camera
+        camera_view: live
+        show_state: false
+      - type: picture-entity
         entity: camera.doorbell
+        camera_view: live
+        show_state: false
