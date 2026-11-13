@@ -13,7 +13,7 @@
     "storageLabelClaim": "preferred_username",
     "buttonText": "Authelia ile giriş",
     "autoRegister": true,
-    "autoLaunch": false,
+    "autoLaunch": true,
     "mobileOverrideEnabled": false
   },
   "passwordLogin": {

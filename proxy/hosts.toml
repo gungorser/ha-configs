@@ -37,7 +37,7 @@ live = true              # served by the Pi's NPM until the router switch (2026-
 domain = "npm.gungors.duckdns.org"
 forward = "http://npm:81"
 access = "lan"
-auth = "none"            # Authelia gate once the auth area exists
+auth = "none"            # NPM's own login (its own accounts); LAN only
 live = true
 
 [[host]]
@@ -84,7 +84,7 @@ live = true
 domain = "users.gungors.duckdns.org"
 forward = "http://lldap:17170"
 access = "lan"
-auth = "authelia"        # admin group, 2FA; then LLDAP's own login
+auth = "none"            # LLDAP's own login only (same LLDAP password; Authelia in front asked it twice)
 live = true
 
 [[host]]

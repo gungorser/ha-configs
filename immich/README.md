@@ -24,13 +24,14 @@ and outside the house with the same address.
 
 ### Users: LLDAP through Authelia
 
-- "Authelia ile giriş" (OIDC client `immich`, auth area). Only group `aile` may log in. The
+- The web login page goes straight to Authelia (`autoLaunch`). OIDC client `immich`, auth area. Only group `aile` may log in. The
   account is created on the first login (e-mail from LLDAP, storage label = username); the
   claim `immich_role` makes LLDAP `admin` members Immich admins.
 - Phone app: server `https://foto.gungors.duckdns.org`, then "Authelia ile giriş" (redirect
   `app.immich:///oauth-callback`).
 - Break-glass: local admin `admin@gungors.duckdns.org` made by `hook.sh` on a fresh install;
-  password only in `/opt/secrets/immich/admin.password` (root). Password login stays enabled for it.
+  password only in `/opt/secrets/immich/admin.password` (root). Password login stays enabled for it:
+  `https://foto.gungors.duckdns.org/auth/login?autoLaunch=0` shows the form.
 
 ### Secrets (never in git or chat)
 

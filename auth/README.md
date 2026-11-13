@@ -14,7 +14,7 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 
 | Group | Members | Access |
 |---|---|---|
-| `admin` | sercan | everything; NPM, LLDAP UI, paperless-gpt behind Authelia (password only) |
+| `admin` | sercan | everything; paperless-gpt behind Authelia (password only); NPM and the LLDAP UI use their own login, LAN only |
 | `aile` | sercan, melike | HA, Immich, Paperless, NAS (shares `foto`, `dokuman`) |
 | `misafir` | misafir | only what HA gives the guest |
 | `lldap_admin` | sercan | manages users in the LLDAP UI |
@@ -73,7 +73,6 @@ Order matters on a fresh VM: proxy first (it creates the `proxy` network), then 
 
 - `auth/deploy.sh status`: both containers running, LLDAP healthy.
 - `curl -s https://auth.gungors.duckdns.org/api/health` from the house: `{"status":"OK"}`.
-- `https://users.gungors.duckdns.org` without a session redirects (302) to the portal.
 - A first-factor login against `/api/firstfactor` works (LDAP bind and user search).
 
 ## Rollback
