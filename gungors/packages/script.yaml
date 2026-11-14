@@ -127,8 +127,12 @@ script:
           media_content_type: image
         response_variable: content
       - variables:
+          # children are BrowseMedia objects: copy the two fields into plain dicts
           photos: >-
-            {{ content[player].children | selectattr('media_class', 'eq', 'image') | list }}
+            {% set ns = namespace(l=[]) %}
+            {% for c in content[player].children if c.media_class == 'image' %}
+              {% set ns.l = ns.l + [{'id': c.media_content_id, 'type': c.media_content_type}] %}
+            {% endfor %}{{ ns.l }}
       - if: "{{ photos | count == 0 }}"
         then:
           - stop: No photos in the album
@@ -143,8 +147,8 @@ script:
                     target:
                       entity_id: "{{ player }}"
                     data:
-                      media_content_id: "{{ repeat.item.media_content_id }}"
-                      media_content_type: "{{ repeat.item.media_content_type }}"
+                      media_content_id: "{{ repeat.item.id }}"
+                      media_content_type: "{{ repeat.item.type }}"
                   - delay:
                       seconds: "{{ interval }}"
                   # Someone switched the TV to another app or off meanwhile: end the show.
