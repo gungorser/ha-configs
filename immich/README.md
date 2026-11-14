@@ -17,8 +17,10 @@ and outside the house with the same address.
   database must be on a local disk).
 - Priority (plan doc: HA > services > Immich): all four containers on cores 2-3, `cpu_shares`
   256, `oom_score_adj` 500, memory limits server 2 GB, ML 3 GB (2 GB was OOM-killed during the first bulk upload), Postgres 1 GB (512 MB is OOM-killed on the first start), Valkey 128 MB;
-  job concurrency 1-2. Models unload after 5 idle minutes. The first scan of a full phone can take
-  days; photos show at once, faces and smart search follow.
+  server and ML each capped at 1 CPU (`cpus: 1.0`, since the host hung during bulk processing on
+  2026-11-14), every job concurrency 1, ffmpeg 1 thread, ML 1 request thread: Immich's work spreads
+  over time instead of loading the host. Models unload after 5 idle minutes. The first scan of a full
+  phone can take days; photos show at once, faces and smart search follow.
 - Web: NPM `foto` host -> `immich-server:2283` (proxy area), public, unlimited body size, no
   forward-auth (the phone app needs the bare API).
 
