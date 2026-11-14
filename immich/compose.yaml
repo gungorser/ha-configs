@@ -3,8 +3,9 @@
 # service names prefixed (only immich-server joins the shared `proxy` network, NPM forwards to
 # immich-server:2283), no published ports, data paths fixed, settings from immich.json (hook.sh
 # adds the OIDC secret and writes it to /opt/secrets/immich/immich.json), and the lowest priority
-# on the VM: all four on cores 2-3, cpu_shares 256, memory limits, oom_score_adj 500 (HA and the
-# other services win). Photos on the nas-foto disk, database and caches on nas-data.
+# on the VM: all four on cores 2-3, cpu_shares 256, server and ML capped at 1 CPU each, memory
+# limits, oom_score_adj 500 (HA and the other services win). Photos on the nas-foto disk, database
+# and caches on nas-data.
 name: immich
 
 x-low-priority: &low-priority
@@ -18,6 +19,7 @@ services:
     <<: *low-priority
     image: ghcr.io/immich-app/immich-server:v3.3.5@sha256:485d546a2e31d6a8b4db8423fcba5c109de8c218d93410af115fd1ccfc4352a6
     mem_limit: 2g
+    cpus: 1.0   # hard cap (14 Nov host hang during bulk processing): work spreads over time
     depends_on: [immich-redis, immich-database]
     env_file: /opt/secrets/immich.env   # DB_PASSWORD
     environment:
@@ -44,10 +46,11 @@ services:
     <<: *low-priority
     image: ghcr.io/immich-app/immich-machine-learning:v3.3.5@sha256:5b28c9352c8374b8a1ed96fbdd8d6755fea6e43510ec43fdf6538aa02ea40f56
     mem_limit: 3g   # search, face and OCR models together hit 2g during the first bulk upload (OOM)
+    cpus: 1.0       # hard cap, as immich-server
     environment:
       TZ: Europe/Amsterdam
       MACHINE_LEARNING_WORKERS: "1"
-      MACHINE_LEARNING_REQUEST_THREADS: "2"
+      MACHINE_LEARNING_REQUEST_THREADS: "1"
       MACHINE_LEARNING_MODEL_TTL: "300"   # unload models after 5 idle minutes (frees RAM)
     volumes:
       - /srv/data/immich/model-cache:/cache

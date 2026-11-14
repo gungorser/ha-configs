@@ -25,14 +25,14 @@
     "template": "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}"
   },
   "job": {
-    "thumbnailGeneration": { "concurrency": 2 },
+    "thumbnailGeneration": { "concurrency": 1 },
     "smartSearch": { "concurrency": 1 },
     "faceDetection": { "concurrency": 1 },
     "videoConversion": { "concurrency": 1 },
-    "metadataExtraction": { "concurrency": 2 }
+    "metadataExtraction": { "concurrency": 1 }
   },
   "ffmpeg": {
     "preset": "faster",
-    "threads": 2
+    "threads": 1
   }
 }
