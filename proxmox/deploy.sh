@@ -25,9 +25,13 @@ wireguard/vpn-dns.service:/etc/systemd/system/vpn-dns.service
 wireguard/99-wireguard.conf:/etc/sysctl.d/99-wireguard.conf
 wireguard/pve-vpn:/usr/local/sbin/pve-vpn
 wireguard/vpn-qr:/usr/local/sbin/vpn-qr
-pve-realm:/usr/local/sbin/pve-realm"
+pve-realm:/usr/local/sbin/pve-realm
+glances/glances-api.service:/etc/systemd/system/glances-api.service
+glances/drivetemp.conf:/etc/modules-load.d/drivetemp.conf"
 # Host packages the VPN needs (the host stays minimal otherwise).
 VPN_PACKAGES="wireguard-tools qrencode dnsmasq-base"
+# Glances REST API for Home Assistant (no recommends: the full set pulls in ~150 packages).
+GLANCES_PACKAGES="glances python3-uvicorn python3-jinja2 lm-sensors"
 # uv/uvx for the claude user (runs the blender MCP server of .mcp.json), pinned with its sha256.
 UV_VERSION=0.13.4
 UV_SHA256=2b428396f12572d4429cf210ca234dd599a33b3af0958a4d5ed569d63e3f344f
@@ -83,10 +87,22 @@ vpn() {
   systemctl restart pve-wg-firewall.service vpn-dns.service
 }
 
+glances_api() {
+  missing=$(for p in $GLANCES_PACKAGES; do dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'ok installed' || echo "$p"; done)
+  [ -z "$missing" ] || DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends $missing >/dev/null || return 1
+  modprobe drivetemp 2>/dev/null
+  # Debian's own glances.service (XML-RPC server as root) is not used.
+  systemctl disable --now glances.service >/dev/null 2>&1
+  systemctl daemon-reload
+  systemctl enable glances-api.service >/dev/null 2>&1
+  systemctl restart glances-api.service && echo "glances: REST API on :61208 (HA VM only)"
+}
+
 after() {
   install_uv
   [ -f /etc/wireguard/peers.conf ] && vpn
   chmod 755 /usr/local/sbin/pve-realm && /usr/local/sbin/pve-realm
+  glances_api
   systemctl daemon-reload
   # The unit is not restarted here: it runs the Claude session doing this deploy.
   systemctl enable claude-remote-control.service >/dev/null 2>&1

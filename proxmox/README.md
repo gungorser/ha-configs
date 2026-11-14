@@ -9,6 +9,8 @@ this repo, NAS and service data live on four thin LVs that belong to no VM.
 | `host/storage.cfg` | `/etc/pve/storage.cfg`: `local` (ISOs, images, snippets) and `local-lvm` (thin pool `pve/data`) |
 | `host/claude-remote-control.service` | Claude Code Remote Control as a systemd unit (user `claude`) |
 | `host/claude-work-mcp.json` | `/home/claude/work/.mcp.json`: MCP server `blender` (`uvx blender-mcp==2.0.0`, `BLENDER_HOST=192.168.0.222`, port 9876) for Claude Code |
+| `host/glances/glances-api.service` | `/etc/systemd/system/`: Glances REST API on :61208 for HA's Glances integration "Proxmox" (CPU/SSD temperatures, load, memory, swap, disks); API only, user `glances`, light plugins, systemd IP allowlist: HA VM 192.168.0.221 and localhost only. Packages `glances python3-uvicorn python3-jinja2 lm-sensors` without recommends; Debian's own `glances.service` is disabled |
+| `host/glances/drivetemp.conf` | `/etc/modules-load.d/`: loads `drivetemp` so the SATA SSD temperature is a sensor |
 | `host/claude-work-settings.json` | `/home/claude/work/.claude/settings.json`: enables that server without a prompt |
 | `host/wireguard/` | WireGuard VPN (section below) |
 | `host/pve-realm` | `/usr/local/sbin/pve-realm`, run by `deploy.sh`: login realm `authelia` (OpenID, LLDAP users through Authelia, default realm), group `admin-authelia` = Administrator on `/` |
@@ -113,6 +115,7 @@ therefore not a repo file. Deploy `auth` before this area. `rollback` does not r
 group or ACL (they live in `/etc/pve`); `pveum realm delete authelia` removes the realm by hand.
 
 ## Check
+- `systemctl is-active glances-api`; HA sensors `sensor.192_168_0_220_package_id_0_temperature`, `..._drivetemp_0_temperature`, `..._cpu_load` have values.
 
 - `sudo proxmox/deploy.sh status`: deployed commit = master, no live edits, no `interfaces` diff.
 - `qm config 110` / `qm config 100` match the table above; `qm agent <id> ping` answers.

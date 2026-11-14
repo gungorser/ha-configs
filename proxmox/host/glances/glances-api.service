@@ -1,0 +1,23 @@
+# Glances REST API for Home Assistant's Glances integration ("Proxmox"): host CPU/SSD temperatures,
+# load, memory, swap, disks, network. API only (no web UI), as the unprivileged glances user, with
+# only the light plugins. Reachable only from the HA VM (192.168.0.221) and localhost: systemd's
+# IP allowlist below (BPF), so LAN, VPN and internet clients get no answer on port 61208.
+[Unit]
+Description=Glances REST API (Home Assistant sensors)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=glances
+ExecStart=/usr/bin/glances -w --disable-webui -B 0.0.0.0 -p 61208 -t 10 \
+  --disable-plugin all \
+  --enable-plugin cpu,percpu,core,load,mem,memswap,fs,diskio,network,sensors,system,uptime,quicklook
+IPAddressDeny=any
+IPAddressAllow=localhost 192.168.0.221
+Restart=on-failure
+RestartSec=10
+MemoryMax=200M
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
