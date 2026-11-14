@@ -54,3 +54,102 @@ script:
           message: clear_notification
           data:
             tag: telefon_caldir
+
+  # --- photos ------------------------------------------------------------------------------------
+  # Slideshow of an Immich album on a Cast TV: the Immich integration's media source is browsed by
+  # album name (Sercan's library), its photos (videos skipped) are cast one by one, and it loops
+  # until the script is stopped or the TV leaves the Cast media receiver (Netflix, YouTube, off).
+  slayt_gosterisi:
+    alias: Slayt gösterisi
+    description: Shows the photos of an Immich album one by one on a Cast TV until stopped.
+    icon: mdi:image-multiple
+    mode: restart
+    fields:
+      album:
+        name: Albüm
+        description: Immich album name (as in Immich, case does not matter)
+        example: kaan
+        required: true
+        selector:
+          text:
+      player:
+        name: TV
+        description: Cast media player
+        default: media_player.gungors_tv_6
+        selector:
+          entity:
+            filter:
+              integration: cast
+              domain: media_player
+      interval:
+        name: Süre
+        description: Seconds per photo
+        default: 10
+        selector:
+          number:
+            min: 3
+            max: 300
+            unit_of_measurement: s
+      shuffle:
+        name: Karışık
+        description: Random order (new order every round)
+        default: true
+        selector:
+          boolean:
+    sequence:
+      - variables:
+          player: "{{ player | default('media_player.gungors_tv_6', true) }}"
+          interval: "{{ interval | default(10, true) | int(10) }}"
+          shuffle: "{{ shuffle | default(true) | bool(true) }}"
+          albums_id: media-source://immich/18ac1fa0-0462-47ec-85f8-0bc9f4f2cd29|albums
+      - action: media_player.browse_media
+        target:
+          entity_id: "{{ player }}"
+        data:
+          media_content_id: "{{ albums_id }}"
+          media_content_type: image
+        response_variable: albums
+      - variables:
+          album_id: >-
+            {% set ns = namespace(id='') %}
+            {% for c in albums[player].children if ns.id == '' and c.title | lower == album | trim | lower %}
+              {% set ns.id = c.media_content_id %}
+            {% endfor %}{{ ns.id }}
+      - if: "{{ album_id == '' }}"
+        then:
+          - stop: Album not found
+            error: true
+      - action: media_player.browse_media
+        target:
+          entity_id: "{{ player }}"
+        data:
+          media_content_id: "{{ album_id }}"
+          media_content_type: image
+        response_variable: content
+      - variables:
+          photos: >-
+            {{ content[player].children | selectattr('media_class', 'eq', 'image') | list }}
+      - if: "{{ photos | count == 0 }}"
+        then:
+          - stop: No photos in the album
+            error: true
+      - repeat:
+          while: "{{ true }}"
+          sequence:
+            - repeat:
+                for_each: "{{ photos | shuffle if shuffle else photos }}"
+                sequence:
+                  - action: media_player.play_media
+                    target:
+                      entity_id: "{{ player }}"
+                    data:
+                      media_content_id: "{{ repeat.item.media_content_id }}"
+                      media_content_type: "{{ repeat.item.media_content_type }}"
+                  - delay:
+                      seconds: "{{ interval }}"
+                  # Someone switched the TV to another app or off meanwhile: end the show.
+                  - if: >-
+                      {{ state_attr(player, 'app_id') != 'CC1AD845'
+                         or states(player) in ['off', 'unavailable'] }}
+                    then:
+                      - stop: TV left the slideshow
