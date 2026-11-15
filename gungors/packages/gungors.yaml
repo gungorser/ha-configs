@@ -33,6 +33,7 @@ gungors:
     owner: sercan          # owns the shared albums; melike is an editor
     people:                # person name in Immich -> album
       Kaan: Kaan
+    share_albums: true     # every own album (also by hand / phone app) shared with the others
     trips:                 # home = zone.home
       distance_km: 50
       detail: {turkey: state, turkiye: state, netherlands: city}   # else the country's name
