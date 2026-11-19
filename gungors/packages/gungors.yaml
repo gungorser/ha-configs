@@ -43,3 +43,7 @@ gungors:
     faceless:              # new uploads only; never videos
       album: check_before_delete
       wait_hours: 24
+    partou:                # daycare photos -> monthly albums kaan_partou_<ay>_<yil>
+      username: !secret partou_email
+      password: !secret partou_password
+      after: "18:00"       # once a day from this local time; also on button.immich_sync
