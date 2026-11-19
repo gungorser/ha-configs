@@ -38,6 +38,7 @@ gungors:
       distance_km: 50
       detail: {turkey: state, turkiye: state, netherlands: city}   # else the country's name
       names: {}            # country -> album name, over the built-in Turkish names
+      min_days: {netherlands: 2}   # day trips inside the Netherlands are no trips
     faceless:              # new uploads only; never videos
       album: check_before_delete
       wait_hours: 24
