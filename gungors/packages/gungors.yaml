@@ -1,49 +1,7 @@
-# gungors: every `gungors:` entry of the gungors packages, one section per topic.
-
-gungors:
-  # --- presets -----------------------------------------------------------------------------------
-  # Presets: named attribute sets per domain, shared by the program defaults and the pushbuttons
-  # (ha-integrations README, Presets). Change them here, then call gungors.reload.
-  #
-  # - `default` is what a device returns to when a program's set rule ends (covers also at
-  #   sunrise and sunset), and the light a single press turns on.
-  # - Light presets carry one axis each: `dim` the brightness (pushbutton double press),
-  #   `night` the colour (pushbutton hold).
-  # - A value may be a Jinja template (re-applied whenever its result changes).
-  presets:
-    light:
-      default: {state: "off", rgb_color: [255, 255, 255], brightness_pct: 100}
-      dim: {brightness_pct: 10}
-      night: {rgb_color: red}
-    climate:
-      default: {state: "off"}
-    cover:  # open while the sun is up
-      default: {current_position: "{{ 100 if is_state('sun.sun', 'above_horizon') else 0 }}"}
-
-  # --- immich ------------------------------------------------------------------------------------
-  # Immich albums (ha-integrations README, Immich albums; plan: Claude Doc "Immich otomatik albüm
-  # planı"). select.immich sets the mode (Kapalı / Deneme / Albüm / Albüm + çöp), sensor.immich
-  # shows the last run (in Deneme: the plan, nothing written). Change this section, then call
-  # gungors.reload. API keys: one per Immich user (Account settings > API keys), in secrets.yaml.
-  immich:
-    url: https://foto.gungors.duckdns.org
-    users:
-      sercan: !secret sercan_immich
-      melike: !secret melike_immich
-    scan_interval: 600     # seconds between syncs; 0 = only the sync button
-    owner: sercan          # owns the shared albums; melike is an editor
-    people:                # person name in Immich -> album
-      Kaan: Kaan
-    share_albums: true     # every own album (also by hand / phone app) shared with the others
-    trips:                 # home = zone.home
-      distance_km: 50
-      detail: {turkey: state, turkiye: state, netherlands: city}   # else the country's name
-      names: {}            # country -> album name, over the built-in Turkish names
-      min_days: {netherlands: 2}   # day trips inside the Netherlands are no trips
-    faceless:              # new uploads only; never videos
-      album: check_before_delete
-      wait_hours: 24
-    partou:                # daycare photos -> monthly albums kaan_partou_<ay>_<yil>
-      username: !secret partou_email
-      password: !secret partou_password
-      after: "18:00"       # once a day from this local time; also on button.immich_sync
+# gungors: the `gungors:` entry of the gungors packages.
+#
+# Since gungors 1.20.0 presets, Immich and Budget Thuis are set in the UI: Settings > Devices &
+# services > Gungor Customizations > Configure (Presetler; Servisler > Immich / Budget Thuis).
+# They were imported from this file once; do not add `presets:` or `immich:` here again
+# (ignored, Repairs warns). Passwords and API keys live in the entry, not in secrets.yaml.
+gungors: {}
