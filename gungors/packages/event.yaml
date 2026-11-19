@@ -14,7 +14,7 @@ event:
   # `door` every function gives one), its `target` the target.
   #
   # - light: single off / on (default preset); double brightness dim <-> default; hold colour
-  #   night <-> default (presets in gungors.yaml).
+  #   night <-> default (presets: gungors Configure > Presetler).
   # - climate: toggles (lights blink once: green on, blue off).
   # - program: starts / stops a timeless program (two blinks).
   # - cover: single open, double close (physical: also with the window open), a press while it
