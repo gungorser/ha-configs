@@ -6,7 +6,7 @@ in ha-dashboards. No agent for YAML or cards: the main session works here itself
 
 ## This repository
 
-- Apply live only after Sercan approved the change. Each top folder with a `deploy.sh` is an area
+- Apply live after the PR merged (see Approval below). Each top folder with a `deploy.sh` is an area
   with its own live target and deploy (table in README.md); read the README of the area you change.
   Live apply, through the HA MCP (no terminal): merge the PR to master, then
   `ha_call_service(shell_command, configs_deploy, {"area": "<area>"}, return_response=true)` and
@@ -30,6 +30,10 @@ in ha-dashboards. No agent for YAML or cards: the main session works here itself
 ## Rules (all Gungor HA repositories)
 
 - Reply to Sercan in Turkish. Commit messages, code comments and repo docs in English.
+- Approval (Sercan, 2026-11-19): a change Sercan asked for is his approval for its deploy, HACS install,
+  reload and restart; do them without asking. Ask first only for steps that cannot be undone: deleting
+  data or entities, Immich trash mode, `force` deploys, secrets, anything outside the house. A short
+  "onaylıyorum" is enough; never ask for an exact sentence.
 - Work on a branch, open a PR to the default branch and merge it yourself when it is green and
   conflict-free; no PRs stacked on unmerged branches. Live changes (HA, renders) follow the repo's rules.
 - Blender only through the Blender MCP (Sercan's live Blender). Home Assistant only through the
