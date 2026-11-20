@@ -55,6 +55,23 @@ template:
             {{ this.state == 'on' }}
           {% endif %}
 
+  # --- energy ------------------------------------------------------------------------------------
+  # Grid net power from the SlimmeLezer P1 reader (esphome/slimmelezer.yaml): import minus export,
+  # in kW. Positive = taking from the grid, negative = sending to the grid. The meter only sees the
+  # net flow behind it, so this is house use minus solar production; one of the two P1 power
+  # sensors is always 0. Unavailable while either P1 sensor has no value.
+  - sensor:
+      - name: Grid net power
+        unique_id: grid_net_power
+        icon: mdi:transmission-tower
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        availability: >-
+          {{ has_value('sensor.power_consumed') and has_value('sensor.power_produced') }}
+        state: >-
+          {{ (states('sensor.power_consumed') | float - states('sensor.power_produced') | float) | round(3) }}
+
   # --- heating -----------------------------------------------------------------------------------
   # Heating demand: on while at least one thermostat reports hvac_action heating.
   # Unavailable thermostats (e.g. one whose TRV dropped) don't count.
