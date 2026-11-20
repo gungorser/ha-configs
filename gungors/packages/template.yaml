@@ -73,6 +73,22 @@ template:
              | select('is_state_attr', 'hvac_action', 'heating')
              | list | count > 0 }}
 
+  # --- energy ------------------------------------------------------------------------------------
+  # Net grid power from the SlimmeLezer P1 reader: positive while drawing from the grid, negative
+  # while returning (solar surplus). The meter only sees this difference, never solar production.
+  # Used as the Energy dashboard's grid power sensor (Standard).
+  - sensor:
+      - name: sebeke_gucu
+        unique_id: sebeke_gucu
+        icon: mdi:transmission-tower
+        device_class: power
+        state_class: measurement
+        unit_of_measurement: kW
+        state: >-
+          {{ (states('sensor.power_consumed') | float - states('sensor.power_produced') | float) | round(3) }}
+        availability: >-
+          {{ has_value('sensor.power_consumed') and has_value('sensor.power_produced') }}
+
   # --- roomstate ---------------------------------------------------------------------------------
   # Room state switches (template blueprint gungorser/roomstate.yaml).
   # On while any listed entity is not off (unavailable/unknown skipped).
