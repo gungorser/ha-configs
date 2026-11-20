@@ -1,4 +1,7 @@
-# SlimmeLezer P1 smart meter reader (ESP8266). Written to /config/esphome by configs_deploy (esphome/README.md).
+# SlimmeLezer Classic P1 smart meter reader (ESP8266). Written to /config/esphome by configs_deploy (esphome/README.md).
+# Zuidwijk's official config, github.com/zuidwijk/SlimmeLezer Classic/config-no-decryption.yaml (main),
+# with our secrets (wifi, OTA password), safe_mode, and without dashboard_import (the file lives in this repo).
+# P1 on DSMR 4/5 meters: 115200 baud 8N1 (the UART defaults besides the baud rate).
 substitutions:
   device_name: slimmelezer
   device_description: "DIY P1 module to read your smart meter"
@@ -9,12 +12,10 @@ esphome:
   name_add_mac_suffix: false
   project:
     name: zuidwijk.slimmelezer
-    version: "1.0"
+    version: "2.0"
 
-# Was esphome: platform/board/esp8266_restore_from_flash (removed from ESPHome).
 esp8266:
   board: d1_mini
-  restore_from_flash: true
 
 wifi:
   ssid: !secret wifi_ssid
@@ -23,7 +24,9 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: ${device_name}
-    ap_timeout: 15s
+
+  # Powersaving for brownout due to 250mA restriction P1
+  #output_power: 10dB
 
 captive_portal:
 
@@ -36,6 +39,8 @@ api:
 
 ota:
   - platform: esphome
+    password: !secret ota_password
+  - platform: web_server
 
 # Boots into safe mode (OTA only) after repeated failed boots, so a bad install can be fixed over the air.
 safe_mode:
@@ -44,22 +49,52 @@ web_server:
   port: 80
 
 uart:
+  baud_rate: 115200
   rx_pin: D7
-  baud_rate: 9600
-  data_bits: 7
-  parity: EVEN
-  stop_bits: 1
+  rx_buffer_size: 1700
+
+## RESET FUNCTION ##
+switch:
+  - platform: factory_reset
+    name: Restart with Factory Default Settings
+    id: resetbutton
+    internal: true
+
+binary_sensor:
+  - platform: gpio
+    name: "Reset switch GPIO5"
+    pin:
+      number: GPIO5
+      mode:
+        input: true
+        pullup: false
+    on_press:
+      then:
+        - logger.log: "Reset button pressed"
+        - switch.turn_on: resetbutton
+
+light:
+  - platform: status_led
+    name: "Status LED"
+    pin:
+      number: GPIO02
+      inverted: true
+## END RESET FUNCTION ##
 
 dsmr:
-  gas_mbus_id: 1
-  crc_check: false
+  id: dsmr_instance
+  max_telegram_length: 1700
 
 sensor:
   - platform: dsmr
+    energy_delivered_lux:
+      name: "Energy Consumed Luxembourg"
     energy_delivered_tariff1:
       name: "Energy Consumed Tariff 1"
     energy_delivered_tariff2:
       name: "Energy Consumed Tariff 2"
+    energy_returned_lux:
+      name: "Energy Produced Luxembourg"
     energy_returned_tariff1:
       name: "Energy Produced Tariff 1"
     energy_returned_tariff2:
@@ -108,6 +143,8 @@ sensor:
       accuracy_decimals: 3
     gas_delivered:
       name: "Gas Consumed"
+    gas_delivered_be:
+      name: "Gas Consumed Belgium"
   - platform: uptime
     name: "SlimmeLezer Uptime"
   - platform: wifi_signal
@@ -120,6 +157,8 @@ text_sensor:
       name: "DSMR Identification"
     p1_version:
       name: "DSMR Version"
+    p1_version_be:
+      name: "DSMR Version Belgium"
   - platform: wifi_info
     ip_address:
       name: "SlimmeLezer IP Address"
