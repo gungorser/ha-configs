@@ -7,6 +7,8 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 |---|---|
 | `compose.yaml` | `paperless` (pinned 3.4.2; the add-on's 2.20.15 data was imported first, then upgraded), `db` (Postgres), `broker` (Redis), `paperless-gpt` (profile `gpt`) |
 | `hook.sh` | Secrets, folders, Paperless groups; `share-all` after an import |
+| `taxonomy.json`, `taxonomy.py` | Tags (with parents) and document types Paperless must have; `hook.sh post` adds missing ones, never deletes |
+| `gpt/prompts/` | paperless-gpt prompts and the workflow `ocr-ve-etiket` (trigger tag `ai-isle`); `hook.sh pre` copies them into its data folder |
 | `authelia_auth/` | Django auth backend (mounted, `PAPERLESS_APPS`): password logins checked against Authelia |
 
 - Data: `/srv/data/paperless/{data,pgdata,redis,gpt}` (nas-data). Documents:
@@ -57,7 +59,23 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 `paperless/deploy.sh <mode>` on the Proxmox host as `claude` (shared `docker-host/stack.sh`).
 Deploy `auth` first (it creates the OIDC client secret). paperless-gpt runs through the
 profile `gpt`, enabled in `.env` (`COMPOSE_PROFILES=gpt`); its prompts, workflows, db and UI settings
-live in `/srv/data/paperless/gpt/`.
+live in `/srv/data/paperless/gpt/`. The prompts and workflows come from `gpt/prompts/` here: a deploy
+copies them over (and restarts paperless-gpt when they changed) and keeps the applied copy in
+`gpt/applied`; a deploy stops when they were edited in the paperless-gpt UI since (merge the diff
+into `gpt/prompts/` first). Its UI: `https://paperless-gpt.gungors.duckdns.org` (LAN only, Authelia).
+
+### Tags and document types (Sercan, 2026-11-21)
+
+Tags say who, which country and which area of life; the document type says what kind of paper.
+Whatever the correspondent (issuer), type or date already tells needs no tag.
+
+- Tags: `sercan` `melike` `kaan` (household), `aile` (relatives outside it), `turkiye` `nederland`
+  (issuer's country), areas `is` `saglik` `egitim` `sigorta` `konut` (> `pootvelden-17`, `kurtkoy`:
+  one child per home) `arac` (> `opel`: one child per vehicle). Rules: `gpt/prompts/tag_prompt.tmpl`.
+- Document types: Kimlik (fits in a wallet), Sözleşme, Fatura, Bildirim, Form (filled in or written
+  by the household), Broşür. Rules: `gpt/prompts/document_type_prompt.tmpl`.
+- Retired (being migrated): `devlet` `belediye` `tapu` `trafik` `vergi` `kimlik` `fatura` `garanti`
+  and the employer tags.
 
 ### Migration from the Pi add-on (one time)
 

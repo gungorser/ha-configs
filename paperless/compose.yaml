@@ -90,7 +90,8 @@ services:
       # As on the Pi add-on (Sercan's settings):
       LLM_LANGUAGE: dutch, turkish or english
       CREATE_NEW_TAGS: "false"
-      AUTO_GENERATE_DOCUMENT_TYPE: "false"
+      AUTO_GENERATE_DOCUMENT_TYPE: "true"   # only existing types: Kimlik, Sözleşme, Fatura, Bildirim, Form, Broşür (taxonomy.json)
+      AUTO_GENERATE_CREATED_DATE: "false"   # Paperless reads the date itself; the prompt fell back to today
       LOG_LEVEL: info
       IMAGE_MAX_RENDER_DPI: "200"          # keeps vision OCR inside memory (OOM fix)
       IMAGE_MAX_PIXEL_DIMENSION: "2400"

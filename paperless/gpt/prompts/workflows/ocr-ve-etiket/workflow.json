@@ -3,5 +3,11 @@
   "name": "OCR + etiketleme",
   "trigger_tag": "ai-isle",
   "enable_ocr": true,
-  "ocr_limit_pages": 10
+  "ocr_limit_pages": 10,
+  "generate_titles": true,
+  "generate_tags": true,
+  "generate_correspondents": true,
+  "generate_document_types": true,
+  "generate_created_date": false,
+  "generate_custom_fields": false
 }

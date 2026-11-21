@@ -1,0 +1,21 @@
+{
+  "_comment": "Tags and document types Paperless must have (Sercan's design, 2026-11-21). hook.sh post adds missing ones and sets parents; it never deletes or renames. Matching is off (AI sets them).",
+  "tags": [
+    {"name": "sercan"},
+    {"name": "melike"},
+    {"name": "kaan"},
+    {"name": "aile"},
+    {"name": "turkiye"},
+    {"name": "nederland"},
+    {"name": "is"},
+    {"name": "saglik"},
+    {"name": "egitim"},
+    {"name": "sigorta"},
+    {"name": "konut"},
+    {"name": "pootvelden-17", "parent": "konut"},
+    {"name": "kurtkoy", "parent": "konut"},
+    {"name": "arac"},
+    {"name": "opel", "parent": "arac"}
+  ],
+  "document_types": ["Kimlik", "Sözleşme", "Fatura", "Bildirim", "Form", "Broşür"]
+}

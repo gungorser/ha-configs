@@ -4,7 +4,12 @@
 #   pre:  generates /opt/secrets/paperless.env once (secret key, DB password) and refreshes its
 #         OIDC provider line from /opt/secrets/oidc/paperless.secret (made by the auth area);
 #         prepares the folders.
-#   post: waits for Paperless, ensures the groups admin (all permissions) and aile (documents).
+#         Copies the paperless-gpt prompts and workflows from gpt/prompts (git) into its data
+#         folder and keeps a copy in gpt/applied to spot later UI edits.
+#   check: stops a deploy when the paperless-gpt prompts were edited in its UI since the last
+#         deploy (shows the diff; merge them into gpt/prompts first).
+#   post: waits for Paperless, ensures the groups admin (all permissions) and aile (documents),
+#         applies taxonomy.json (adds missing tags and document types, sets tag parents).
 #   share-all: after an import, makes every document, tag, correspondent, type and storage
 #         path unowned, so all users with the group permissions see them.
 set -euo pipefail
@@ -21,7 +26,12 @@ manage() { docker exec -i paperless-paperless-1 python3 manage.py "$@"; }
 
 case "${1:-status}" in
   check)
-    exit 0   # Paperless settings changed in its UI live in its DB, not in repo files
+    # Paperless settings changed in its UI live in its DB, not in repo files. paperless-gpt
+    # prompts edited in its UI do land in files: compare them with what was last applied.
+    if [ -d "$DATA/gpt/applied" ] && ! diff -ru "$DATA/gpt/applied" "$DATA/gpt/prompts"; then
+      echo "paperless-gpt prompts changed in its UI since the last deploy"; exit 1
+    fi
+    exit 0
     ;;
   pre)
     [ -s "$OIDC_SECRET" ] || { echo "missing $OIDC_SECRET: deploy the auth area first"; exit 1; }
@@ -43,6 +53,10 @@ print(json.dumps({"openid_connect": {"OAUTH_PKCE_ENABLED": True, "SCOPE": ["open
     install -d -m 755 "$DATA" "$DOCS"
     install -d -m 750 -o "$UID_" -g "$UID_" "$DATA/data" "$DOCS/media" "$DOCS/consume" "$DOCS/export"
     install -d -m 700 "$DATA/pgdata" "$DATA/redis" "$DATA/gpt" "$DATA/gpt/prompts" "$DATA/gpt/db" "$DATA/gpt/config"
+    # paperless-gpt runs as 10001 and writes prompts too (UI edits, new defaults).
+    diff -rq gpt/prompts "$DATA/gpt/prompts" >/dev/null 2>&1 || touch "$DATA/gpt/.restart"
+    rm -rf "$DATA/gpt/applied" && cp -a gpt/prompts "$DATA/gpt/applied"
+    cp -a gpt/prompts/. "$DATA/gpt/prompts/" && chown -R 10001:10001 "$DATA/gpt/prompts"
     ;;
   post)
     for _ in $(seq 90); do
@@ -59,6 +73,10 @@ skip = ("auth", "admin", "sessions", "contenttypes", "guardian", "socialaccount"
 aile.permissions.set(Permission.objects.exclude(content_type__app_label__in=skip))
 print(f"groups: admin {admin.permissions.count()} perms, aile {aile.permissions.count()} perms")
 PY
+    { printf 'import json\nT = json.loads(r"""%s""")\n' "$(cat taxonomy.json)"; cat taxonomy.py; } | manage shell
+    if [ -e "$DATA/gpt/.restart" ]; then   # it reads the prompt files at start
+      docker restart paperless-paperless-gpt-1 >/dev/null && rm -f "$DATA/gpt/.restart" && echo "paperless-gpt: restarted for new prompts"
+    fi
     echo "paperless: running"
     ;;
   share-all)

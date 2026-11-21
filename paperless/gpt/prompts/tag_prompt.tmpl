@@ -22,49 +22,33 @@ The data will be provided using an XML-like format for clarity:
 {{.Content}}
 </content>
 
-Please concisely select the tags from the list above that best describe the document.
-{{- if .CreateNewTags}}
-You may also suggest new tags not in the list if they are highly relevant.
-{{- end}}
-Be very selective and only choose the most relevant tags since too many tags will make the document less discoverable.
+Tag rules. Only the tags named below may be selected, even if <available_tags> lists others (older tags that are being retired). A tag says WHO the document is about, WHICH COUNTRY issued it and WHICH AREA OF LIFE it belongs to. What kind of document it is (invoice, contract, ID, letter, form) is NOT a tag; that is the document type, chosen elsewhere.
 
-Tag rules (these define what each tag means; a tag is about what the document IS, not about words or numbers that appear in it):
-
-Person tags: sercan, melike, kaan. The household is Sercan Gungor (father), Melike Gungor (mother) and Kaan Gungor (son). The surname can be written Gungor, Güngör, Gungör or GUNGOR. The first name must match too; the surname alone is not enough, and other people named Gungor get no person tag. An initial counts as the first name: S. Gungor is sercan, M. Gungor is melike, K. Gungor is kaan.
+1. Person tags: sercan, melike, kaan, aile.
+The household is Sercan Gungor (father), Melike Gungor (mother) and Kaan Gungor (son). The surname can be written Gungor, Güngör, Gungör or GUNGOR; Melike's maiden name is Ambarkütük. The first name must match too; the surname alone is not enough. An initial counts as the first name: S. Gungor is sercan, M. Gungor is melike, K. Gungor is kaan.
 - Tag the person the document belongs to or is about: the patient of a medical report, the holder of a diploma, ID or contract, the person a letter is about, the buyer on an invoice, the employee on a work document, the insured person on an insurance document. If a letter is sent to one parent but is about Kaan (school letter, child's medical bill), tag kaan only.
-- If the document belongs to or is addressed to several of them together (for example a joint tax letter to Sercan and Melike, a family insurance policy), tag each of them.
+- If the document belongs to or is addressed to several of them together (a joint tax letter, a family insurance policy, a house purchase by both parents), tag each of them.
 - A masked name (for example KA*****ÖR) counts when its visible letters clearly match exactly one of them.
-- A document that belongs to none of them (manual, general announcement) gets no person tag.
+- aile: the document is about a relative who does not live in the household (for example Onur, Sevim or Halil Gungor): their visa application, a guarantee or accommodation declaration (garantstelling, logiesverstrekking) for their visit. Also tag the household member who signs or sponsors it.
+- A document that belongs to none of them (manual, general brochure) gets no person tag.
 
-Country tags:
-- turkiye: the organisation that issued the document is based in Turkey (for example Yapi Kredi, T.C. Saglik Bakanligi, Bogazici Universitesi, Medical Park).
+2. Country tags: turkiye, nederland.
+- turkiye: the organisation that issued the document is based in Turkey (for example Yapi Kredi, T.C. Icisleri Bakanligi, Bogazici Universitesi, Medical Park, IGDAS, YOK).
 - nederland: the organisation that issued the document is based in the Netherlands.
-Decide turkiye/nederland by the issuer, not by the language of the document.
+- Decide by the issuer, not by the language. For a document the household wrote or filled in (a form, CV, resignation letter), use the country of the organisation it is for. An issuer in another country (for example Belgian police, a hotel in Slovakia) gets no country tag.
 
-Work tags:
-- is: a document about Sercan's or Melike's employment: payslip (maas bordrosu, loonstrook), jaaropgave, employment contract, offer letter, resignation letter, employment certificate (calisma belgesi, werkgeversverklaring), reference letter, and employment-related letters from pension funds (PME, PFZW, ABP), UWV or SGK (hizmet dokumu).
-- Employer tags, only on an is document, chosen by the company that issued the document (or, for a pension fund, UWV or SGK letter, only when the employer is named in it). Every payslip, jaaropgave and employment contract from one of the companies below MUST get its employer tag together with is; read the company name in the letterhead or the first lines of the document:
-  - siemens-turkiye: Siemens in Turkey (Siemens Sanayi ve Ticaret A.S.). Sercan.
-  - web-eindhoven: WEB Eindhoven, the agency through which Sercan worked at ASML and Flex. A WEB payslip gets web-eindhoven only, not asml.
-  - siemens-plm: Siemens PLM Software, legal name Siemens Industry Software (for example Siemens Industry Software Netherlands B.V.). Sercan.
-  - asml: ASML as the direct employer. Sercan.
-  - siemens-healthineers: Siemens Healthineers (Siemens Healthcare, Siemens Healthcare Nederland B.V.). Melike.
-  - philips: Philips as employer. Melike.
-  Decide between the Siemens companies by the company name printed on the document. Other companies get no employer tag. Never use an employer tag on a non-work document (for example a Philips product invoice is fatura, not philips).
+3. Area tags. Select every area that applies, or none.
+- is: work. Employment contracts, job offers, payslips (loonstrook, maas bordrosu, salary statement), jaaropgave, employer statements (werkgeversverklaring, certificate of employment, calisma belgesi), resignation letters, company policies and codes of conduct, employee forms, the 30% ruling, and letters from pension funds (PME, PFZW, ABP, Philips Pensioenfonds), UWV or SGK about work.
+- saglik: health. Hospital, GP (huisarts), specialist, dentist, midwife (verloskundige), pregnancy and birth reports, laboratory results, prescriptions, medical bills and treatment quotes. Not saglik: health insurance paperwork alone (that is sigorta).
+- egitim: education. Diplomas, transcripts, graduation certificates (mezun belgesi, YOK), school, daycare (kinderopvang, kres) and course documents.
+- sigorta: an insurance company's document about a policy: policy, policy conditions (polisvoorwaarden), renewal, premium, claim (hasar), reimbursement. Health, car, home, contents, life and travel insurance alike. Not sigorta: SGK, UWV, and insurance only mentioned inside another document.
+- konut: a home. Buying or owning it (notary, deed, tapu, Kadaster, mortgage), municipal and water board taxes and permits (gemeente, belediye, waterschap), energy and water bills, home and contents insurance (together with sigorta). Always add the child tag of the home it is about:
+  - pootvelden-17: the house at Pootvelden 17, Best (Netherlands). Its purchase, and anything from Gemeente Best, are about it.
+  - kurtkoy: the home in Kurtkoy, Istanbul (Turkey). Turkish home documents (IGDAS gas, electricity, water, belediye, tapu) are about it.
+  When you choose a child tag, also choose konut. If you cannot tell which home it is, choose konut alone.
+- arac: a vehicle. Vehicle registration (kenteken, ruhsat), car purchase, maintenance and inspection (APK, TUVTURK), car insurance (together with sigorta), traffic and parking fines (CJIB, police), road tax. A driving licence is about the driver, not a vehicle: no arac. Child tag of the vehicle:
+  - opel: the family's Opel.
+  When you choose opel, also choose arac. If the vehicle is not named (for example a fine with an unknown or rental car), choose arac alone.
 
-Purchase tags:
-- fatura: proof of payment for a purchased product (goods): invoice, e-arsiv fatura, factuur, online order invoice, till receipt (fis, kassabon). Not fatura: bills for services or subscriptions (electricity, gas, water, internet, phone, repairs, hospital or doctor bills), order confirmations, delivery notes (irsaliye, pakbon) and shipping papers without a price paid.
-- garanti: a separate warranty document for a product: warranty certificate (garanti belgesi), warranty card, extended warranty contract. An invoice that only mentions a warranty period is fatura only, not garanti.
-
-- sigorta: any document from an insurance company about a policy: the policy (police, polis), renewal, premium notice, claim and damage correspondence (hasar), reimbursement statements. Includes health insurance (zorgverzekering, CZ, VGZ, private health insurance), car (kasko, trafik sigortasi), home, DASK, life and travel policies. Not sigorta: SGK and UWV (government or work), and insurance only mentioned inside another document (travel insurance on a ticket, credit-card cover) unless it is a separate policy document.
-
-- devlet: the document was issued by a government authority of any country: ministry, municipality (belediye, gemeente), tax office (Belastingdienst, vergi dairesi), police, court, population or immigration office (nufus mudurlugu, IND). Examples: traffic fine, residence registration (ikametgah), ID card, passport. Not devlet: banks, insurers, private companies, private hospitals (for example Medical Park), even when they mention a government rule, show a T.C. header or a gov.tr link. Public universities and public hospitals are not devlet either.
-
-Sub-tags of devlet: belediye, trafik, tapu, vergi, kimlik. First decide devlet. If devlet does not apply, select none of these sub-tags. If devlet applies, select none, one or several of them:
-- belediye: issued by a municipality (belediye, gemeente): waste, permits, BRP registration, municipal taxes.
-- trafik: traffic and vehicles from a government authority: traffic or parking fines (also when a municipality issues the fine; then trafik only, not belediye), driving licence, vehicle registration and plates (RDW, Emniyet). Private vehicle inspection (TUVTURK, APK) is not devlet, so no trafik. Car insurance (trafik sigortasi) is sigorta, not trafik.
-- tapu: land registry and property title: tapu, Kadaster, zoning (imar) documents.
-- vergi: taxes: vergi dairesi, GIB, Belastingdienst, toeslagen. A municipal tax (emlak vergisi, gemeentelijke belastingen) gets both belediye and vergi.
-- kimlik: the document itself is an identity or residence-status document from a government authority: nufus kayit ornegi, ID card, passport (also from a consulate), residence registration, residence permit, visa, IND letters. A document that merely contains a person's ID number (TC Kimlik No, BSN) is not kimlik. Diplomas and other education documents are not kimlik.
-
-Never select tags that start with paperless-gpt or ai-isle.
+Never select tags that start with paperless-gpt or ai-isle. Never select any tag not named in these rules.
+Be selective: a person tag, a country tag and the areas that clearly apply are usually enough.

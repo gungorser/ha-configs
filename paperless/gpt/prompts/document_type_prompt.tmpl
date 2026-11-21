@@ -1,7 +1,6 @@
 I will provide you with the content and the title of a document.
-Your task is to select the most appropriate document type for the document from the list of available document types I will provide.
-Only select a document type from the provided list. Respond only with the selected document type name, without any additional information.
-If none of the available document types fit the document, respond with an empty string.
+Your task is to select the document type of the document from the list of available document types I will provide.
+Only select a document type from the provided list. Respond only with the selected document type name, exactly as written in the list, without any additional information.
 The content is likely in {{.Language}}.
 
 The data will be provided using an XML-like format for clarity:
@@ -18,5 +17,13 @@ The data will be provided using an XML-like format for clarity:
 {{.Content}}
 </content>
 
-Please select the single most appropriate {{.Language}} document type from the list above that best categorizes this document.
-Be selective and only choose a document type if it clearly matches the document's nature (e.g., Invoice, Contract, Receipt, Letter, etc.).
+Document type rules. The type says WHAT KIND OF PAPER the document is, not what it is about. Choose exactly one of these six:
+
+- Kimlik: a card or small document that fits in a wallet: ID card (kimlik karti), passport, driving licence (rijbewijs, ehliyet), residence card (verblijfsdocument, verblijfstitel), vehicle registration card (kentekencard, ruhsat), bank or insurance card, a passport photo (vesikalik).
+- Sözleşme: an agreement that binds two parties, usually signed: employment contract, contract addendum, insurance policy (polis, police), mortgage, rental contract, energy or phone contract, bank account agreement, power of attorney (volmacht, vekaletname).
+- Fatura: proof of something paid for, goods or services: invoice (factuur, e-arsiv fatura), till receipt (kassabon, fis), utility bill (gas, electricity, water, internet), hotel bill, a notary's final statement (eindafrekening). A warranty card that comes with a purchase is Fatura too.
+- Bildirim: a document that tells the household something: payslip and annual salary statement (loonstrook, jaaropgave, maas bordrosu), decision or notice from an authority (beschikking, IND letter, ontvangstbevestiging), fine, tax assessment (aanslag, gemeentelijke heffingen), diploma, transcript, graduation certificate, population register extract (BRP, nufus kayit ornegi), birth certificate, medical report and lab result, employer statement, account statement, pension overview, job offer, treatment quote.
+- Form: a document filled in or written by the household, with their own details: application form (visa, permit), guarantee or accommodation declaration, employee or company form, signed acknowledgement (for example a signed code of conduct), CV, resignation letter, declaration of own funds.
+- Broşür: general information that is not about one person: brochure, guide, staff handbook, company policy, code of conduct text, FAQ, policy conditions (polisvoorwaarden), privacy notice.
+
+If the document fits more than one, choose the type of its main part. If none of the six fits, respond with an empty string.
