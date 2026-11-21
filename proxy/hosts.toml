@@ -84,4 +84,4 @@ domain = "paperless-gpt.gungors.duckdns.org"
 forward = "http://paperless-gpt:8080"
 access = "lan"
 auth = "authelia"
-live = false             # paperless area
+live = true              # paperless area (web UI for prompts and settings; LAN only)
