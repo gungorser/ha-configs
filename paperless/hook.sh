@@ -53,6 +53,11 @@ print(json.dumps({"openid_connect": {"OAUTH_PKCE_ENABLED": True, "SCOPE": ["open
     install -d -m 755 "$DATA" "$DOCS"
     install -d -m 750 -o "$UID_" -g "$UID_" "$DATA/data" "$DOCS/media" "$DOCS/consume" "$DOCS/export"
     install -d -m 700 "$DATA/pgdata" "$DATA/redis" "$DATA/gpt" "$DATA/gpt/prompts" "$DATA/gpt/db" "$DATA/gpt/config"
+    # authelia_auth is mounted from the data folder (see compose.yaml).
+    if ! diff -rq authelia_auth "$DATA/ext/authelia_auth" >/dev/null 2>&1; then
+      rm -rf "$DATA/ext/authelia_auth" && install -d -m 755 "$DATA/ext" && cp -a authelia_auth "$DATA/ext/"
+      touch "$DATA/.restart-paperless"
+    fi
     # paperless-gpt runs as 10001 and writes prompts too (UI edits, new defaults).
     diff -rq gpt/prompts "$DATA/gpt/prompts" >/dev/null 2>&1 || touch "$DATA/gpt/.restart"
     rm -rf "$DATA/gpt/applied" && cp -a gpt/prompts "$DATA/gpt/applied"
@@ -74,6 +79,9 @@ aile.permissions.set(Permission.objects.exclude(content_type__app_label__in=skip
 print(f"groups: admin {admin.permissions.count()} perms, aile {aile.permissions.count()} perms")
 PY
     { printf 'import json\nT = json.loads(r"""%s""")\n' "$(cat taxonomy.json)"; cat taxonomy.py; } | manage shell
+    if [ -e "$DATA/.restart-paperless" ]; then   # new authelia_auth code
+      docker restart paperless-paperless-1 >/dev/null && rm -f "$DATA/.restart-paperless" && echo "paperless: restarted for authelia_auth"
+    fi
     if [ -e "$DATA/gpt/.restart" ]; then   # it reads the prompt files at start
       docker restart paperless-paperless-gpt-1 >/dev/null && rm -f "$DATA/gpt/.restart" && echo "paperless-gpt: restarted for new prompts"
     fi

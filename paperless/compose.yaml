@@ -54,7 +54,9 @@ services:
       - /srv/nas/dokuman/paperless/media:/usr/src/paperless/media
       - /srv/nas/dokuman/paperless/consume:/usr/src/paperless/consume
       - /srv/nas/dokuman/paperless/export:/usr/src/paperless/export
-      - ./authelia_auth:/usr/src/paperless/ext/authelia_auth:ro
+      # Copied there by hook.sh pre: a directory mounted from the stack folder empties in the
+      # running container when the next deploy removes the previous tree.
+      - /srv/data/paperless/ext/authelia_auth:/usr/src/paperless/ext/authelia_auth:ro
     networks: [proxy, default]
 
   db:
