@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "OCR + etiketleme",
+  "trigger_tag": "ai-isle",
+  "enable_ocr": true,
+  "ocr_limit_pages": 10
+}
