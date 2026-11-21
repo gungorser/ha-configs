@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "Yeniden etiketle (OCR yok)",
+  "trigger_tag": "ai-yeniden",
+  "enable_ocr": false,
+  "generate_titles": true,
+  "generate_tags": true,
+  "generate_correspondents": true,
+  "generate_document_types": true,
+  "generate_created_date": false,
+  "generate_custom_fields": false
+}

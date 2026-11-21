@@ -8,7 +8,7 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 | `compose.yaml` | `paperless` (pinned 3.4.2; the add-on's 2.20.15 data was imported first, then upgraded), `db` (Postgres), `broker` (Redis), `paperless-gpt` (profile `gpt`) |
 | `hook.sh` | Secrets, folders, Paperless groups; `share-all` after an import |
 | `taxonomy.json`, `taxonomy.py` | Tags (with parents) and document types Paperless must have; `hook.sh post` adds missing ones, never deletes |
-| `gpt/prompts/` | paperless-gpt prompts and the workflow `ocr-ve-etiket` (trigger tag `ai-isle`); `hook.sh pre` copies them into its data folder |
+| `gpt/prompts/` | paperless-gpt prompts and the workflows `ocr-ve-etiket` (trigger tag `ai-isle`) and `yeniden-etiketle` (`ai-yeniden`: metadata only, no OCR, keeps the Gemini quota for re-tagging existing documents); `hook.sh pre` copies them into its data folder |
 | `authelia_auth/` | Django auth backend (mounted, `PAPERLESS_APPS`): password logins checked against Authelia |
 
 - Data: `/srv/data/paperless/{data,pgdata,redis,gpt}` (nas-data). Documents:

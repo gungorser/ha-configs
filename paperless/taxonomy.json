@@ -1,6 +1,7 @@
 {
   "_comment": "Tags and document types Paperless must have (Sercan's design, 2026-11-21). hook.sh post adds missing ones and sets parents; it never deletes or renames. Matching is off (AI sets them).",
   "tags": [
+    {"name": "ai-yeniden"},
     {"name": "sercan"},
     {"name": "melike"},
     {"name": "kaan"},
