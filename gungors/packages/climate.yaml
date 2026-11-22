@@ -40,10 +40,11 @@ climate:
       - program:
           preheat: {rate: 1.5}  # °C/h: reach a program's set temperature by its start
       - pid:
-          # The SONOFF sensor reports hourly or on a 1 °C change: kp 90 / ki 0.08 drove the
-          # valve 0 <-> 100 every sample (22.3-23.4 °C, ~2 h cycle). Low gains, no D (2026-11-20).
-          kp: 15
-          ki: 0.003
+          # kp 90 / ki 0.08 swung the valve 0 <-> 100 on the sensor's hourly / 1 °C reports
+          # (22.3-23.4 °C). kp 15 / ki 0.003 held 22.6-23.1 but took ~3 h to reach the set point
+          # after each start (the integral starts at 0). ki 0.01 settles in ~1-2 h (2026-11-22).
+          kp: 20
+          ki: 0.01
           kd: 0
           keep_alive: {minutes: 15}
           force_off: false
