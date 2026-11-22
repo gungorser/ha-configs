@@ -93,3 +93,149 @@ automation:
               - action: switch.turn_off
                 target:
                   entity_id: switch.koridor2_switch
+
+  # --- tv_muzik ----------------------------------------------------------------------------------
+  # Background music on the living-room TV (Philips Android TV, media_player.gungors_tv_2). While
+  # Fully Kiosk (the floor plan) or the Immich app has been in front for 10 s, Music Assistant
+  # plays the NAS music share (\\192.168.0.222\muzik, HA network storage "Fonmuzigi", MA
+  # Filesystem provider) shuffled on repeat through Snapdroid, the Snapcast client on the TV
+  # (media_player.tv_muzik, plays in the background behind any app). Another app in front, or the
+  # TV off: pause; back to Fully/Immich: resume.
+  # Folder per app: the `background_folder` attribute of sensor.immich (Immich) and
+  # sensor.floorplan_3d (Fully), set in the gungors integration (Servisler); a folder inside the
+  # share, empty or missing = the whole share. Volume: the player stays at 100 %, the TV remote
+  # sets the loudness. If Snapdroid is not running (player unavailable) it is opened and the app
+  # that was in front is opened again.
+  - id: "tv_muzik"
+    alias: tv_muzik
+    description: Background music on the TV while Fully Kiosk or Immich is in front.
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id: media_player.gungors_tv_2
+        attribute: app_id
+        for: "00:00:10"
+      - trigger: state
+        entity_id: media_player.gungors_tv_2
+        to: null
+        for: "00:00:10"
+      - trigger: homeassistant
+        event: start
+    variables:
+      tv: media_player.gungors_tv_2
+      player: media_player.tv_muzik
+      app: "{{ state_attr('media_player.gungors_tv_2', 'app_id') }}"
+      folder_sensor: >-
+        {{ 'sensor.immich' if app == 'nl.giejay.android.tv.immich' else 'sensor.floorplan_3d' }}
+      folder: "{{ (state_attr(folder_sensor, 'background_folder') or '') | trim('/') }}"
+      # Fully <-> Immich with different folders: start the other folder instead of resuming.
+      music_apps: ["de.ozerov.fully", "nl.giejay.android.tv.immich"]
+      prev_app: >-
+        {{ trigger.from_state.attributes.get('app_id') if trigger.platform == 'state'
+           and trigger.from_state is not none else none }}
+      prev_folder: >-
+        {% set s = 'sensor.immich' if prev_app == 'nl.giejay.android.tv.immich' else 'sensor.floorplan_3d' %}
+        {{ (state_attr(s, 'background_folder') or '') | trim('/') }}
+      new_folder: "{{ prev_app in music_apps and prev_app != app and prev_folder != folder }}"
+    actions:
+      - if:
+          - condition: state
+            entity_id: media_player.gungors_tv_2
+            state: "on"
+          - condition: state
+            entity_id: media_player.gungors_tv_2
+            attribute: app_id
+            state:
+              - de.ozerov.fully
+              - nl.giejay.android.tv.immich
+        then:
+          # Snapdroid not running: open it (it starts its client by itself), then the app again.
+          - if:
+              - condition: state
+                entity_id: media_player.tv_muzik
+                state: unavailable
+            then:
+              - action: media_player.play_media
+                target:
+                  entity_id: media_player.gungors_tv_2
+                data:
+                  media_content_type: app
+                  media_content_id: de.badaix.snapcast
+              - delay: "00:00:04"
+              - action: media_player.play_media
+                target:
+                  entity_id: media_player.gungors_tv_2
+                data:
+                  media_content_type: app
+                  media_content_id: "{{ app }}"
+              - wait_template: "{{ not is_state('media_player.tv_muzik', 'unavailable') }}"
+                timeout: "00:00:45"
+                continue_on_timeout: false
+          - choose:
+              # Same folder still queued and paused: resume.
+              - conditions:
+                  - condition: state
+                    entity_id: media_player.tv_muzik
+                    state: paused
+                  - condition: template
+                    value_template: "{{ not new_folder }}"
+                sequence:
+                  - action: media_player.media_play
+                    target:
+                      entity_id: media_player.tv_muzik
+              - conditions:
+                  - condition: state
+                    entity_id: media_player.tv_muzik
+                    state: playing
+                  - condition: template
+                    value_template: "{{ not new_folder }}"
+                sequence: []
+            default:
+              - action: music_assistant.get_library
+                data:
+                  config_entry_id: 01M82BKBN5Z4XFJ1RFCPHBDEF7
+                  media_type: track
+                  limit: 500
+                  order_by: random
+                response_variable: library
+              - variables:
+                  tracks: >-
+                    {% set ns = namespace(uris=[]) %}
+                    {% for t in library['items'] %}
+                      {% set path = t.uri.split('://track/', 1)[1] if '://track/' in t.uri else '' %}
+                      {% if t.uri.startswith('filesystem') and (folder == '' or path.startswith(folder ~ '/')) %}
+                        {% set ns.uris = ns.uris + [t.uri] %}
+                      {% endif %}
+                    {% endfor %}
+                    {{ ns.uris }}
+              - condition: template
+                value_template: "{{ tracks | count > 0 }}"
+              - action: media_player.volume_set
+                target:
+                  entity_id: media_player.tv_muzik
+                data:
+                  volume_level: 1
+              - action: music_assistant.play_media
+                target:
+                  entity_id: media_player.tv_muzik
+                data:
+                  media_id: "{{ tracks }}"
+                  media_type: track
+                  enqueue: replace
+              - action: media_player.shuffle_set
+                target:
+                  entity_id: media_player.tv_muzik
+                data:
+                  shuffle: true
+              - action: media_player.repeat_set
+                target:
+                  entity_id: media_player.tv_muzik
+                data:
+                  repeat: all
+        else:
+          - condition: state
+            entity_id: media_player.tv_muzik
+            state: playing
+          - action: media_player.media_pause
+            target:
+              entity_id: media_player.tv_muzik
