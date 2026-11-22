@@ -85,9 +85,9 @@ services:
       PAPERLESS_BASE_URL: http://paperless:8000
       PAPERLESS_PUBLIC_URL: https://paperless.gungors.duckdns.org
       LLM_PROVIDER: googleai
-      LLM_MODEL: gemini-3.5-flash-lite
+      LLM_MODEL: gemini-3.5-flash   # flash-lite missed rules (konut) and hit its 500/day free quota (2026-11-22)
       VISION_LLM_PROVIDER: googleai
-      VISION_LLM_MODEL: gemini-3.5-flash-lite
+      VISION_LLM_MODEL: gemini-3.5-flash
       OCR_PROVIDER: llm
       # As on the Pi add-on (Sercan's settings):
       LLM_LANGUAGE: dutch, turkish or english
