@@ -17,6 +17,7 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `admin` | sercan | everything; paperless-gpt behind Authelia (password only); NPM and the LLDAP UI use their own login, LAN only |
 | `aile` | sercan, melike | HA, Immich, Paperless, NAS (shares `foto`, `dokuman`) |
 | `misafir` | misafir | only what HA gives the guest |
+| `servis` | ha-media | service accounts: no web/app login (Authelia policy `insan` denies them); ha-media reads the NAS share `muzik` |
 | `lldap_admin` | sercan | manages users in the LLDAP UI |
 | `lldap_password_manager` | authelia (service user) | password reset (disabled in Authelia) |
 

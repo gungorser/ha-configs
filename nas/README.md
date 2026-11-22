@@ -19,7 +19,7 @@ SMB3 only, encryption when the client supports it.
 
 - Names, uids/gids and groups come from LLDAP's lists in the repo
   (`auth/lldap-bootstrap`); `hook.sh` writes them to `/srv/data/nas/accounts` and the container
-  creates matching local accounts (no login). Service accounts: `ha-backup` (uid 10100, SMB only), `ha-media` (uid 10101, SMB only, reads `muzik`)
+  creates matching local accounts (no login). Service accounts: `ha-backup` (uid 10100, SMB only)
   and `paperless` (uid 8003, the scan inbox owner).
 - SMB cannot check LLDAP passwords (LLDAP keeps no NT hashes; its Samba integration is still open
   upstream), so Samba keeps its own copy in its passdb (`/srv/data/nas/samba`). A user without one
@@ -28,7 +28,8 @@ SMB3 only, encryption when the client supports it.
   (silent prompt, twice, 12+ characters): one prompt sets the LLDAP and the NAS
   password together, so a person has one password (a change in the LLDAP web UI would not reach
   Samba). `set-ldap-password` and `set-smb-password` hand people over to it; `set-smb-password`
-  alone is only for service accounts without LLDAP login (`ha-backup`, `ha-media`).
+  alone is only for service accounts without LLDAP login (`ha-backup`). `ha-media` (reads `muzik`
+  for HA's media storage) is an LLDAP user in group `servis`: `set-password ha-media`.
 
 ## Live target
 
