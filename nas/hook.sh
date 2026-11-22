@@ -2,14 +2,14 @@
 # Stack hook for the nas area (see docker-host/stack.sh), run on the docker VM as root from the
 # area's folder: check | pre | post <mode> | status.
 #   pre:  writes /srv/data/nas/accounts from the deployed LLDAP lists (auth area) plus the service
-#         accounts, sets owners/modes of the shared folders, installs set-smb-password and set-password, builds
+#         accounts (ha-backup, ha-media, paperless), sets owners/modes of the shared folders, installs set-smb-password and set-password, builds
 #         the image.
 #   post: waits for smbd and lists the accounts that have an SMB password.
 set -euo pipefail
 cd "$(dirname "$0")"
 LL=/opt/stacks/auth/lldap-bootstrap
 ACC=/srv/data/nas/accounts
-ADMIN_GID=20000 AILE_GID=20001 HAB_UID=10100 PL_UID=8003
+ADMIN_GID=20000 AILE_GID=20001 HAB_UID=10100 HM_UID=10101 PL_UID=8003
 
 case "${1:-status}" in
   check)
@@ -38,11 +38,15 @@ for u in objs("user-configs/*.json"):
     print("user", u["id"], u["uidnumber"], u["gidnumber"], extra)
 print("user ha-backup 10100 20100")         # HA's network storage; SMB only, not in admin
 print("user paperless 8003 8003")           # owner of the scan inbox (Paperless container uid)
+print("group ha-media 20101")
+print("user ha-media 10101 20101")          # HA's media network storage (muzik, read-only); SMB only
 PY
     chmod 644 "$ACC.new" && mv "$ACC.new" "$ACC"
     install -d -m 2770 -o root -g "$ADMIN_GID" /srv/nas/backup
     install -d -m 2770 -o "$HAB_UID" -g "$ADMIN_GID" /srv/nas/backup/ha
-    install -d -m 2770 -o root -g "$AILE_GID" /srv/nas/dokuman/genel /srv/nas/foto
+    install -d -m 2770 -o root -g "$AILE_GID" /srv/nas/dokuman/genel
+    install -d -m 2771 -o root -g "$AILE_GID" /srv/nas/foto   # o+x: ha-media reaches muzik/, lists nothing
+    install -d -m 2775 -o root -g "$AILE_GID" /srv/nas/foto/muzik
     install -d -m 750 -o "$PL_UID" -g "$PL_UID" /srv/nas/dokuman/paperless/consume
     install -m 755 set-smb-password /usr/local/sbin/set-smb-password
     install -m 755 set-password /usr/local/sbin/set-password

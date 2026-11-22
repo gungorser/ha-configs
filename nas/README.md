@@ -10,6 +10,7 @@ in the house at `\\192.168.0.222` (port 445 on the VM's LAN address only; the ro
 | `dokuman` | `/srv/nas/dokuman/genel` | group `aile` | general documents; Paperless's own files on this disk are not shared |
 | `tarama` | `/srv/nas/dokuman/paperless/consume` | group `aile` | scan inbox: Paperless consumes what lands here (files owned by `paperless`, uid 8003) |
 | `foto` | `/srv/nas/foto` | group `aile` | photos; Immich's library `immich/` is root-only, not visible here |
+| `muzik` | `/srv/nas/foto/muzik` | group `aile` (+ `ha-media` read-only) | songs for the TV's background music; HA mounts it as network storage `muzik` (usage media) for Music Assistant |
 
 `melike` is in `aile` only, so she has no backup access. Guests and wrong passwords are refused;
 SMB3 only, encryption when the client supports it.
@@ -18,7 +19,7 @@ SMB3 only, encryption when the client supports it.
 
 - Names, uids/gids and groups come from LLDAP's lists in the repo
   (`auth/lldap-bootstrap`); `hook.sh` writes them to `/srv/data/nas/accounts` and the container
-  creates matching local accounts (no login). Service accounts: `ha-backup` (uid 10100, SMB only)
+  creates matching local accounts (no login). Service accounts: `ha-backup` (uid 10100, SMB only), `ha-media` (uid 10101, SMB only, reads `muzik`)
   and `paperless` (uid 8003, the scan inbox owner).
 - SMB cannot check LLDAP passwords (LLDAP keeps no NT hashes; its Samba integration is still open
   upstream), so Samba keeps its own copy in its passdb (`/srv/data/nas/samba`). A user without one
@@ -27,12 +28,13 @@ SMB3 only, encryption when the client supports it.
   (silent prompt, twice, 12+ characters): one prompt sets the LLDAP and the NAS
   password together, so a person has one password (a change in the LLDAP web UI would not reach
   Samba). `set-ldap-password` and `set-smb-password` hand people over to it; `set-smb-password`
-  alone is only for service accounts without LLDAP login (`ha-backup`).
+  alone is only for service accounts without LLDAP login (`ha-backup`, `ha-media`).
 
 ## Live target
 
 `/opt/stacks/nas` on the docker VM (image built there from `Dockerfile`: Debian trixie-slim pinned
-by digest + Debian's samba), `/srv/data/nas` (accounts, passdb), the folders above.
+by digest + Debian's samba), `/srv/data/nas` (accounts, passdb), the folders above. `/srv/nas/foto` is
+2771 (others may only pass through, for `ha-media` to reach `muzik/`).
 
 ## Deploy
 
