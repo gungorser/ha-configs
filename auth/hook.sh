@@ -88,7 +88,11 @@ case "${1:-status}" in
     printf '{"id": "authelia", "email": "authelia@gungors.duckdns.org", "displayName": "Authelia (service)", "groups": ["lldap_password_manager"], "password": "%s"}\n' \
       "$(cat "$SEC/authelia/ldap_password")" > "$SEC/bootstrap.new/user-configs/zz-authelia.json"
     chown -R "$LLDAP_UID:$LLDAP_UID" "$SEC/bootstrap.new" && chmod -R go-rwx "$SEC/bootstrap.new"
-    rm -rf "$SEC/bootstrap" && mv "$SEC/bootstrap.new" "$SEC/bootstrap"
+    # Update the folder in place: LLDAP bind-mounts it, and a replaced folder would leave the
+    # running container on the deleted one (bootstrap.sh then sees no lists at all).
+    install -d -m 700 -o "$LLDAP_UID" -g "$LLDAP_UID" "$SEC/bootstrap"
+    find "$SEC/bootstrap" -mindepth 1 -delete
+    cp -a "$SEC/bootstrap.new/." "$SEC/bootstrap/" && rm -rf "$SEC/bootstrap.new"
     install -d -m 750 -o root -g root "$DATA"
     install -d -m 700 -o "$LLDAP_UID" -g "$LLDAP_UID" "$DATA/lldap"
     install -d -m 700 -o "$AUTHELIA_UID" -g "$AUTHELIA_UID" "$DATA/authelia"
