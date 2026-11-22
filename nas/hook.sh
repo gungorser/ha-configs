@@ -4,7 +4,7 @@
 #   pre:  writes /srv/data/nas/accounts from the deployed LLDAP lists (auth area) plus the service
 #         accounts (ha-backup, ha-media, paperless), sets owners/modes of the shared folders, installs set-smb-password and set-password, builds
 #         the image.
-#   post: waits for smbd and lists the accounts that have an SMB password.
+#   post: recreates the container when smb.conf or the accounts changed, waits for smbd, lists the accounts that have an SMB password.
 set -euo pipefail
 cd "$(dirname "$0")"
 LL=/opt/stacks/auth/lldap-bootstrap
@@ -53,6 +53,13 @@ PY
     docker compose --project-directory . -f compose.yaml build -q
     ;;
   post)
+    # smb.conf is a single-file bind mount (pinned to the old file after the swap) and the
+    # accounts are created at container start: recreate the container when either changed.
+    if ! docker exec nas-samba-1 cat /etc/samba/smb.conf 2>/dev/null | cmp -s - smb.conf \
+       || ! docker exec nas-samba-1 cat /etc/nas/accounts 2>/dev/null | cmp -s - "$ACC"; then
+      echo "nas: smb.conf or accounts changed, recreating the container"
+      docker compose --project-directory . -f compose.yaml up -d --force-recreate
+    fi
     for _ in $(seq 30); do
       [ "$(docker inspect -f '{{.State.Health.Status}}' nas-samba-1 2>/dev/null)" = healthy ] && break
       sleep 2
