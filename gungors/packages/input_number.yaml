@@ -104,3 +104,15 @@ input_number:
     step: 5
     unit_of_measurement: "%"
     icon: mdi:robot-vacuum
+
+  # --- heating -----------------------------------------------------------------------------------
+  # Misafir PID integral seed: the gungors pid clears its integral at every switch-on, and with
+  # ki 0.003 it takes hours to build up again (the room sat 0.2-0.4 C under the setpoint for 2 h,
+  # 2026-11-21). automation misafir_pid_seed stores the last integral of a long heating run here
+  # and seeds it back on the next switch-on. No initial, so it keeps its value over restarts.
+  misafir_pid_seed:
+    name: Misafir PID seed
+    min: 0
+    max: 100
+    step: 0.1
+    icon: mdi:sigma

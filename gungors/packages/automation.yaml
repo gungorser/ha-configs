@@ -53,6 +53,53 @@ automation:
         send_notification: false
 
   # --- heating -----------------------------------------------------------------------------------
+  # Misafir PID seed: on heat -> off after a run of at least 2 h, store the last pid_i in
+  # input_number.misafir_pid_seed; on off -> heat, after the pid has cleared its integral, seed it
+  # back with gungors.clear_integral so the valve starts near its steady opening.
+  - id: misafir_pid_seed
+    alias: misafir_pid_seed
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: climate.misafir
+        from: heat
+        to: "off"
+        id: store
+      - trigger: state
+        entity_id: climate.misafir
+        from: "off"
+        to: heat
+        id: seed
+    actions:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: store
+              - condition: template
+                value_template: >-
+                  {{ (as_timestamp(trigger.to_state.last_changed)
+                      - as_timestamp(trigger.from_state.last_changed)) >= 7200
+                     and trigger.from_state.attributes.pid_i | float(0) > 0 }}
+            sequence:
+              - action: input_number.set_value
+                target:
+                  entity_id: input_number.misafir_pid_seed
+                data:
+                  value: "{{ [trigger.from_state.attributes.pid_i | float(0), 100] | min | round(1) }}"
+          - conditions:
+              - condition: trigger
+                id: seed
+              - condition: numeric_state
+                entity_id: input_number.misafir_pid_seed
+                above: 0
+            sequence:
+              - delay: {seconds: 2}
+              - action: gungors.clear_integral
+                target:
+                  entity_id: climate.misafir
+                data:
+                  value: "{{ states('input_number.misafir_pid_seed') | float(0) }}"
+
   # Mirrors binary_sensor.kombi_talebi onto the (hidden) boiler relay. Also resyncs
   # at startup and whenever the relay reports on/off (manual change, or back from
   # unavailable). While the relay is unavailable nothing is sent.
