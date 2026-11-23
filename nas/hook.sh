@@ -45,6 +45,7 @@ PY
     install -d -m 2770 -o root -g "$AILE_GID" /srv/nas/dokuman/genel
     install -d -m 2771 -o root -g "$AILE_GID" /srv/nas/foto   # o+x: ha-media reaches muzik/, lists nothing
     install -d -m 2775 -o root -g "$AILE_GID" /srv/nas/foto/muzik
+    install -d -m 2775 -o root -g "$ADMIN_GID" /srv/nas/foto/floorplan   # o+rx: ha-media reads it
     install -d -m 750 -o "$PL_UID" -g "$PL_UID" /srv/nas/dokuman/paperless/consume
     install -m 755 set-smb-password /usr/local/sbin/set-smb-password
     install -m 755 set-password /usr/local/sbin/set-password

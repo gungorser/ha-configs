@@ -11,6 +11,7 @@ in the house at `\\192.168.0.222` (port 445 on the VM's LAN address only; the ro
 | `tarama` | `/srv/nas/dokuman/paperless/consume` | group `aile` | scan inbox: Paperless consumes what lands here (files owned by `paperless`, uid 8003) |
 | `foto` | `/srv/nas/foto` | group `aile` | photos; Immich's library `immich/` is root-only, not visible here |
 | `muzik` | `/srv/nas/foto/muzik` | group `aile` (+ `ha-media` read-only) | songs for the TV's background music; HA mounts it as network storage `muzik` (usage media) for Music Assistant |
+| `floorplan` | `/srv/nas/foto/floorplan` | group `admin` (+ `ha-media` read-only) | the 3D floor page and renders; HA mounts it as network storage `floorplan` (usage share) and `configs_deploy` area `floorplan` copies it to `/config/www` |
 
 `melike` is in `aile` only, so she has no backup access. Guests and wrong passwords are refused;
 SMB3 only, encryption when the client supports it.

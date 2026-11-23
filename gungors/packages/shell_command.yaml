@@ -20,7 +20,7 @@ shell_command:
     for a in $($G ls-tree --name-only master); do
     $G show "master:$a/deploy.sh" 2>/dev/null | grep -q '^# area-target: ha' || continue;
     $G show "master:$a/deploy.sh" | sh -s -- status; done
-  # Deploy one HA area (deploy.sh carries '# area-target: ha'): gungors | pyscript | blueprints | esphome,
+  # Deploy one HA area (deploy.sh carries '# area-target: ha'): gungors | pyscript | blueprints | esphome | floorplan,
   # mode = deploy (default, stops on live edits) | force (Sercan only) | rollback.
   configs_deploy: >-
     sh -c 'G="git -c safe.directory=/config/.ha-configs.git --git-dir=/config/.ha-configs.git";
