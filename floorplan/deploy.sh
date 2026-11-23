@@ -1,7 +1,7 @@
 #!/bin/sh
 # area-target: ha  (configs_status / configs_deploy on HA run only areas with this line)
 # Deploys the 3D floor page (ha-floorplan: page + renders) to /config/www/gungors_floor. The files
-# are not in this repository: ha-floorplan's deploy copies them to the NAS share `floorplan`
+# are not in this repository: ha-floorplan's deploy on the docker VM copies them to the NAS share `floorplan`
 # (\\192.168.0.222\floorplan), which HA mounts as network storage `floorplan` (usage share,
 # /share/floorplan). This script swaps a copy of that folder in; see README.md here.
 # mode: status | deploy | force (same as deploy) | rollback

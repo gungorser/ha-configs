@@ -4,9 +4,10 @@ The 3D floor page of [ha-floorplan](https://github.com/gungorser/ha-floorplan) (
 model and render layers per floor) on Home Assistant. Its files are built outside this repository
 (renders by Blender), so this area only moves them from the NAS into `/config/www`.
 
-Flow: ha-floorplan's deploy (`src/ha/deploy.ps1`, or a copy from pve) writes the page and the
-floors to the NAS share `floorplan` (`\\192.168.0.222\floorplan`, `nas/`) and a `.version` stamp,
-then `configs_deploy` with `{"area": "floorplan"}` swaps a copy into place. No Samba add-on on HA.
+Flow: Blender renders on the docker VM, so ha-floorplan's deploy runs there and copies the page and
+the floors into `/srv/nas/foto/floorplan` on its own disk (the NAS share `floorplan`, `nas/`), with a
+`.version` stamp; then `configs_deploy` with `{"area": "floorplan"}` swaps a copy into place on HA.
+No Samba add-on on HA, no Windows machine.
 
 ## Live target
 
@@ -16,7 +17,8 @@ HA network storage `floorplan` (usage **share**, `/share/floorplan`, server `192
 
 ## Deploy
 
-1. ha-floorplan's deploy writes the NAS share (only the floors it changed; the share keeps a full copy).
+1. ha-floorplan's deploy on the docker VM writes `/srv/nas/foto/floorplan` (only the floors it
+   changed; the folder keeps a full copy) and `.version`.
 2. `configs_deploy` with `{"area": "floorplan"}`: copies `/share/floorplan` into a stage folder, swaps it
    with the target, keeps the old one in `/config/.ha-configs-prev/floorplan`, writes the source's
    `.version` to `<target>/.deployed`. `force` is the same as `deploy` (nobody edits the target live).
