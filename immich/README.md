@@ -23,6 +23,9 @@ and outside the house with the same address.
   phone can take days; photos show at once, faces and smart search follow.
 - Web: NPM `foto` host -> `immich-server:2283` (proxy area), public, unlimited body size, no
   forward-auth (the phone app needs the bare API).
+- Machine learning: NPM `immich-ml` host -> `immich-machine-learning:3003`, LAN only, no login:
+  the gungors video face scan in HA (ha-integrations README "Immich albums") posts video frames
+  to `/predict`; it runs under the same 1 CPU / 3 GB cap.
 
 ### Users: LLDAP through Authelia
 

@@ -1,7 +1,7 @@
 # Immich (photo library) at https://foto.gungors.duckdns.org: server, machine learning, Postgres
 # with VectorChord and Valkey, as in Immich's release compose file (v3.3.5) with these changes:
-# service names prefixed (only immich-server joins the shared `proxy` network, NPM forwards to
-# immich-server:2283), no published ports, data paths fixed, settings from immich.json (hook.sh
+# service names prefixed (immich-server and immich-machine-learning join the shared `proxy` network,
+# NPM forwards to immich-server:2283 and, LAN only, immich-machine-learning:3003), no published ports, data paths fixed, settings from immich.json (hook.sh
 # adds the OIDC secret and writes it to /opt/secrets/immich/immich.json), and the lowest priority
 # on the VM: all four on cores 2-3, cpu_shares 256, server and ML capped at 1 CPU each, memory
 # limits, oom_score_adj 500 (HA and the other services win). Photos on the nas-foto disk, database
@@ -54,6 +54,8 @@ services:
       MACHINE_LEARNING_MODEL_TTL: "300"   # unload models after 5 idle minutes (frees RAM)
     volumes:
       - /srv/data/immich/model-cache:/cache
+    # On `proxy` too: NPM host immich-ml (LAN only) lets the gungors video face scan in HA use it.
+    networks: [proxy, default]
     healthcheck:
       disable: false
 
