@@ -57,6 +57,14 @@ auth = "none"            # login: Authelia OIDC inside Immich; the phone app nee
 live = true              # immich area
 
 [[host]]
+domain = "immich-ml.gungors.duckdns.org"
+forward = "http://immich-machine-learning:3003"
+max_body = "50m"         # video frames as JPEG
+access = "lan"
+auth = "none"            # no login of its own: the gungors video face scan in HA posts frames to /predict
+live = true              # immich area
+
+[[host]]
 domain = "paperless.gungors.duckdns.org"
 forward = "http://paperless:8000"       # paperless area on this VM (moved from the Pi add-on 2026-11-12)
 websockets = true
