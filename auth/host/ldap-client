@@ -21,6 +21,7 @@ case "${1:-status}" in
     missing=$(for p in "${PKGS[@]}"; do dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'ok installed' || echo "$p"; done)
     if [ -n "$missing" ]; then
       # shellcheck disable=SC2086
+      apt-get update -q >/dev/null
       DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends $missing >/dev/null
       echo "ldap-client: installed $(echo $missing)"
     fi
