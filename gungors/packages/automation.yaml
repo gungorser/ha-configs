@@ -101,7 +101,7 @@ automation:
   # Filesystem provider) shuffled on repeat through Snapdroid, the Snapcast client on the TV
   # (media_player.tv_muzik, plays in the background behind any app). Another app in front, or the
   # TV off: pause; back to Fully/Immich: resume.
-  # Folder per app: the `background_folder` attribute of sensor.immich (Immich) and
+  # Folder per app: the `background_folder` attribute of sensor.immich_processing (Immich) and
   # sensor.floorplan_3d (Fully), set in the gungors integration (Servisler); a folder inside the
   # share, empty or missing = the whole share. Volume: the player stays at 100 %, the TV remote
   # sets the loudness. If Snapdroid is not running (player unavailable) it is opened and the app
@@ -126,7 +126,7 @@ automation:
       player: media_player.tv_muzik
       app: "{{ state_attr('media_player.gungors_tv_2', 'app_id') }}"
       folder_sensor: >-
-        {{ 'sensor.immich' if app == 'nl.giejay.android.tv.immich' else 'sensor.floorplan_3d' }}
+        {{ 'sensor.immich_processing' if app == 'nl.giejay.android.tv.immich' else 'sensor.floorplan_3d' }}
       folder: "{{ (state_attr(folder_sensor, 'background_folder') or '') | trim('/') }}"
       # Fully <-> Immich with different folders: start the other folder instead of resuming.
       music_apps: ["de.ozerov.fully", "nl.giejay.android.tv.immich"]
@@ -134,7 +134,7 @@ automation:
         {{ trigger.from_state.attributes.get('app_id') if trigger.platform == 'state'
            and trigger.from_state is not none else none }}
       prev_folder: >-
-        {% set s = 'sensor.immich' if prev_app == 'nl.giejay.android.tv.immich' else 'sensor.floorplan_3d' %}
+        {% set s = 'sensor.immich_processing' if prev_app == 'nl.giejay.android.tv.immich' else 'sensor.floorplan_3d' %}
         {{ (state_attr(s, 'background_folder') or '') | trim('/') }}
       new_folder: "{{ prev_app in music_apps and prev_app != app and prev_folder != folder }}"
     actions:
