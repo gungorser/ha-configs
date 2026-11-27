@@ -93,10 +93,3 @@ forward = "http://paperless-gpt:8080"
 access = "lan"
 auth = "authelia"
 live = true              # paperless area (web UI for prompts and settings; LAN only)
-
-[[host]]
-domain = "mail.gungors.duckdns.org"
-forward = "http://roundcube:80"
-access = "lan"
-auth = "none"            # Roundcube logs in with the LLDAP user name and password
-live = true              # mail area (inbound mail for sercan@ and melike@gungors.duckdns.org)
