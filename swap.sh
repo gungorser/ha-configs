@@ -18,7 +18,8 @@ STAGE=$CONFIG/.ha-configs-stage/$KEY
 PREV=$CONFIG/.ha-configs-prev/$KEY
 NEW=$($G rev-parse --short master) || exit 1
 
-# Prints the live edits (target vs the commit in its .deployed); returns 0 when there are none.
+# Prints the live edits (target vs the commit in its .deployed) as a unified diff; a live-only file
+# is shown in full (-N), so a live edit can be copied into the repo. Returns 0 when there are none.
 live_edits() {
   [ -f "$TARGET/.deployed" ] || { echo "$TARGET: not deployed by configs_deploy yet"; return 1; }
   OLD=$(cat "$TARGET/.deployed")
@@ -26,7 +27,7 @@ live_edits() {
   rm -rf "$CHECK" && mkdir -p "$CHECK" || return 1
   $G archive "$OLD:$SRC" | tar -x -C "$CHECK" || { rm -rf "$CHECK"; return 1; }
   echo "$OLD" > "$CHECK/.deployed"
-  diff -r "$CHECK" "$TARGET"
+  diff -ruN "$CHECK" "$TARGET"
   RC=$?
   rm -rf "$CHECK"
   return $RC
