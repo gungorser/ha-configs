@@ -93,3 +93,57 @@ automation:
               - action: switch.turn_off
                 target:
                   entity_id: switch.koridor2_switch
+
+  # --- tv_bg_music -------------------------------------------------------------------------------
+  - id: tv_bg_music
+    alias: tv_bg_music
+    description: Background music on the TV while Fully Kiosk or Immich is in front.
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: sensor.tv_foreground_app
+      - trigger: homeassistant
+        event: start
+    variables:
+      app: "{{ states('sensor.tv_foreground_app') }}"
+      target_apps:
+        - de.ozerov.fully
+        - nl.giejay.android.tv.immich
+    actions:
+      - if:
+          - condition: template
+            value_template: "{{ app in target_apps }}"
+        then:
+          - if:
+              - condition: state
+                entity_id: media_player.tv_muzik
+                state: unavailable
+            then:
+              - action: media_player.play_media
+                target:
+                  entity_id: media_player.gungors_tv_2
+                data:
+                  media:
+                    media_content_id: de.badaix.snapcast
+                    media_content_type: app
+              - delay: "00:00:04"
+              - action: media_player.play_media
+                target:
+                  entity_id: media_player.gungors_tv_2
+                data:
+                  media:
+                    media_content_id: "{{ app }}"
+                    media_content_type: app
+              - wait_template: "{{ not is_state('media_player.tv_muzik', 'unavailable') }}"
+                timeout: "00:00:45"
+                continue_on_timeout: false
+          - action: media_player.media_play
+            target:
+              entity_id: media_player.tv_muzik
+        else:
+          - condition: state
+            entity_id: media_player.tv_muzik
+            state: playing
+          - action: media_player.media_pause
+            target:
+              entity_id: media_player.tv_muzik

@@ -210,3 +210,34 @@ template:
           - switch.koridor_roomstate
     name: roomstate
     unique_id: roomstate_all
+
+  # --- tv_foreground_app -------------------------------------------------------------------------
+  # Foreground app of the living-room TV, read over ADB every 5 s; tv_bg_music (automation.yaml) uses it.
+  - trigger:
+      - trigger: time_pattern
+        seconds: "/5"
+    action:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: media_player.gungors_tv_2
+            state:
+              - "off"
+              - unavailable
+              - unknown
+      - action: androidtv.adb_command
+        target:
+          entity_id: media_player.gungors_tv_adb
+        data:
+          command: "dumpsys activity activities | grep mResumedActivity"
+    sensor:
+      - name: TV Foreground App
+        unique_id: tv_foreground_app
+        state: >-
+          {% if is_state('media_player.gungors_tv_2', ['off', 'unavailable', 'unknown']) %}
+            off
+          {% else %}
+            {% set resp = state_attr('media_player.gungors_tv_adb', 'adb_response') or '' %}
+            {% set matches = resp | regex_findall('u0 ([^/]+)/') %}
+            {{ matches[0] if matches | count > 0 else 'unknown' }}
+          {% endif %}
