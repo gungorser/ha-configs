@@ -10,7 +10,7 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `authelia/configuration.yml` | Authelia config, mounted read-only: LLDAP backend, access rules, session, TOTP |
 | `lldap-bootstrap/` | Users, groups and the POSIX attribute schema, applied by LLDAP's `bootstrap.sh` |
 | `hook.sh` | Generates secrets once, assembles the bootstrap folder, runs it after compose up |
-| `host/` | `ldap-client` (SSSD for OS logins), `nftables-ldap.nft` + `ldap-firewall.service` (LDAP port: pve only) |
+| `host/` | `ldap-client` (SSSD for OS logins), `ldap-takeover` (local account -> LLDAP user), `nftables-ldap.nft` + `ldap-firewall.service` (LDAP port: pve only) |
 | `lldap-prune.sh` | Removes memberships of listed users that the lists no longer give (run by `hook.sh` post) |
 
 | Group | Members | Access |
@@ -38,8 +38,12 @@ Paperless; `aile` -> Immich.
   `uidnumber`/`gidnumber` exist on the OS (repo users; relatives made in the UI do not). Bind
   user `sssd` (group `lldap_strict_readonly`, password `/opt/secrets/auth/sssd_password`, copied
   into `/etc/sssd/sssd.conf` 600 on both hosts). Plain LDAP: pve <-> VM stays on pve's bridge.
-  SSSD caches the last good login. Local accounts (root, claude on pve, the VM's break-glass
-  user) come first and never depend on LLDAP.
+  SSSD caches the last good login. Local accounts (root, claude on pve) come first and never
+  depend on LLDAP. On the docker VM, `sercan` is the LLDAP user since 2026-11-27: the cloud-init
+  account (uid 1000) was handed over with `host/ldap-takeover` (home, local groups; the NOPASSWD
+  sudo rule by name stays, deploys keep using `sercan@192.168.0.222`). After a VM rebuild, run
+  it again (header of the script). Break-glass without LLDAP: `qm guest exec 110 -- <cmd>` as
+  root on pve (guest agent).
 - POSIX attributes for later SSSD/Samba: `uidnumber` (users 10001+), `gidnumber` (groups 20000+,
   user's primary group), `homedirectory`, `loginshell`, `sshpublickey` (list, editable).
 - `users.json` holds sercan, melike and the service accounts (placeholder e-mails; Immich

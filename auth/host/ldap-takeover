@@ -1,0 +1,44 @@
+#!/bin/bash
+# Hands a local account over to the LLDAP user of the same name (SSSD, ldap-client): deletes the
+# local passwd/group entries, gives the home folder to the LDAP uid/gid and adds the LDAP user to
+# the same local groups. Rules by name (sudoers, subuid) keep working. Used once on 2026-11-27 for
+# the docker VM's cloud-init user sercan (proxmox/docker-vm.sh CIUSER); after a VM rebuild run it
+# again once auth is deployed.
+# Run as root WITHOUT relying on the account itself, from pve:
+#   scp auth/host/ldap-takeover sercan@192.168.0.222:/tmp/  (before), then as root on pve:
+#   qm guest exec 110 --timeout 90 -- bash /tmp/ldap-takeover apply sercan
+# Modes: apply <user> | rollback <user>   (recreates the local account from /var/lib/ldap-takeover/<user>)
+set -euo pipefail
+MODE=${1:?mode}; U=${2:?user}
+STATE=/var/lib/ldap-takeover; install -d -m 700 "$STATE"
+case "$MODE" in
+  apply)
+    line=$(grep "^$U:" /etc/passwd) || { echo "$U is not a local account"; exit 1; }
+    IFS=: read -r _ _ OUID OGID _ HOME_DIR _ <<<"$line"
+    groups=$(id -nG "$U" | tr ' ' '\n' | grep -vx "$U" | while read -r g; do if grep -q "^$g:" /etc/group; then echo "$g"; fi; done | tr '\n' ',' | sed 's/,$//')
+    printf 'uid=%s gid=%s home=%s groups=%s\n' "$OUID" "$OGID" "$HOME_DIR" "$groups" > "$STATE/$U"
+    pkill -KILL -u "$OUID" 2>/dev/null || true; sleep 1
+    userdel "$U"
+    if grep -q "^$U:" /etc/group; then groupdel "$U"; fi
+    sss_cache -E; systemctl restart sssd; sleep 2
+    ent=$(getent passwd "$U") || { echo "LDAP user $U not found"; exit 1; }
+    IFS=: read -r _ _ NUID NGID _ _ _ <<<"$ent"
+    [ "$NUID" != "$OUID" ] || { echo "still uid $OUID?"; exit 1; }
+    find "$HOME_DIR" -xdev -uid "$OUID" -exec chown -h "$NUID" {} +
+    find "$HOME_DIR" -xdev -gid "$OGID" -exec chgrp -h "$NGID" {} +
+    for g in ${groups//,/ }; do gpasswd -a "$U" "$g" >/dev/null; done
+    echo "takeover: $(id "$U")"
+    sudo -l -U "$U" | grep -E 'NOPASSWD|ALL' | sed 's/^/takeover sudo: /'
+    ;;
+  rollback)
+    # shellcheck disable=SC1090
+    . <(sed 's/ /\n/g' "$STATE/$U")
+    systemctl stop sssd; sss_cache -E 2>/dev/null || true
+    NUID=$(stat -c %u "$home")
+    groupadd -g "$gid" "$U"
+    useradd -u "$uid" -g "$gid" -G "$groups" -M -d "$home" -s /bin/bash "$U"
+    find "$home" -xdev -uid "$NUID" -exec chown -h "$uid:$gid" {} +
+    systemctl start sssd
+    echo "rollback: $(id "$U")"
+    ;;
+esac
