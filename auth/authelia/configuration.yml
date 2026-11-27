@@ -35,7 +35,7 @@ access_control:
       subject: ["group:admin"]
       policy: one_factor
     - domain: home.gungors.duckdns.org
-      subject: ["group:admin", "group:cekirdek_aile"]
+      subject: ["group:cekirdek_aile"]
       policy: one_factor
 
 session:
@@ -69,26 +69,34 @@ definitions:
 
 identity_providers:
   oidc:
-    # Who may log in to which client (LLDAP groups; everyone else, misafir and servis too, is denied):
-    #   admin: group admin (everything)   -> Proxmox
-    #   cekirdek_aile: + cekirdek_aile    -> Home Assistant, Paperless
-    #   aile: + aile (relatives)          -> Immich
+    # Who may log in to which client. The LLDAP groups nest: aile < cekirdek_aile < admin, and
+    # each person is a member of every group up to theirs (sercan: admin, cekirdek_aile, aile;
+    # melike: cekirdek_aile, aile; relatives: aile). Service accounts (servis) match no policy.
+    #   admin          -> Proxmox
+    #   home_assistant -> Home Assistant (cekirdek_aile, and misafir: HA only)
+    #   cekirdek_aile  -> Paperless
+    #   aile           -> Immich
     authorization_policies:
       admin:
         default_policy: deny
         rules:
           - policy: one_factor
             subject: group:admin
+      home_assistant:
+        default_policy: deny
+        rules:
+          - policy: one_factor
+            subject: [["group:cekirdek_aile"], ["group:misafir"]]
       cekirdek_aile:
         default_policy: deny
         rules:
           - policy: one_factor
-            subject: [["group:admin"], ["group:cekirdek_aile"]]
+            subject: group:cekirdek_aile
       aile:
         default_policy: deny
         rules:
           - policy: one_factor
-            subject: [["group:admin"], ["group:cekirdek_aile"], ["group:aile"]]
+            subject: group:aile
     # Scope `immich` hands Immich the immich_role claim (oauth.roleClaim in immich/immich.json).
     claims_policies:
       immich:
@@ -105,20 +113,20 @@ identity_providers:
         key: {{ secret "/secrets/oidc_jwks_rs256.pem" | mindent 10 "|" | msquote }}
     clients:
       # Home Assistant via hass-oidc-auth (HACS, replaced by hass-openid below). Groups map to HA
-      # roles there: admin -> admin, others -> user. Policy cekirdek_aile.
+      # roles there: admin -> admin, others -> user. Policy home_assistant.
       - client_id: homeassistant
         client_name: Home Assistant
         public: true
         require_pkce: true
         pkce_challenge_method: S256
-        authorization_policy: cekirdek_aile
+        authorization_policy: home_assistant
         consent_mode: implicit
         scopes: [openid, profile, groups]
         redirect_uris:
           - https://ha.gungors.duckdns.org/auth/oidc/callback
       # Home Assistant via hass-openid (HACS cavefire/hass-openid, domain openid; UI config flow).
       # Confidential: secret made by hook.sh, entered into HA's config flow (never in git). Policy
-      # cekirdek_aile; HA roles stay on the HA users it links by username (sercan, melike).
+      # home_assistant; HA roles stay on the HA users it links by username (sercan, melike).
       # Redirect: the web login and the Android app's external-browser login both use it.
       - client_id: homeassistant-openid
         client_name: Home Assistant
@@ -127,7 +135,7 @@ identity_providers:
         require_pkce: true
         pkce_challenge_method: S256
         token_endpoint_auth_method: client_secret_basic
-        authorization_policy: cekirdek_aile
+        authorization_policy: home_assistant
         consent_mode: implicit
         scopes: [openid, profile, email]
         redirect_uris:

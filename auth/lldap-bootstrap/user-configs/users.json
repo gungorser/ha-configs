@@ -1,3 +1,4 @@
-{"id": "sercan", "email": "sercan@gungors.duckdns.org", "displayName": "Sercan", "groups": ["admin", "cekirdek_aile", "lldap_admin"], "uidnumber": 10001, "gidnumber": 20004, "homedirectory": "/home/sercan", "loginshell": "/bin/bash"}
+{"id": "sercan", "email": "sercan@gungors.duckdns.org", "displayName": "Sercan", "groups": ["admin", "cekirdek_aile", "aile", "lldap_admin"], "uidnumber": 10001, "gidnumber": 20001, "homedirectory": "/home/sercan", "loginshell": "/bin/bash"}
+{"id": "melike", "email": "melike@gungors.duckdns.org", "displayName": "Melike", "groups": ["cekirdek_aile", "aile"], "uidnumber": 10002, "gidnumber": 20001, "homedirectory": "/home/melike", "loginshell": "/bin/bash"}
 {"id": "misafir", "email": "misafir@gungors.duckdns.org", "displayName": "Misafir", "groups": ["misafir"], "uidnumber": 10003, "gidnumber": 20002, "homedirectory": "/home/misafir", "loginshell": "/usr/sbin/nologin"}
 {"id": "ha-media", "email": "ha-media@gungors.duckdns.org", "displayName": "HA media (service)", "groups": ["servis"], "uidnumber": 10101, "gidnumber": 20003, "homedirectory": "/nonexistent", "loginshell": "/usr/sbin/nologin"}

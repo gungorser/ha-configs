@@ -16,26 +16,27 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | Group | Members | Access |
 |---|---|---|
 | `admin` | sercan | everything: Proxmox, paperless-gpt, plus all below; NPM and the LLDAP UI use their own login, LAN only |
-| `cekirdek_aile` | sercan, melike | Home Assistant, Paperless, Immich, `home.*` |
-| `aile` | halil, insaf, murat, nezahat, onur (relatives) | Immich only |
-| `misafir` | misafir | nothing through Authelia (every OIDC policy denies it) |
+| `cekirdek_aile` | sercan, melike | Home Assistant, Paperless, `home.*`, plus Immich |
+| `aile` | sercan, melike, halil, insaf, murat, nezahat, onur | Immich; NAS shares `foto`, `dokuman`, `muzik` (people with a NAS account) |
+| `misafir` | misafir | Home Assistant only (what HA gives the guest) |
 | `servis` | ha-media | service accounts: no web/app login (no policy admits them); ha-media reads the NAS shares `muzik`, `floorplan` |
-
-Authelia OIDC policies (`configuration.yml`): `admin` (group admin) -> Proxmox; `cekirdek_aile`
-(admin, cekirdek_aile) -> Home Assistant (both clients), Paperless; `aile` (admin, cekirdek_aile,
-aile) -> Immich. People have no NAS account (nas area: service accounts only).
 | `lldap_admin` | sercan | manages users in the LLDAP UI |
 | `lldap_password_manager` | authelia (service user) | password reset (disabled in Authelia) |
+
+The groups nest (aile < cekirdek_aile < admin): a person is a member of every group up to theirs,
+and each policy checks one group. Authelia OIDC policies (`configuration.yml`): `admin` ->
+Proxmox; `home_assistant` (cekirdek_aile, misafir) -> both HA clients; `cekirdek_aile` ->
+Paperless; `aile` -> Immich.
 
 - Base DN `dc=gungors,dc=duckdns,dc=org`; LDAP at `ldap://lldap:3890` inside Docker (not published
   yet: Samba/SSSD and the Proxmox realm publish it when they come).
 - POSIX attributes for later SSSD/Samba: `uidnumber` (users 10001+), `gidnumber` (groups 20000+,
   user's primary group), `homedirectory`, `loginshell`, `sshpublickey` (list, editable).
-- `users.json` holds only sercan, misafir and the service accounts. The other people (melike and
-  the relatives) are made by Sercan in the LLDAP UI with their real e-mail (Immich uses it) and
-  their groups; they are not in the repo, because `bootstrap.sh` would overwrite e-mail, display
-  name and avatar of every listed user. New person: LLDAP UI -> Create user (e-mail, password),
-  then add the group (`aile` or `cekirdek_aile`).
+- `users.json` holds sercan, melike, misafir and the service accounts (placeholder e-mails; Immich
+  links them by OIDC subject). The relatives are made by Sercan in the LLDAP UI with their real
+  e-mail (Immich uses it) and group `aile`; they are not in the repo, because `bootstrap.sh`
+  overwrites e-mail, display name and avatar of every listed user. New relative: LLDAP UI ->
+  Create user (e-mail, password), then add group `aile`.
 - For the listed users the repo is the truth: bootstrap adds users, groups and memberships, then
   `lldap-prune.sh` (hook post) removes memberships the lists no longer give. Users and groups are
   never deleted by a deploy; a user removed from `users.json` is removed in the UI by hand.
@@ -74,9 +75,8 @@ aile) -> Immich. People have no NAS account (nas area: service accounts only).
 People's passwords (LLDAP only; they are the one password for Authelia, so Immich, HA, Paperless,
 Proxmox): set in the LLDAP UI (`users.*`, LAN; a person can change their own there) or with
 `ssh -t sercan@192.168.0.222 sudo set-ldap-password <user>` (silent prompt, twice, 12+
-characters). Authelia's password reset stays off (no SMTP). NAS (Samba) passwords exist only for
-service accounts and are set with `set-password` (nas area); LLDAP keeps OPAQUE hashes, so the two
-cannot be synced anyway.
+characters). Authelia's password reset stays off (no SMTP). The NAS (Samba) password is separate
+and set with `set-password` (nas area): LLDAP keeps OPAQUE hashes, so the two cannot be synced.
 
 ## Live target
 

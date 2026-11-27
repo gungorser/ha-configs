@@ -1,12 +1,10 @@
 #!/bin/bash
 # Stack hook for the nas area (see docker-host/stack.sh), run on the docker VM as root from the
 # area's folder: check | pre | post <mode> | status.
-#   pre:  writes /srv/data/nas/accounts: the groups from the deployed LLDAP lists (auth area, for
-#         folder owners), as users only the service accounts (LLDAP group servis, ha-backup,
-#         paperless; people have no NAS account), sets owners/modes of the shared folders,
-#         installs set-password and set-smb-password, builds the image.
-#   post: recreates the container when smb.conf or the accounts changed, waits for smbd, deletes
-#         SMB passwords of accounts no longer listed, lists the accounts that have an SMB password.
+#   pre:  writes /srv/data/nas/accounts from the deployed LLDAP lists (auth area) plus the service
+#         accounts (ha-backup, paperless), sets owners/modes of the shared folders, installs set-smb-password and set-password, builds
+#         the image.
+#   post: recreates the container when smb.conf or the accounts changed, waits for smbd, lists the accounts that have an SMB password.
 set -euo pipefail
 cd "$(dirname "$0")"
 LL=/opt/stacks/auth/lldap-bootstrap
@@ -34,8 +32,8 @@ for name, gid in groups.items():
 print("group ha-backup 20100")
 print("group paperless 8003")
 for u in objs("user-configs/*.json"):
-    if "uidnumber" not in u or "servis" not in u.get("groups", []):
-        continue   # people log in through Authelia only; the NAS has service accounts
+    if "uidnumber" not in u:
+        continue
     extra = ",".join(g for g in u.get("groups", []) if g in groups)
     print("user", u["id"], u["uidnumber"], u["gidnumber"], extra)
 print("user ha-backup 10100 20100")         # HA's network storage; SMB only, not in admin
@@ -66,11 +64,6 @@ PY
       sleep 2
     done
     docker exec nas-samba-1 smbcontrol smbd ping >/dev/null && echo "nas: smbd running"
-    # SMB passwords of accounts that are no longer listed (people, since 2026-11-27).
-    for u in $(docker exec nas-samba-1 pdbedit -L 2>/dev/null | cut -d: -f1); do
-      awk -v u="$u" '$1 == "user" && $2 == u {f=1} END {exit !f}' "$ACC" && continue
-      if docker exec nas-samba-1 pdbedit -x "$u" >/dev/null; then echo "nas: deleted SMB account $u"; else echo "nas: could not delete SMB account $u"; fi
-    done
     echo "SMB passwords set for: $(docker exec nas-samba-1 pdbedit -L 2>/dev/null | cut -d: -f1 | tr '\n' ' ')"
     ;;
   status)
