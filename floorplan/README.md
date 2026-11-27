@@ -12,7 +12,7 @@ No Samba add-on on HA, no Windows machine.
 ## Live target
 
 `/config/www/gungors_floor` (served at `/local/gungors_floor/`, the floor card's iframe), copied from
-HA network storage `floorplan` (usage **share**, `/share/floorplan`, server `192.168.0.222`, share
+HA network storage `floorplan` (usage **share**, `/share/floorplan` or `/share/Floorplan`, server `192.168.0.222`, share
 `floorplan`, user `ha-media`, read-only).
 
 ## Deploy
