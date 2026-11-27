@@ -1,0 +1,22 @@
+# Xiaomi Cloud Map Extractor (HACS v3): Yatak Roborock S5 map camera.
+# In v3 this YAML is only a one-time import into a config entry (skipped while an entry with the
+# same host exists). To re-create the entry from git: delete the "Roborock S5" entry in the UI,
+# restart HA, then solve the Xiaomi captcha (reauth) in the UI. The Salon X20+ map comes from the
+# Dreame Vacuum integration (camera.xiaomi_robot_vacuum_x20_map), not from here.
+# Token and Xiaomi account live in secrets.yaml.
+
+camera:
+  - platform: xiaomi_cloud_map_extractor
+    name: yatak_vacuum_map
+    host: 192.168.0.175
+    token: !secret yatak_vacuum_token
+    username: !secret xiaomi_cloud_username
+    password: !secret xiaomi_cloud_password
+    draw: ["all"]
+    attributes:
+      - calibration_points
+      - charger
+      - rooms
+      - vacuum_position
+      - vacuum_room
+      - vacuum_room_name
