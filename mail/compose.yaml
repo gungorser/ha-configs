@@ -1,0 +1,75 @@
+# Inbound mail for gungors.duckdns.org: docker-mailserver (Postfix + Dovecot, LDAP accounts from
+# LLDAP) and Roundcube webmail. Only port 25 is published (the router forwards it to this VM);
+# IMAP stays on the `proxy` network for Roundcube, SMTP submission is off: the server only
+# receives (a home IP cannot send mail that is accepted). Data in /srv/data/mail (nas-data),
+# the LDAP bind password in /opt/secrets/mail.env (written by hook.sh from auth's sssd user).
+name: mail
+
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
+    hostname: mail
+    domainname: gungors.duckdns.org
+    restart: unless-stopped
+    env_file: /opt/secrets/mail.env   # LDAP_BIND_PW
+    environment:
+      TZ: Europe/Amsterdam
+      OVERRIDE_HOSTNAME: gungors.duckdns.org
+      SSL_TYPE: ""
+      ENABLE_OPENDKIM: "0"
+      ENABLE_OPENDMARC: "0"
+      ENABLE_POLICYD_SPF: "0"
+      ENABLE_AMAVIS: "0"
+      ENABLE_SPAMASSASSIN: "0"
+      ENABLE_CLAMAV: "0"
+      ENABLE_FAIL2BAN: "0"
+      ENABLE_POSTGREY: "0"
+      ONE_DIR: "1"
+      PERMIT_DOCKER: none
+      ACCOUNT_PROVISIONER: LDAP
+      LDAP_SERVER_HOST: ldap://lldap:3890
+      LDAP_SEARCH_BASE: ou=people,dc=gungors,dc=duckdns,dc=org
+      LDAP_BIND_DN: uid=sssd,ou=people,dc=gungors,dc=duckdns,dc=org
+      # Mailboxes only for LLDAP group cekirdek_aile (sercan, melike); login with the LLDAP user name.
+      LDAP_QUERY_FILTER_USER: (&(objectClass=person)(mail=%s)(memberOf=cn=cekirdek_aile,ou=groups,dc=gungors,dc=duckdns,dc=org))
+      LDAP_QUERY_FILTER_GROUP: (&(objectClass=groupOfUniqueNames)(uid=%s))
+      LDAP_QUERY_FILTER_ALIAS: (&(objectClass=person)(mail=%s))
+      LDAP_QUERY_FILTER_DOMAIN: (mail=*@%s)
+      DOVECOT_AUTH_BIND: "yes"
+      DOVECOT_USER_FILTER: (&(objectClass=person)(uid=%n)(memberOf=cn=cekirdek_aile,ou=groups,dc=gungors,dc=duckdns,dc=org))
+      DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir
+      DOVECOT_PASS_FILTER: (&(objectClass=person)(uid=%n))
+      DOVECOT_PASS_ATTRS: uid=user,userPassword=password
+    volumes:
+      - /srv/data/mail/data:/var/mail
+      - /srv/data/mail/state:/var/mail-state
+      - /srv/data/mail/logs:/var/log/mail
+      - /srv/data/mail/config:/tmp/docker-mailserver
+    ports:
+      - "25:25"
+    networks: [proxy]
+    healthcheck:
+      test: ["CMD", "ss", "--listening", "--tcp", "--no-header", "sport = 25"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  roundcube:
+    image: roundcube/roundcubemail:1.6.11-apache
+    restart: unless-stopped
+    depends_on: [mailserver]
+    environment:
+      ROUNDCUBEMAIL_DEFAULT_HOST: mailserver
+      ROUNDCUBEMAIL_DEFAULT_PORT: "143"
+      ROUNDCUBEMAIL_SMTP_SERVER: ""
+      ROUNDCUBEMAIL_DB_TYPE: sqlite
+      ROUNDCUBEMAIL_PLUGINS: archive,zipdownload
+    volumes:
+      - /srv/data/mail/roundcube:/var/roundcube/db
+    networks: [proxy]
+
+networks:
+  proxy:
+    external: true
+    name: proxy
