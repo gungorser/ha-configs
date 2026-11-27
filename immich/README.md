@@ -65,7 +65,7 @@ the new release's compose file (Postgres and Valkey pins too), deploy.
 
 - `immich/deploy.sh status`: deployed = master, four containers up, server healthy.
 - `https://foto.gungors.duckdns.org` shows "Authelia ile giriş"; sercan lands as admin, melike
-  as user, misafir is refused by Authelia.
+  as user, group misafir (guests) is refused by Authelia.
 - After an upload: the file under `/srv/nas/foto/immich/library/<user>/`, jobs finish in
   Administration > Jobs.
 

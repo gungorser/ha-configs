@@ -29,8 +29,8 @@ SMB3 only, encryption when the client supports it.
   keeps OPAQUE hashes and has no hooks, so nothing can copy a password to Samba. Set a NAS
   password with `ssh -t sercan@192.168.0.222 sudo set-password <user>` (silent prompt, twice,
   12+ characters); it changes only Samba. `set-smb-password` is a wrapper for it. Login
-  passwords: `set-ldap-password` or the LLDAP UI (auth area). Only people in `auth/lldap-bootstrap`
-  (sercan, melike, misafir) get NAS accounts; relatives made in the LLDAP UI do not.
+  passwords: the LLDAP UI (auth area). Only people in `auth/lldap-bootstrap`
+  (sercan, melike) get NAS accounts; relatives and guests made in the LLDAP UI do not.
   `ha-media` (reads `muzik`, `floorplan` for HA) is an LLDAP user in group `servis`.
 
 ## Live target

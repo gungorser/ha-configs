@@ -13,7 +13,7 @@ totp:
   issuer: gungors.duckdns.org
 
 authentication_backend:
-  # Off: no SMTP for reset links yet. Passwords are set with set-ldap-password on the docker VM.
+  # Off: no SMTP for reset links yet. Login passwords are set in the LLDAP UI.
   password_reset:
     disable: true
   ldap:

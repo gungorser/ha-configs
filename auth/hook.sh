@@ -2,7 +2,7 @@
 # Stack hook for the auth area (see docker-host/stack.sh), run on the docker VM as root from the
 # area's folder: check | pre | post <mode> | status.
 #   pre:  generates the secrets once (never overwritten), assembles the LLDAP bootstrap folder,
-#         prepares the data folders and installs set-ldap-password.
+#         prepares the data folders.
 #   post: waits for LLDAP, applies users, groups and the POSIX attribute schema from
 #         lldap-bootstrap/ (adds and updates, never deletes users or groups), removes the group
 #         memberships the lists no longer give (lldap-prune.sh), then waits for Authelia.
@@ -98,7 +98,7 @@ case "${1:-status}" in
     install -d -m 700 -o "$LLDAP_UID" -g "$LLDAP_UID" "$DATA/lldap"
     install -d -m 700 -o "$AUTHELIA_UID" -g "$AUTHELIA_UID" "$DATA/authelia"
     chmod 755 "$DATA"
-    install -m 755 set-ldap-password /usr/local/sbin/set-ldap-password
+    rm -f /usr/local/sbin/set-ldap-password   # removed 2026-11-27: login passwords in the LLDAP UI
     ;;
   post)
     healthy auth-lldap-1 120
