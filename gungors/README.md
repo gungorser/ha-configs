@@ -47,7 +47,7 @@ without a reload. Run HA's config check before a restart. Dashboards only need a
 ## Robot vacuum maps (UI-only integrations)
 
 - Xiaomi Cloud Map Extractor (HACS `PiotrMachowski/...-Xiaomi-Cloud-Map-Extractor`, v3.0.0-alpha-24) is
-  configured in the UI, not in this repo. `packages/vacuum_cleaner.yaml` (YAML cameras, v2.2.5) was
+  configured in the UI, not in this repo. `packages/vacuum_cleaner.yaml` (YAML cameras, v2.2.5; the v3 import now lives in `packages/camera.yaml`) was
   removed in 42ba36f because v2.2.5 can no longer log in to the Xiaomi cloud. In v3 `camera:` YAML is
   only a one-time import (skipped when an entry with the same host exists), so do not restore it.
 - Entry "Roborock S5" (Yatak, host 192.168.0.175, token and Xiaomi account entered in the UI). If it is in
