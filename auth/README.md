@@ -10,24 +10,36 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `authelia/configuration.yml` | Authelia config, mounted read-only: LLDAP backend, access rules, session, TOTP |
 | `lldap-bootstrap/` | Users, groups and the POSIX attribute schema, applied by LLDAP's `bootstrap.sh` |
 | `hook.sh` | Generates secrets once, assembles the bootstrap folder, runs it after compose up |
-| `set-ldap-password` | Wrapper for `set-password` (nas area), installed to `/usr/local/sbin` on the VM |
+| `set-ldap-password` | Sets a person's LLDAP password, installed to `/usr/local/sbin` on the VM |
+| `lldap-prune.sh` | Removes memberships of listed users that the lists no longer give (run by `hook.sh` post) |
 
 | Group | Members | Access |
 |---|---|---|
-| `admin` | sercan | everything; paperless-gpt behind Authelia (password only); NPM and the LLDAP UI use their own login, LAN only |
-| `aile` | sercan, melike | HA, Immich, Paperless, NAS (shares `foto`, `dokuman`) |
-| `misafir` | misafir | only what HA gives the guest |
-| `servis` | ha-media | service accounts: no web/app login (Authelia policy `insan` denies them); ha-media reads the NAS share `muzik` |
+| `admin` | sercan | everything: Proxmox, paperless-gpt, plus all below; NPM and the LLDAP UI use their own login, LAN only |
+| `cekirdek_aile` | sercan, melike | Home Assistant, Paperless, `home.*`, plus Immich |
+| `aile` | sercan, melike, halil, insaf, murat, nezahat, onur | Immich; NAS shares `foto`, `dokuman`, `muzik` (people with a NAS account) |
+| `misafir` | misafir | Home Assistant only (what HA gives the guest) |
+| `servis` | ha-media | service accounts: no web/app login (no policy admits them); ha-media reads the NAS shares `muzik`, `floorplan` |
 | `lldap_admin` | sercan | manages users in the LLDAP UI |
 | `lldap_password_manager` | authelia (service user) | password reset (disabled in Authelia) |
+
+The groups nest (aile < cekirdek_aile < admin): a person is a member of every group up to theirs,
+and each policy checks one group. Authelia OIDC policies (`configuration.yml`): `admin` ->
+Proxmox; `home_assistant` (cekirdek_aile, misafir) -> both HA clients; `cekirdek_aile` ->
+Paperless; `aile` -> Immich.
 
 - Base DN `dc=gungors,dc=duckdns,dc=org`; LDAP at `ldap://lldap:3890` inside Docker (not published
   yet: Samba/SSSD and the Proxmox realm publish it when they come).
 - POSIX attributes for later SSSD/Samba: `uidnumber` (users 10001+), `gidnumber` (groups 20000+,
   user's primary group), `homedirectory`, `loginshell`, `sshpublickey` (list, editable).
-- The repo lists only add and update: users and memberships changed in the LLDAP UI stay; a user
-  removed from `users.json` is removed in the UI by hand. E-mail addresses are placeholders until
-  an SMTP notifier exists.
+- `users.json` holds sercan, melike, misafir and the service accounts (placeholder e-mails; Immich
+  links them by OIDC subject). The relatives are made by Sercan in the LLDAP UI with their real
+  e-mail (Immich uses it) and group `aile`; they are not in the repo, because `bootstrap.sh`
+  overwrites e-mail, display name and avatar of every listed user. New relative: LLDAP UI ->
+  Create user (e-mail, password), then add group `aile`.
+- For the listed users the repo is the truth: bootstrap adds users, groups and memberships, then
+  `lldap-prune.sh` (hook post) removes memberships the lists no longer give. Users and groups are
+  never deleted by a deploy; a user removed from `users.json` is removed in the UI by hand.
 - 2FA: off since 2026-11-12 (Sercan's decision); admin rules use `one_factor`. To turn it on,
   set them back to `two_factor`; TOTP stays configured.
 - TOTP (when on). Without SMTP, Authelia writes the registration code and reset links to
@@ -36,18 +48,18 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
   `/.well-known/openid-configuration`), signing key and HMAC secret from `/opt/secrets/auth/authelia/`.
   Clients: `homeassistant` (public, PKCE, no secret; redirect `https://ha.*` and
   `https://homeassistant.*` `/auth/oidc/callback`; scopes openid, profile, groups) for HA's
-  hass-oidc-auth, which maps group `admin` to HA admins and `aile` to users.
+  hass-oidc-auth, which maps group `admin` to HA admins and other groups to users (policy `cekirdek_aile`).
   `paperless` (confidential, PKCE, `client_secret_basic`; secret made once by `hook.sh` into
   `/opt/secrets/oidc/paperless.secret`, its digest into Authelia's secrets folder).
   `immich` (confidential, PKCE, `client_secret_basic`, secret like paperless'; redirects
   `https://foto.*` `/auth/login` and `/user-settings` and the app's `app.immich:///oauth-callback`;
-  authorization policy `aile`, so misafir is refused; scope `immich` carries the claim
+  authorization policy `aile` (admin, cekirdek_aile, aile); scope `immich` carries the claim
   `immich_role`: `admin` for group `admin`, otherwise `user`).
   `proxmox` (confidential, `client_secret_basic`, PKCE not required; redirects
   `https://proxmox.gungors.duckdns.org` and `https://192.168.0.220:8006`; policy `admin`) for the
   Proxmox realm `authelia` (proxmox area, `pve-realm`).
   `homeassistant-openid` (confidential, PKCE, `client_secret_basic`; redirect
-  `https://ha.*` `/auth/openid/callback`; policy `aile`) for HA's hass-openid (cavefire, HACS),
+  `https://ha.*` `/auth/openid/callback`; policy `cekirdek_aile`) for HA's hass-openid (cavefire, HACS),
   which replaces hass-oidc-auth: the Android app logs in through the external browser instead of a
   device code. It links the HA users with the same username; HA roles stay set in HA. The plain secret
   (`/opt/secrets/oidc/homeassistant-openid.secret`) goes only into HA's config flow (UI-only integration).
@@ -60,12 +72,11 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `/opt/secrets/auth/authelia/` (700, uid 8002) | `jwt_secret`, `session_secret`, `storage_key`, `ldap_password` (service user `authelia`), `oidc_hmac_secret`, `oidc_jwks_rs256.pem` |
 | `/opt/secrets/auth/bootstrap/` (700, uid 8001) | repo lists + the service user with its password, mounted into LLDAP |
 
-People's passwords: change them only with `sudo set-password <user>` (nas area): one silent
-prompt (twice, 12+ characters) sets LLDAP and, for NAS accounts, Samba together. Authelia's
-password reset is off and the LLDAP UI should not be used for passwords, since Samba only gets the
-password from that command. Nobody else sets or sees them. From a PC or phone with SSH to the VM:
-`ssh -t sercan@192.168.0.222 sudo set-password <user>`; Sercan sets melike's/misafir's the same
-way. `set-ldap-password` is kept as a wrapper for it.
+People's passwords (LLDAP only; they are the one password for Authelia, so Immich, HA, Paperless,
+Proxmox): set in the LLDAP UI (`users.*`, LAN; a person can change their own there) or with
+`ssh -t sercan@192.168.0.222 sudo set-ldap-password <user>` (silent prompt, twice, 12+
+characters). Authelia's password reset stays off (no SMTP). The NAS (Samba) password is separate
+and set with `set-password` (nas area): LLDAP keeps OPAQUE hashes, so the two cannot be synced.
 
 ## Live target
 

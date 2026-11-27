@@ -25,12 +25,13 @@ SMB3 only, encryption when the client supports it.
 - SMB cannot check LLDAP passwords (LLDAP keeps no NT hashes; its Samba integration is still open
   upstream), so Samba keeps its own copy in its passdb (`/srv/data/nas/samba`). A user without one
   cannot log in to the shares.
-- Change passwords only with `ssh -t sercan@192.168.0.222 sudo set-password <user>`
-  (silent prompt, twice, 12+ characters): one prompt sets the LLDAP and the NAS
-  password together, so a person has one password (a change in the LLDAP web UI would not reach
-  Samba). `set-ldap-password` and `set-smb-password` hand people over to it; `set-smb-password`
-  alone is only for service accounts without LLDAP login (`ha-backup`). `ha-media` (reads `muzik`
-  for HA's media storage) is an LLDAP user in group `servis`: `set-password ha-media`.
+- NAS passwords are separate from the login (LLDAP/Authelia) passwords since 2026-11-27: LLDAP
+  keeps OPAQUE hashes and has no hooks, so nothing can copy a password to Samba. Set a NAS
+  password with `ssh -t sercan@192.168.0.222 sudo set-password <user>` (silent prompt, twice,
+  12+ characters); it changes only Samba. `set-smb-password` is a wrapper for it. Login
+  passwords: `set-ldap-password` or the LLDAP UI (auth area). Only people in `auth/lldap-bootstrap`
+  (sercan, melike, misafir) get NAS accounts; relatives made in the LLDAP UI do not.
+  `ha-media` (reads `muzik`, `floorplan` for HA) is an LLDAP user in group `servis`.
 
 ## Live target
 

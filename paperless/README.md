@@ -21,9 +21,10 @@ paperless-gpt (AI tags and OCR with Gemini). The add-on `paperless-mcp` is not c
 ### Users: LLDAP through Authelia
 
 - The login page goes straight to Authelia (`PAPERLESS_REDIRECT_LOGIN_TO_SSO`; OIDC client `paperless`, confidential, PKCE). The account is
-  created on the first login with the LLDAP username; LLDAP groups `admin` and `aile` are synced
+  created on the first login with the LLDAP username; LLDAP groups `admin` and `cekirdek_aile` are synced
   into the Paperless groups of the same name, which `hook.sh` keeps: `admin` has every permission,
-  `aile` every document permission (no users/groups admin).
+  `cekirdek_aile` (and the old `aile`, still holding `paperless-gpt`) every document permission.
+  Only group cekirdek_aile may log in (Authelia policy `cekirdek_aile`).
 - Password logins use the LLDAP password: `authelia_auth` (after Paperless' own backends) sends
   username and password to Authelia's `/api/firstfactor` (through NPM, `extra_hosts`), so
   Authelia's regulation (ban after 5 failures in 10 min) applies. It accepts only users that

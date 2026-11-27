@@ -8,7 +8,7 @@
 #         folder and keeps a copy in gpt/applied to spot later UI edits.
 #   check: stops a deploy when the paperless-gpt prompts were edited in its UI since the last
 #         deploy (shows the diff; merge them into gpt/prompts first).
-#   post: waits for Paperless, ensures the groups admin (all permissions) and aile (documents),
+#   post: waits for Paperless, ensures the groups admin (all permissions), cekirdek_aile and aile (documents),
 #         applies taxonomy.json (adds missing tags and document types, sets tag parents).
 #   share-all: after an import, makes every document, tag, correspondent, type and storage
 #         path unowned, so all users with the group permissions see them.
@@ -75,8 +75,12 @@ admin.permissions.set(Permission.objects.all())
 aile, _ = Group.objects.get_or_create(name="aile")
 skip = ("auth", "admin", "sessions", "contenttypes", "guardian", "socialaccount", "account",
         "mfa", "authtoken", "auditlog", "django_celery_results")
-aile.permissions.set(Permission.objects.exclude(content_type__app_label__in=skip))
-print(f"groups: admin {admin.permissions.count()} perms, aile {aile.permissions.count()} perms")
+docs = Permission.objects.exclude(content_type__app_label__in=skip)
+aile.permissions.set(docs)
+cekirdek, _ = Group.objects.get_or_create(name="cekirdek_aile")
+cekirdek.permissions.set(docs)
+print(f"groups: admin {admin.permissions.count()} perms, aile {aile.permissions.count()} perms, "
+      f"cekirdek_aile {cekirdek.permissions.count()} perms")
 PY
     { printf 'import json\nT = json.loads(r"""%s""")\n' "$(cat taxonomy.json)"; cat taxonomy.py; } | manage shell
     if [ -e "$DATA/.restart-paperless" ]; then   # new authelia_auth code

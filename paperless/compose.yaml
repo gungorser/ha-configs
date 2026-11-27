@@ -37,7 +37,7 @@ services:
       PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect,authelia_auth.apps.AutheliaAuthConfig
       PYTHONPATH: /usr/src/paperless/ext   # outside src/: the image compiles src/ at start
       # People come from LLDAP through Authelia: username = preferred_username, LLDAP groups
-      # admin/aile join the Paperless groups of the same name (created by hook.sh).
+      # admin/cekirdek_aile join the Paperless groups of the same name (created by hook.sh).
       PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"
       PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
       PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS: "true"
