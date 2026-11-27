@@ -84,10 +84,11 @@ cover:
   # --- Tuya curtains -----------------------------------------------------------------
   # travel_time: the motors report no position while moving; the wrapper estimates it from
   # learned full-run times (open_time / close_time) and takes the real position from stop /
-  # end-of-move reports. invert (salon only): the motor's open is the room's close (Z2M's
-  # invert_cover only flips positions for this device, so it is left as it was). Misafir's
-  # motor opens and closes the right way but reported its positions the other way round, so
-  # Z2M's invert_cover is on for phys_misafir_cover (2026-11-27) and the wrapper has no invert.
+  # end-of-move reports. invert: the motor's open is the room's close (Z2M's invert_cover
+  # only flips positions, not open/close). Salon: Z2M invert_cover is left as it was. Misafir:
+  # its raw position already counts the room's way (raw 100 = open), so the wrapper's invert
+  # would show the state the other way round; Z2M invert_cover is on for phys_misafir_cover
+  # (2026-11-27) to cancel that, and commands still go reversed through the wrapper's invert.
   - platform: gungors
     name: salon
     unique_id: salon_cover
@@ -104,5 +105,6 @@ cover:
     device_class: curtain
     features:
       - program
+      - invert
       - travel_time
       - link: cover.phys_misafir_cover
