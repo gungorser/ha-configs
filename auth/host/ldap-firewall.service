@@ -1,0 +1,14 @@
+# Limits LLDAP's published LDAP port to the Proxmox host (auth area, nftables-ldap.nft).
+[Unit]
+Description=Firewall for LLDAP's LDAP port (3890: Proxmox host only)
+Before=network-pre.target docker.service
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables-ldap.nft
+ExecStop=/usr/sbin/nft delete table inet ldap_guard
+
+[Install]
+WantedBy=multi-user.target

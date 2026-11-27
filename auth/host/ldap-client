@@ -1,0 +1,88 @@
+#!/bin/bash
+# OS logins from LLDAP (SSSD) on the docker VM and the Proxmox host. Only LLDAP group `admin` may log
+# in; it gets full sudo with the LLDAP password. Users need the POSIX attributes (uidnumber,
+# gidnumber, ...: auth/lldap-bootstrap); people without them (relatives) do not exist on the OS.
+# Local accounts (root, claude, the VM's break-glass user) come first and keep working without
+# LLDAP; SSSD also caches the last good login (offline login when LLDAP is down).
+# ssh: keys from ~/.ssh/authorized_keys and LLDAP's sshpublickey attribute; passwords only where
+# the host's sshd already allows them (pve yes, docker VM no).
+# Installed to /usr/local/sbin by auth/hook.sh (VM) and proxmox/deploy.sh (pve).
+# Usage (root): ldap-client apply <bind password file> | status
+set -euo pipefail
+BASE=dc=gungors,dc=duckdns,dc=org
+URI=ldap://192.168.0.222:3890
+CONF=/etc/sssd/sssd.conf
+PKGS=(sssd-ldap sssd-tools libnss-sss libpam-sss)
+
+case "${1:-status}" in
+  apply)
+    PWFILE=${2:?usage: ldap-client apply <bind password file>}
+    [ -s "$PWFILE" ] || { echo "ldap-client: empty $PWFILE"; exit 1; }
+    missing=$(for p in "${PKGS[@]}"; do dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'ok installed' || echo "$p"; done)
+    if [ -n "$missing" ]; then
+      # shellcheck disable=SC2086
+      DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends $missing >/dev/null
+      echo "ldap-client: installed $(echo $missing)"
+    fi
+    install -d -m 711 /etc/sssd
+    new=$(mktemp)
+    cat > "$new" <<EOF
+# Managed by ha-configs (auth/host/ldap-client). Bind user sssd: LLDAP group lldap_strict_readonly.
+[sssd]
+services = nss, pam, ssh
+domains = gungors
+
+[domain/gungors]
+id_provider = ldap
+auth_provider = ldap
+chpass_provider = none
+access_provider = simple
+simple_allow_groups = admin
+ldap_uri = $URI
+ldap_schema = rfc2307bis
+ldap_search_base = $BASE
+ldap_user_search_base = ou=people,$BASE
+ldap_group_search_base = ou=groups,$BASE
+ldap_default_bind_dn = uid=sssd,ou=people,$BASE
+ldap_default_authtok_type = password
+ldap_default_authtok = $(cat "$PWFILE")
+ldap_user_object_class = posixAccount
+ldap_user_name = uid
+ldap_user_ssh_public_key = sshpublickey
+ldap_group_object_class = groupOfUniqueNames
+ldap_group_name = cn
+ldap_group_member = uniqueMember
+# Plain LDAP: the only clients are this VM and pve, whose traffic stays on pve's bridge.
+ldap_id_use_start_tls = false
+ldap_auth_disable_tls_never_use_in_production = true
+cache_credentials = true
+enumerate = false
+EOF
+    chmod 600 "$new"
+    if ! cmp -s "$new" "$CONF"; then
+      mv "$new" "$CONF" && chown root:root "$CONF"
+      systemctl enable -q sssd && systemctl restart sssd && echo "ldap-client: sssd configured"
+    else
+      rm -f "$new"
+    fi
+    # Home folders on first login.
+    pam-auth-update --enable mkhomedir sss >/dev/null
+    grep -qE '^passwd:.*\bsss\b' /etc/nsswitch.conf || sed -i -E 's/^(passwd|group|shadow):(.*)$/\1:\2 sss/' /etc/nsswitch.conf
+    # LLDAP group admin = root rights (password = LLDAP password).
+    printf '# Managed by ha-configs (auth/host/ldap-client): LLDAP group admin may do everything.\n%%admin ALL=(ALL:ALL) ALL\n' > /etc/sudoers.d/50-ldap-admin.new
+    chmod 440 /etc/sudoers.d/50-ldap-admin.new
+    visudo -cqf /etc/sudoers.d/50-ldap-admin.new && mv /etc/sudoers.d/50-ldap-admin.new /etc/sudoers.d/50-ldap-admin
+    # ssh keys stored in LLDAP (attribute sshpublickey), next to ~/.ssh/authorized_keys.
+    printf '# Managed by ha-configs (auth/host/ldap-client).\nAuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys %%u\nAuthorizedKeysCommandUser nobody\n' > /etc/ssh/sshd_config.d/50-ldap.conf
+    /usr/sbin/sshd -t && systemctl reload ssh
+    "$0" status
+    ;;
+  status)
+    systemctl is-active -q sssd && echo "sssd: active" || echo "sssd: NOT active"
+    for u in sercan; do
+      id "$u" 2>/dev/null | sed 's/^/ldap-client: /' || echo "ldap-client: $u not resolved"
+    done
+    ;;
+  *)
+    echo "usage: ldap-client apply <bind password file> | status"; exit 1 ;;
+esac

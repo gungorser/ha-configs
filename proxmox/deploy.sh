@@ -98,8 +98,24 @@ glances_api() {
   systemctl restart glances-api.service && echo "glances: REST API on :61208 (HA VM only)"
 }
 
+# OS logins from LLDAP (SSSD; auth/host/ldap-client, same script as on the docker VM). The bind
+# password of LLDAP user sssd is read from the VM (auth area secret) over the owner's ssh key.
+ldap_client() {
+  local pw rc
+  $G show origin/master:auth/host/ldap-client > /usr/local/sbin/ldap-client.new && chmod 755 /usr/local/sbin/ldap-client.new \
+    && mv /usr/local/sbin/ldap-client.new /usr/local/sbin/ldap-client || return 1
+  pw=$(mktemp) && chmod 600 "$pw"
+  if sudo -u "$OWNER" ssh -o BatchMode=yes "${DOCKER_VM:-sercan@192.168.0.222}" sudo -n cat /opt/secrets/auth/sssd_password > "$pw" && [ -s "$pw" ]; then
+    /usr/local/sbin/ldap-client apply "$pw"; rc=$?
+  else
+    echo "ldap-client: cannot read the sssd bind password from the docker VM (deploy auth first)"; rc=1
+  fi
+  rm -f "$pw"; return $rc
+}
+
 after() {
   install_uv
+  ldap_client
   [ -f /etc/wireguard/peers.conf ] && vpn
   chmod 755 /usr/local/sbin/pve-realm && /usr/local/sbin/pve-realm
   glances_api

@@ -1,0 +1,14 @@
+# LLDAP's LDAP port (3890, published by auth/compose.yaml on 192.168.0.222): only the Proxmox host
+# may reach it from outside (SSSD there); the docker VM's own SSSD connects locally. LDAP is plain
+# text, but pve <-> VM traffic stays on pve's bridge. Docker publishes through DNAT + forward, so
+# this drops in the forward hook before Docker's rules. Own table, Docker's rules stay untouched.
+# Loaded by ldap-firewall.service (installed by auth/hook.sh).
+table inet ldap_guard
+delete table inet ldap_guard
+table inet ldap_guard {
+	chain forward {
+		type filter hook forward priority filter - 10; policy accept;
+		iifname "eth0" tcp dport 3890 ip saddr 192.168.0.220 accept
+		iifname != "br-*" tcp dport 3890 drop
+	}
+}

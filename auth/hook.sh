@@ -3,9 +3,11 @@
 # area's folder: check | pre | post <mode> | status.
 #   pre:  generates the secrets once (never overwritten), assembles the LLDAP bootstrap folder,
 #         prepares the data folders.
+#         Installs the firewall for the published LDAP port and ldap-client (host/).
 #   post: waits for LLDAP, applies users, groups and the POSIX attribute schema from
 #         lldap-bootstrap/ (adds and updates, never deletes users or groups), removes the group
-#         memberships the lists no longer give (lldap-prune.sh), then waits for Authelia.
+#         memberships the lists no longer give (lldap-prune.sh), then waits for Authelia and
+#         configures SSSD (OS logins for group admin) on the VM with host/ldap-client.
 set -euo pipefail
 cd "$(dirname "$0")"
 ENV=/opt/secrets/auth.env
@@ -79,6 +81,7 @@ case "${1:-status}" in
     secret "$SEC/authelia/storage_key" "$AUTHELIA_UID" rand 32
     secret "$SEC/authelia/ldap_password" "$AUTHELIA_UID" rand 24
     secret "$SEC/authelia/oidc_hmac_secret" "$AUTHELIA_UID" rand 32
+    secret "$SEC/sssd_password" 0 rand 24   # LLDAP bind user sssd (OS logins, host/ldap-client)
     secret "$SEC/authelia/oidc_jwks_rs256.pem" "$AUTHELIA_UID" openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -quiet
     oidc_client paperless
     oidc_client immich
@@ -88,6 +91,8 @@ case "${1:-status}" in
     rm -rf "$SEC/bootstrap.new" && cp -a lldap-bootstrap "$SEC/bootstrap.new"
     printf '{"id": "authelia", "email": "authelia@gungors.duckdns.org", "displayName": "Authelia (service)", "groups": ["lldap_password_manager"], "password": "%s"}\n' \
       "$(cat "$SEC/authelia/ldap_password")" > "$SEC/bootstrap.new/user-configs/zz-authelia.json"
+    printf '{"id": "sssd", "email": "sssd@gungors.duckdns.org", "displayName": "SSSD (service)", "groups": ["lldap_strict_readonly"], "password": "%s"}\n' \
+      "$(cat "$SEC/sssd_password")" > "$SEC/bootstrap.new/user-configs/zz-sssd.json"
     chown -R "$LLDAP_UID:$LLDAP_UID" "$SEC/bootstrap.new" && chmod -R go-rwx "$SEC/bootstrap.new"
     # Update the folder in place: LLDAP bind-mounts it, and a replaced folder would leave the
     # running container on the deleted one (bootstrap.sh then sees no lists at all).
@@ -99,6 +104,12 @@ case "${1:-status}" in
     install -d -m 700 -o "$AUTHELIA_UID" -g "$AUTHELIA_UID" "$DATA/authelia"
     chmod 755 "$DATA"
     rm -f /usr/local/sbin/set-ldap-password   # removed 2026-11-27: login passwords in the LLDAP UI
+    # LDAP port 3890 (published on the VM's address for SSSD): Proxmox host only, before compose up.
+    install -m 644 host/nftables-ldap.nft /etc/nftables-ldap.nft
+    install -m 644 host/ldap-firewall.service /etc/systemd/system/ldap-firewall.service
+    systemctl daemon-reload && systemctl enable -q ldap-firewall.service && systemctl restart ldap-firewall.service
+    nft list table inet ldap_guard >/dev/null || { echo "ldap_guard firewall not loaded"; exit 1; }
+    install -m 755 host/ldap-client /usr/local/sbin/ldap-client
     ;;
   post)
     healthy auth-lldap-1 120
@@ -112,6 +123,7 @@ case "${1:-status}" in
     healthy auth-authelia-1 120
     docker logs --since "$since" auth-authelia-1 2>&1 | grep -iE 'level=(error|fatal)' && exit 1
     echo "auth: LLDAP bootstrapped, Authelia running"
+    /usr/local/sbin/ldap-client apply "$SEC/sssd_password"
     ;;
   status)
     for c in auth-lldap-1 auth-authelia-1; do
