@@ -1,7 +1,7 @@
 #!/bin/sh
 # Creates the local groups and users listed in /etc/nas/accounts (written by hook.sh from the
 # LLDAP lists, so names and ids match LLDAP), then runs smbd. SMB passwords live in Samba's own
-# passdb (/var/lib/samba, set with set-smb-password); these accounts have no login.
+# passdb (/var/lib/samba, set with set-password); these accounts have no login.
 # accounts lines: group <name> <gid>  |  user <name> <uid> <primary gid> <group,group,...>
 set -eu
 while read -r kind name id gid groups; do

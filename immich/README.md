@@ -29,7 +29,7 @@ and outside the house with the same address.
 
 ### Users: LLDAP through Authelia
 
-- The web login page goes straight to Authelia (`autoLaunch`). OIDC client `immich`, auth area. Only group `aile` may log in. The
+- The web login page goes straight to Authelia (`autoLaunch`). OIDC client `immich`, auth area. Groups `admin`, `cekirdek_aile` and `aile` (relatives) may log in (Authelia policy `aile`). The
   account is created on the first login (e-mail from LLDAP, storage label = username); the
   claim `immich_role` makes LLDAP `admin` members Immich admins.
 - Phone app: server `https://foto.gungors.duckdns.org`, then "Authelia ile giriş" (redirect

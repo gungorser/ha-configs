@@ -13,8 +13,7 @@ totp:
   issuer: gungors.duckdns.org
 
 authentication_backend:
-  # Off: a password changed through Authelia would reach LLDAP but not the NAS (Samba).
-  # Passwords are changed with set-password on the docker VM (nas area).
+  # Off: no SMTP for reset links yet. Passwords are set with set-ldap-password on the docker VM.
   password_reset:
     disable: true
   ldap:
@@ -36,10 +35,7 @@ access_control:
       subject: ["group:admin"]
       policy: one_factor
     - domain: home.gungors.duckdns.org
-      subject: ["group:admin"]
-      policy: one_factor
-    - domain: home.gungors.duckdns.org
-      subject: ["group:aile"]
+      subject: ["group:admin", "group:cekirdek_aile"]
       policy: one_factor
 
 session:
@@ -73,24 +69,26 @@ definitions:
 
 identity_providers:
   oidc:
-    # Only the family (LLDAP group aile) may log in to clients with this policy (misafir is denied).
-    # Policy insan: every person (misafir too), never a service account (group servis).
+    # Who may log in to which client (LLDAP groups; everyone else, misafir and servis too, is denied):
+    #   admin: group admin (everything)   -> Proxmox
+    #   cekirdek_aile: + cekirdek_aile    -> Home Assistant, Paperless
+    #   aile: + aile (relatives)          -> Immich
     authorization_policies:
-      insan:
-        default_policy: one_factor
-        rules:
-          - policy: deny
-            subject: group:servis
       admin:
         default_policy: deny
         rules:
           - policy: one_factor
             subject: group:admin
+      cekirdek_aile:
+        default_policy: deny
+        rules:
+          - policy: one_factor
+            subject: [["group:admin"], ["group:cekirdek_aile"]]
       aile:
         default_policy: deny
         rules:
           - policy: one_factor
-            subject: group:aile
+            subject: [["group:admin"], ["group:cekirdek_aile"], ["group:aile"]]
     # Scope `immich` hands Immich the immich_role claim (oauth.roleClaim in immich/immich.json).
     claims_policies:
       immich:
@@ -106,21 +104,21 @@ identity_providers:
         use: sig
         key: {{ secret "/secrets/oidc_jwks_rs256.pem" | mindent 10 "|" | msquote }}
     clients:
-      # Home Assistant via hass-oidc-auth (HACS). Groups map to HA roles there: admin -> admin,
-      # aile -> user. Password only while 2FA is off (policy insan: one_factor, service accounts denied).
+      # Home Assistant via hass-oidc-auth (HACS, replaced by hass-openid below). Groups map to HA
+      # roles there: admin -> admin, others -> user. Policy cekirdek_aile.
       - client_id: homeassistant
         client_name: Home Assistant
         public: true
         require_pkce: true
         pkce_challenge_method: S256
-        authorization_policy: insan
+        authorization_policy: cekirdek_aile
         consent_mode: implicit
         scopes: [openid, profile, groups]
         redirect_uris:
           - https://ha.gungors.duckdns.org/auth/oidc/callback
       # Home Assistant via hass-openid (HACS cavefire/hass-openid, domain openid; UI config flow).
-      # Confidential: secret made by hook.sh, entered into HA's config flow (never in git). Family only
-      # (policy aile); HA roles stay on the HA users it links by username (sercan, melike).
+      # Confidential: secret made by hook.sh, entered into HA's config flow (never in git). Policy
+      # cekirdek_aile; HA roles stay on the HA users it links by username (sercan, melike).
       # Redirect: the web login and the Android app's external-browser login both use it.
       - client_id: homeassistant-openid
         client_name: Home Assistant
@@ -129,7 +127,7 @@ identity_providers:
         require_pkce: true
         pkce_challenge_method: S256
         token_endpoint_auth_method: client_secret_basic
-        authorization_policy: aile
+        authorization_policy: cekirdek_aile
         consent_mode: implicit
         scopes: [openid, profile, email]
         redirect_uris:
@@ -143,12 +141,12 @@ identity_providers:
         require_pkce: true
         pkce_challenge_method: S256
         token_endpoint_auth_method: client_secret_basic
-        authorization_policy: insan
+        authorization_policy: cekirdek_aile
         consent_mode: implicit
         scopes: [openid, profile, email, groups]
         redirect_uris:
           - https://paperless.gungors.duckdns.org/accounts/oidc/authelia/login/callback/
-      # Immich (immich area; web and the phone app). Confidential, PKCE; family only (policy aile).
+      # Immich (immich area; web and the phone app). Confidential, PKCE; policy aile (relatives too).
       # Redirects: web login, web account linking, the app's custom scheme.
       - client_id: immich
         client_name: Immich
