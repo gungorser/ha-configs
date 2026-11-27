@@ -8,7 +8,9 @@
 set -u
 MODE=${1:-status}
 CONFIG=${CONFIGS_ROOT:-/config}
+# HA names the mount after the storage's name: accept `floorplan` or `Floorplan`.
 SRC=${FLOORPLAN_SOURCE:-/share/floorplan}
+if [ -z "${FLOORPLAN_SOURCE:-}" ] && [ ! -d "$SRC" ] && [ -d /share/Floorplan ]; then SRC=/share/Floorplan; fi
 TARGET=$CONFIG/www/gungors_floor
 STAGE=$CONFIG/.ha-configs-stage/floorplan
 PREV=$CONFIG/.ha-configs-prev/floorplan
