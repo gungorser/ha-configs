@@ -10,6 +10,7 @@ will be the OIDC provider for Proxmox, Immich and Paperless.
 | `authelia/configuration.yml` | Authelia config, mounted read-only: LLDAP backend, access rules, session, TOTP |
 | `lldap-bootstrap/` | Users, groups and the POSIX attribute schema, applied by LLDAP's `bootstrap.sh` |
 | `hook.sh` | Generates secrets once, assembles the bootstrap folder, runs it after compose up |
+| `host/` | `ldap-client` (SSSD for OS logins), `nftables-ldap.nft` + `ldap-firewall.service` (LDAP port: pve only) |
 | `lldap-prune.sh` | Removes memberships of listed users that the lists no longer give (run by `hook.sh` post) |
 
 | Group | Members | Access |
@@ -27,8 +28,18 @@ and each policy checks one group. Authelia OIDC policies (`configuration.yml`): 
 Proxmox; `home_assistant` (cekirdek_aile, misafir) -> both HA clients; `cekirdek_aile` ->
 Paperless; `aile` -> Immich.
 
-- Base DN `dc=gungors,dc=duckdns,dc=org`; LDAP at `ldap://lldap:3890` inside Docker (not published
-  yet: Samba/SSSD and the Proxmox realm publish it when they come).
+- Base DN `dc=gungors,dc=duckdns,dc=org`; LDAP at `ldap://lldap:3890` inside Docker and published
+  on `192.168.0.222:3890` for SSSD; `host/nftables-ldap.nft` (`ldap-firewall.service`) lets only
+  the Proxmox host in from outside (containers and the VM itself are local).
+- OS logins (since 2026-11-27): `host/ldap-client` sets up SSSD on the docker VM (auth `hook.sh`
+  post) and on pve (`proxmox/deploy.sh`). Only LLDAP group `admin` may log in; `%admin` has full
+  sudo with the LLDAP password (`/etc/sudoers.d/50-ldap-admin`); home folders are made on first
+  login; ssh keys come from `~/.ssh/authorized_keys` and LLDAP's `sshpublickey`. Only users with
+  `uidnumber`/`gidnumber` exist on the OS (repo users; relatives made in the UI do not). Bind
+  user `sssd` (group `lldap_strict_readonly`, password `/opt/secrets/auth/sssd_password`, copied
+  into `/etc/sssd/sssd.conf` 600 on both hosts). Plain LDAP: pve <-> VM stays on pve's bridge.
+  SSSD caches the last good login. Local accounts (root, claude on pve, the VM's break-glass
+  user) come first and never depend on LLDAP.
 - POSIX attributes for later SSSD/Samba: `uidnumber` (users 10001+), `gidnumber` (groups 20000+,
   user's primary group), `homedirectory`, `loginshell`, `sshpublickey` (list, editable).
 - `users.json` holds sercan, melike and the service accounts (placeholder e-mails; Immich
@@ -69,6 +80,7 @@ Paperless; `aile` -> Immich.
 |---|---|
 | `/opt/secrets/auth.env` (600 root) | `LLDAP_JWT_SECRET`, `LLDAP_KEY_SEED`, `LLDAP_LDAP_USER_PASS` (LLDAP `admin`, Claude's break-glass) |
 | `/opt/secrets/auth/authelia/` (700, uid 8002) | `jwt_secret`, `session_secret`, `storage_key`, `ldap_password` (service user `authelia`), `oidc_hmac_secret`, `oidc_jwks_rs256.pem` |
+| `/opt/secrets/auth/sssd_password` (600 root) | LLDAP bind user `sssd` for SSSD (VM and pve) |
 | `/opt/secrets/auth/bootstrap/` (700, uid 8001) | repo lists + the service user with its password, mounted into LLDAP |
 
 People's passwords (LLDAP only; they are the one password for Authelia, so Immich, HA, Paperless,
@@ -91,6 +103,8 @@ Order matters on a fresh VM: proxy first (it creates the `proxy` network), then 
 - `auth/deploy.sh status`: both containers running, LLDAP healthy.
 - `curl -s https://auth.gungors.duckdns.org/api/health` from the house: `{"status":"OK"}`.
 - A first-factor login against `/api/firstfactor` works (LDAP bind and user search).
+- OS logins: `sudo ldap-client status` on the VM and pve (`sssd: active`, `id sercan` shows group
+  `admin`).
 
 ## Rollback
 

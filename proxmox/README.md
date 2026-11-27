@@ -72,6 +72,13 @@ On the phone itself (Termux, after `termux-setup-storage`):
 `ssh claude@192.168.0.220 sudo pve-vpn conf <name> > ~/storage/downloads/<name>.conf`, then WireGuard app
 **+ → Import from file or archive**, and delete the file afterwards (it holds the private key).
 
+### OS logins from LLDAP
+
+`deploy.sh` installs `auth/host/ldap-client` (from master) and runs it with the `sssd` bind
+password read from the docker VM: SSSD, LLDAP group `admin` may log in (ssh, console) with the
+LLDAP password and has full sudo. root@pam and `claude` stay local (break-glass). Details: auth
+README. Deploy auth before this area on a fresh VM.
+
 ## Live target
 
 The Proxmox host itself, as root. The repo is cloned at `/home/claude/work/ha-configs`
