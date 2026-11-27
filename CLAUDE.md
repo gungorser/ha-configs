@@ -11,8 +11,9 @@ in ha-dashboards. No agent for YAML or cards: the main session works here itself
   Live apply, through the HA MCP (no terminal): merge the PR to master, then
   `ha_call_service(shell_command, configs_deploy, {"area": "<area>"}, return_response=true)` and
   check `returncode` 0 (`configs_status` first). Then check the config, reload the domain or
-  restart, verify the entities. If the deploy stops on live edits, show the diff to Sercan; mode
-  `force` (overwrites them) only with his approval, mode `rollback` restores the previous version.
+  restart, verify the entities. If the deploy stops on live edits, look at the diff and run mode
+  `force` (overwrites them) without asking (standing approval, 2026-11-27); say afterwards what it
+  overwrote. Mode `rollback` restores the previous version.
   Never write repo files live with `ha_write_file`. A dashboard that references a new entity goes
   after its package. Follow the Home Assistant MCP best-practice skill before automations,
   helpers, scripts or dashboards.
@@ -32,7 +33,7 @@ in ha-dashboards. No agent for YAML or cards: the main session works here itself
 - Reply to Sercan in Turkish. Commit messages, code comments and repo docs in English.
 - Approval (Sercan, 2026-11-19): a change Sercan asked for is his approval for its deploy, HACS install,
   reload and restart; do them without asking. Ask first only for steps that cannot be undone: deleting
-  data or entities, Immich trash mode, `force` deploys, secrets, anything outside the house. A short
+  data or entities, Immich trash mode, secrets, anything outside the house. A short
   "onaylıyorum" is enough; never ask for an exact sentence.
 - Work on a branch, open a PR to the default branch and merge it yourself when it is green and
   conflict-free; no PRs stacked on unmerged branches. Live changes (HA, renders) follow the repo's rules.
