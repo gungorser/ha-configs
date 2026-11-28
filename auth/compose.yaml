@@ -10,6 +10,7 @@ services:
     image: lldap/lldap:v0.6.3-alpine-rootless
     user: "8001:8001"
     restart: unless-stopped
+    oom_score_adj: -300   # core service: the OOM killer takes others first (docker-host README, memory)
     env_file: /opt/secrets/auth.env   # LLDAP_JWT_SECRET, LLDAP_KEY_SEED, LLDAP_LDAP_USER_PASS
     environment:
       TZ: Europe/Amsterdam
@@ -32,6 +33,7 @@ services:
     image: authelia/authelia:4.39.28
     user: "8002:8002"
     restart: unless-stopped
+    oom_score_adj: -300   # core service: the OOM killer takes others first (docker-host README, memory)
     depends_on:
       lldap:
         condition: service_healthy

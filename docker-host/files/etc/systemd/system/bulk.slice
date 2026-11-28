@@ -1,0 +1,12 @@
+# Immich and Paperless (compose cgroup_parent: bulk.slice). Normal use is ~2.3 GB together; bulk
+# uploads and imports (face/OCR models, OCR) grow it for a while. MemoryHigh is a soft ceiling:
+# above it the kernel reclaims and swaps from this slice first and its processes slow down, but
+# nothing is killed for crossing it, so a burst finishes later instead of dying. Blender, HA's
+# reverse proxy, Authelia, LLDAP and Samba stay outside and keep their memory.
+[Unit]
+Description=Bulk services (Immich, Paperless): soft memory ceiling
+Before=slices.target
+
+[Slice]
+MemoryHigh=3584M
+CPUWeight=50

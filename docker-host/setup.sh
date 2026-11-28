@@ -72,6 +72,21 @@ while IFS= read -r -d '' src; do
     case "$dst" in /etc/systemd/*) systemctl daemon-reload ;; esac   # new units visible below
   fi
 done < <(find "$HERE/files" -type f -print0 | sort -z)
+for f in "${CHANGED_FILES[@]}"; do
+  case "$f" in /etc/sysctl.d/*) sysctl -q -p "$f" ;; esac
+done
+
+# --- swap: 4 GB /swapfile, a safety net for memory peaks (swappiness 10, files/etc/sysctl.d) -----
+SWAPFILE=/swapfile
+if [ ! -f "$SWAPFILE" ] && change "create $SWAPFILE (4 GB)"; then
+  fallocate -l 4G "$SWAPFILE" && chmod 600 "$SWAPFILE" && mkswap "$SWAPFILE" >/dev/null
+fi
+if ! grep -q "^$SWAPFILE " /etc/fstab && change "add $SWAPFILE to /etc/fstab"; then
+  echo "$SWAPFILE none swap sw 0 0" >> /etc/fstab
+fi
+if [ -f "$SWAPFILE" ] && ! swapon --noheadings --show=NAME | grep -qx "$SWAPFILE" && change "swapon $SWAPFILE"; then
+  swapon "$SWAPFILE"
+fi
 
 mapfile -t MISSING < <(missing_packages "${DOCKER_PACKAGES[@]}")
 if [ ${#MISSING[@]} -gt 0 ] && change "install ${MISSING[*]}"; then

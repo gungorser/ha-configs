@@ -4,7 +4,9 @@
 # NPM forwards to immich-server:2283 and, LAN only, immich-machine-learning:3003), no published ports, data paths fixed, settings from immich.json (hook.sh
 # adds the OIDC secret and writes it to /opt/secrets/immich/immich.json), and the lowest priority
 # on the VM: all four on cores 2-3, cpu_shares 256, server and ML capped at 1 CPU each, memory
-# limits, oom_score_adj 500 (HA and the other services win). Photos on the nas-foto disk, database
+# limits, oom_score_adj 500 (HA and the other services win; machine learning 1000, first to go: it
+# restarts without loss), all in bulk.slice (docker-host: soft memory ceiling, bulk uploads slow
+# down instead of being killed). Photos on the nas-foto disk, database
 # and caches on nas-data.
 name: immich
 
@@ -13,6 +15,7 @@ x-low-priority: &low-priority
   cpuset: "2,3"
   cpu_shares: 256
   oom_score_adj: 500
+  cgroup_parent: bulk.slice
 
 services:
   immich-server:
@@ -45,6 +48,7 @@ services:
   immich-machine-learning:
     <<: *low-priority
     image: ghcr.io/immich-app/immich-machine-learning:v3.3.5@sha256:5b28c9352c8374b8a1ed96fbdd8d6755fea6e43510ec43fdf6538aa02ea40f56
+    oom_score_adj: 1000   # first OOM victim: models reload on the next request, nothing is lost
     mem_limit: 3g   # search, face and OCR models together hit 2g during the first bulk upload (OOM)
     cpus: 1.0       # hard cap, as immich-server
     environment:
