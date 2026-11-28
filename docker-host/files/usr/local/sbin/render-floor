@@ -1,0 +1,33 @@
+#!/bin/bash
+# Renders one ha-floorplan floor in a background Blender, with priority over Immich and Paperless:
+# transient unit blender-render (4 GB max, low CPU weight, OOMScoreAdjust -500: under memory
+# pressure the OOM killer takes Immich machine learning (1000) and the bulk services first).
+# Immich machine learning is stopped for the render (a paused container keeps its memory) and
+# started again afterwards, also when the render fails or is interrupted.
+# Usage: render-floor <scene.blend> <config.json> [lo|hi|dev] [front|all]
+#   Runs <repo>/src/render/build_floor.py from the scene's sibling repo/ (/var/lib/blender/ha-floorplan);
+#   output in repo/output/<floor>[_cut][_lo]/, log /var/lib/blender/ha-floorplan/render.log.
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+BLEND=${1:?scene .blend}; CONFIG=${2:-config.json}; RES=${3:-lo}; CUT=${4:-}
+BASE=/var/lib/blender/ha-floorplan
+SRC=$BASE/repo/src/render
+ML=immich-immich-machine-learning-1
+LOG=$BASE/render.log
+[ -f "$BLEND" ] && [ -f "$SRC/build_floor.py" ] || { echo "missing $BLEND or $SRC/build_floor.py"; exit 1; }
+systemctl is-active -q blender-render && { echo "a render is already running"; exit 1; }
+G="{'CONFIG': '$CONFIG', 'RES': '$RES'${CUT:+, 'CUT': '$CUT'}}"
+
+restart_ml() { docker start "$ML" >/dev/null 2>&1 && echo "started $ML" || echo "could not start $ML"; }
+if docker ps --format '{{.Names}}' | grep -qx "$ML"; then
+  trap restart_ml EXIT
+  docker stop "$ML" >/dev/null && echo "stopped $ML for the render"
+fi
+systemctl reset-failed blender-render >/dev/null 2>&1 || true
+echo "render $CONFIG $RES ${CUT:-} -> $LOG"
+systemd-run --quiet --wait --collect --unit=blender-render --uid=blender --gid=blender \
+  --setenv=HOME=/var/lib/blender --working-directory="$SRC" \
+  -p MemoryMax=4G -p CPUWeight=50 -p OOMScoreAdjust=-500 \
+  -p StandardOutput=file:"$LOG" -p StandardError=file:"$LOG" \
+  /usr/bin/xvfb-run -a /opt/blender/blender -b "$BLEND" --python-exit-code 1 --python-expr \
+  "import runpy; runpy.run_path('$SRC/build_floor.py', run_name='__main__', init_globals=$G)"

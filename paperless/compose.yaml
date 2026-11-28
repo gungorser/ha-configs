@@ -10,6 +10,10 @@ services:
   paperless:
     image: ghcr.io/paperless-ngx/paperless-ngx:3.4.2
     restart: unless-stopped
+    # bulk imports (OCR) grow it for a while: soft ceiling in bulk.slice slows them down; no hard
+    # mem_limit, so a burst is never killed by its own limit
+    cgroup_parent: bulk.slice
+    oom_score_adj: 300
     depends_on: [db, broker]
     env_file: /opt/secrets/paperless.env   # secret key, DB password, admin, OIDC provider JSON
     environment:
@@ -79,6 +83,8 @@ services:
     image: icereed/paperless-gpt:v0.31.0
     profiles: [gpt]
     restart: unless-stopped
+    cgroup_parent: bulk.slice
+    oom_score_adj: 300
     depends_on: [paperless]
     env_file: /opt/secrets/paperless-gpt.env   # PAPERLESS_API_TOKEN (user paperless-gpt, group aile), GOOGLEAI_API_KEY
     environment:

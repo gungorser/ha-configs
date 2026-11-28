@@ -15,6 +15,8 @@ service stacks (`proxy`, `dns`, `auth`, ...) are their own areas on top of this 
 | Blender 5.2.4 (blender.org tarball, sha256 pinned) in `/opt/blender-<version>`, `/opt/blender` links to it; user `blender` (home `/var/lib/blender`) | `setup.sh` |
 | "MCP for Blender" add-on 1.7 (ahujasid/blender-mcp `addon.py` at commit `41a1843`, sha256 pinned) in the `blender` user's profile | `setup.sh` |
 | `blender-mcp-start` / `blender-mcp-stop`: Blender under Xvfb in the transient unit `blender-mcp` (4 GB max, low CPU weight), add-on server on port 9876; never at boot | `files/usr/local/sbin/`, `files/usr/local/lib/blender-mcp/start_mcp.py` |
+| `render-floor <scene.blend> <config> [lo\|hi\|dev] [front\|all]`: an ha-floorplan floor build in a background Blender, transient unit `blender-render` (4 GB max, low CPU weight, OOMScoreAdjust -500); stops Immich machine learning for the render and starts it again afterwards (also on failure) | `files/usr/local/sbin/render-floor` |
+| Memory priorities (table below): `bulk.slice` soft ceiling for Immich and Paperless, 4 GB `/swapfile` (swappiness 10) | `files/etc/systemd/system/bulk.slice`, `files/etc/sysctl.d/`, `setup.sh` |
 | Firewall: port 9876 only from the Proxmox host (own nftables table, Docker untouched) | `files/etc/nftables-blender-mcp.nft`, `blender-mcp-firewall.service` |
 | Unattended Debian security upgrades, no automatic reboot; Docker upgraded by hand | `files/etc/apt/apt.conf.d/` |
 | Compose stacks, repo files only | `/opt/stacks` (755 root) |
@@ -30,6 +32,27 @@ approval). After a VM rebuild the disks keep their filesystems and are only moun
 `stack.sh` here is the shared deploy of the stack areas (`proxy/`, later `auth/`, ...): it ships
 `master:<area>` to `/opt/stacks/<area>`, runs `docker compose up -d` and the area's `hook.sh`
 (see the header of `stack.sh`). Each stack area's `deploy.sh` calls it.
+
+## Memory
+
+The VM gets 6-12 GB from Proxmox ballooning (in practice ~6-7 GB; host 15.4 GB shared with HAOS
+3-5 GB). Day to day the containers use ~2.5 GB; bursts are Immich/Paperless bulk uploads (a few times
+a year) and Blender renders. Who gives way first:
+
+| Service | Limit | oom_score_adj | Why |
+|---|---|---|---|
+| Blender render (`render-floor`) | MemoryMax 4G | -500 | Sercan: renders take priority; a killed render costs ~30 min |
+| npm, duckdns, authelia, lldap, samba | none | -300 | core: proxy, login, NAS; small (~250 MB together) |
+| paperless db, broker | none | 0 | small, data |
+| paperless, paperless-gpt | bulk.slice (soft) | 300 | bulk imports slow down instead of dying |
+| immich-server, -database, -redis | 2g / 1g / 128m + bulk.slice | 500 | as before (Immich release compose limits) |
+| immich-machine-learning | 3g + bulk.slice | 1000 | first to go: reloads its models, nothing lost; stopped during renders |
+
+`bulk.slice` `MemoryHigh=3584M` is a soft ceiling (cgroup `memory.high`): above it the kernel
+reclaims and swaps from the slice and its processes slow down, nothing is killed for it. Docker
+compose has no `memory.high` per container (`mem_reservation` is `memory.low`, a protection, the
+opposite), hence the slice via `cgroup_parent`. The swap file is a safety net, not extra RAM (SATA
+SSD, ~1000x slower than RAM).
 
 ## Live target
 
@@ -64,4 +87,5 @@ newer version installed stay installed. Run it again to undo the rollback.
   (SSSD) once the auth area exists.
 - Install Claude Code here: Claude runs on the Proxmox host and manages the VM over SSH.
 - Start Blender at boot or leave it running: Claude starts it for a task (`sudo blender-mcp-start`)
-  and stops it afterwards (`sudo blender-mcp-stop`); renders on the N100 CPU are slow.
+  and stops it afterwards (`sudo blender-mcp-stop`); renders on the N100 CPU are slow. Render with
+  `render-floor` while the live Blender is stopped (both together do not fit in memory).

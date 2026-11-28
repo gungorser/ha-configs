@@ -7,6 +7,7 @@ services:
     build: .
     image: ha-configs/nas-samba:local
     restart: unless-stopped
+    oom_score_adj: -300   # core service: the OOM killer takes others first (docker-host README, memory)
     ports:
       - "192.168.0.222:445:445"
     volumes:

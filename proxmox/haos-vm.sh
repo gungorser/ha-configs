@@ -71,7 +71,7 @@ qm create "$VMID" \
   --name "$NAME" --tags haos --ostype l26 --machine q35 --bios ovmf \
   --efidisk0 "$STORAGE:0,efitype=4m,pre-enrolled-keys=0" \
   --cpu host --cores 4 --cpuunits 2048 \
-  --memory 8192 --balloon 4096 --shares 2000 \
+  --memory 5120 --balloon 3072 --shares 2000 \
   --net0 "virtio=$MAC,bridge=$BRIDGE" \
   --scsihw virtio-scsi-single \
   --scsi0 "$STORAGE:0,import-from=$CACHE/$IMAGE,discard=on,ssd=1,iothread=1" \

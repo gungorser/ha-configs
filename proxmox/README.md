@@ -24,7 +24,7 @@ this repo, NAS and service data live on four thin LVs that belong to no VM.
 | VM | vCPU (cpuunits) | RAM min-max (shares) | Disk | MAC | IP | Boot |
 |---|---|---|---|---|---|---|
 | 110 docker | 4 (1024) | 6-12 GB (1000) | 32G + NAS disks `scsi1-4` [+ SSD2 `scsi5`] | `02:00:C0:A8:00:DE` | 192.168.0.222 static (cloud-init) | order 1 |
-| 100 haos | 4 (2048) | 4-8 GB (2000) | 32G + Zigbee dongle `usb0` | `02:00:C0:A8:00:DD` | 192.168.0.221 static (set in HAOS) | onboot 1, order 2, up 30 |
+| 100 haos | 4 (2048) | 3-5 GB (2000) | 32G + Zigbee dongle `usb0` | `02:00:C0:A8:00:DD` | 192.168.0.221 static (set in HAOS) | onboot 1, order 2, up 30 |
 
 NAS disks (thin LVs in `pve/data`, grown with `lvextend` + `resize2fs` at 80 %):
 
